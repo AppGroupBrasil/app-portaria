@@ -1,0 +1,214 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+
+        {% if items %}
+            <h2>Envio de resposta de avaliação</h2>
+            <br>
+            <br>
+            <form method="POST" enctype="multipart/form-data" autocomplete="off">
+                {% csrf_token %}
+                {{ form.name.label_tag }}
+                {{ form.name }}
+                {{ form.email.label_tag }}
+                {{ form.email }}
+                {#                {{ form.address.label_tag }}#}
+                {#                {{ form.address }}#}
+                {{ form.kind.label_tag }}
+                {{ form.kind }}
+                <div id="div_id_block">
+                    {{ form.block.label_tag }}
+                    {{ form.block }}
+                </div>
+                <div id="div_id_apartment">
+                    {{ form.apartment.label_tag }}
+                    {{ form.apartment }}
+                </div>
+                <br>
+                <br>
+                {% for item in items %}
+                    <h3>Item a ser avaliado: </h3>
+                    {% if item.is_link %}
+                        <a href="{{ item.service }}">{{ item.service }}</a>
+                    {% else %}
+                        <h4> {{ item.service }}</h4>
+                    {% endif %}
+                    <br>
+                    <br>
+
+                    {% if item.image %}
+                        <img class="w-100 selectable-img my-3" src="{{ item.image.url }}" alt="Thumbnail">
+                    {% endif %}
+
+                    Descrição:  {{ item.provider }}
+                    <hr>
+                    <br>
+                    <label>Comentário:</label>
+                    <textarea class="form-control" id="item_{{ item.pk }}" name="item_{{ item.pk }}" rows="8"
+                              cols="50" maxlength="500"></textarea>
+                    <input id="item_rate_{{ item.pk }}" name="item_rate_{{ item.pk }}" class="hidden"/>
+                    <br>
+                    Nota:
+                    <br>
+                    <div id="star-rating-{{ item.pk }}">
+                        <i class="far fa-star" data-rating="1"></i>
+                        <i class="far fa-star" data-rating="2"></i>
+                        <i class="far fa-star" data-rating="3"></i>
+                        <i class="far fa-star" data-rating="4"></i>
+                        <i class="far fa-star" data-rating="5"></i>
+                    </div>
+                    <br>
+                    <br>
+                    <input class="form-control form-control-sm" type='file' id="image_{{ item.pk }}"
+                           name="item_image_{{ item.pk }}"/>
+                    <br>
+                    <br>
+                    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                    <script>
+                        $(document).ready(function () {
+
+                            console.log('#star-rating-' + {{ item.pk }});
+                            $('#id_rate_' + {{ item.pk }}).val("0");
+                            $('#star-rating-' + {{ item.pk }}).on('click', 'i', function () {
+                                let selectedGrade = $(this).data('rating');
+                                $('#item_rate_' + {{ item.pk }}).val(selectedGrade);
+                                console.log(selectedGrade);
+                                $(this).addClass('fas').removeClass('far');
+                                $(this).prevAll().addClass('fas').removeClass('far');
+                                $(this).nextAll().addClass('far').removeClass('fas');
+                            });
+
+                        });
+                    </script>
+
+                {% endfor %}
+
+                <button type="submit" class="btn btn-primary w-100 btn-block p-2">Enviar Resposta</button>
+            </form>
+        {% else %}
+            <h2>Item a ser avaliado: </h2>
+            <h3> {{ service }}</h3>
+            <h4> {{ provider }}</h4>
+            <hr>
+            <br>
+            <form method="POST" enctype="multipart/form-data" autocomplete="off">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <br>
+                Nota:
+                <br>
+                <div id="star-rating">
+                    <i class="far fa-star" data-rating="1"></i>
+                    <i class="far fa-star" data-rating="2"></i>
+                    <i class="far fa-star" data-rating="3"></i>
+                    <i class="far fa-star" data-rating="4"></i>
+                    <i class="far fa-star" data-rating="5"></i>
+                </div>
+                <br>
+                <br>
+                <input class="form-control form-control-sm" type='file' id="image"
+                       name="image"/>
+
+                <br>
+                <br>
+                <button type="submit" class="btn btn-primary w-100 btn-block p-2">Enviar Resposta</button>
+            </form>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+                let kindOption = document.getElementById('id_kind');
+                kindOption.addEventListener('change', () => {
+                        let kind_value = kindOption.value;
+                        if (kind_value === "MORADOR") {
+                            document.getElementById('div_id_block').setAttribute('class', 'form-control');
+                            document.getElementById('div_id_apartment').setAttribute('class', 'form-control');
+                        } else {
+                            document.getElementById('div_id_block').setAttribute('class', 'hidden');
+                            document.getElementById('div_id_apartment').setAttribute('class', 'hidden');
+                        }
+                    }
+                );
+
+                let blockOption = document.getElementById('id_block');
+                blockOption.addEventListener('change', () => {
+                    let block_id = blockOption.value;
+                    if (block_id) {
+                        $('#id_apartment').prop('disabled', false).empty();
+                        $.ajax({
+                            url: '/get-apartments/',
+                            data: {block_id: block_id},
+                            success: function (response) {
+                                $('#id_apartment').empty();
+                                $('#id_apartment').append('<option value="">Selecione o apartamento</option>');
+                                $.each(response, function (key, value) {
+                                    $('#id_apartment').append('<option value="' + value.id + '">' + value.name + '</option>');
+                                });
+                            }
+                        });
+                    } else {
+                        // If no category is selected, disable the apartment select field and clear its options
+                        $('#id_apartment').prop('disabled', true).empty();
+                    }
+                });
+            </script>
+            <script>
+                $(document).ready(function () {
+                    document.getElementById('div_id_block').setAttribute('class', 'hidden');
+                    document.getElementById('div_id_apartment').setAttribute('class', 'hidden');
+                    $('#id_rate').val("0");
+                    console.log('#star-rating');
+                    $('#star-rating').on('click', 'i', function () {
+                        let selectedGrade = $(this).data('rating');
+                        console.log(selectedGrade);
+                        $('#id_rate').val(selectedGrade);
+                        $(this).addClass('fas').removeClass('far');
+                        $(this).prevAll().addClass('fas').removeClass('far');
+                        $(this).nextAll().addClass('far').removeClass('fas');
+                    });
+                });
+            </script>
+        {% endif %}
+        <br>
+
+    </div>
+    <br>
+    <script>
+        document.getElementById('div_id_block').setAttribute('class', 'hidden');
+        document.getElementById('div_id_apartment').setAttribute('class', 'hidden');
+        let kindOption = document.getElementById('id_kind');
+        kindOption.addEventListener('change', () => {
+                let kind_value = kindOption.value;
+                if (kind_value === "MORADOR") {
+                    document.getElementById('div_id_block').setAttribute('class', '');
+                    document.getElementById('div_id_apartment').setAttribute('class', '');
+                } else {
+                    document.getElementById('div_id_block').setAttribute('class', 'hidden');
+                    document.getElementById('div_id_apartment').setAttribute('class', 'hidden');
+                }
+            }
+        );
+
+        let blockOption = document.getElementById('id_block');
+        blockOption.addEventListener('change', () => {
+            let block_id = blockOption.value;
+            if (block_id) {
+                $('#id_apartment').prop('disabled', false).empty();
+                $.ajax({
+                    url: '/get-apartments/',
+                    data: {block_id: block_id},
+                    success: function (response) {
+                        $('#id_apartment').empty();
+                        $('#id_apartment').append('<option value="">Selecione o apartamento</option>');
+                        $.each(response, function (key, value) {
+                            $('#id_apartment').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                    }
+                });
+            } else {
+                // If no category is selected, disable the apartment select field and clear its options
+                $('#id_apartment').prop('disabled', true).empty();
+            }
+        });
+    </script>
+{% endblock %}

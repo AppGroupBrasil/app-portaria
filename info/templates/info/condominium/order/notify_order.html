@@ -1,0 +1,27 @@
+<html lang="pt">
+<head></head>
+<body>
+
+<h2>Nova emcomenda recebida:</h2>
+
+<h2>Nome: {{ order_name }}</h2>
+
+{% if description %}
+    <h2>Descrição: {{ description }}</h2>
+{% endif %}
+
+<h2>Informar este código:</h2>
+
+<h1><strong>{{ code }}</strong></h1>
+
+<p>ao retirar sua encomenda.</p>
+
+<h3>Ou através do QR Code:</h3>
+
+<img src="http://{{ current_site }}{{ qrcode }}" alt="Card image cap" style="height:150px;">
+
+<br>
+<br>
+{% include 'info/condominium/account/signature.html' %}
+</body>
+</html>

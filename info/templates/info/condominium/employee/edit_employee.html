@@ -1,0 +1,722 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Visualização de funcionário</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+
+            {{ form|crispy }}
+
+            <br>
+            <br>
+            <p>Permissões do funcionário:</p>
+            <br>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="checkAll" name="checkAll">
+                <label class="form-check-label" for="checkAll">MARCAR TODOS</label>
+            </div>
+            <br>
+            <br>
+            {% if employee.get_all_permissions %}
+                {% if 'info.view_apartment' in user.get_all_permissions or 'info.add_apartment' in user.get_all_permissions %}
+                    Apartamentos:
+                    <div class="form-check form-switch">
+                        {% if 'info.view_apartment' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_apartment" name="view_apartment"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_apartment"
+                                   name="view_apartment">
+                        {% endif %}
+                        <label class="form-check-label" for="id_view_apartment">PODE VER OS APARTAMENTOS
+                            CADASTRADOS</label>
+                    </div>
+
+                    <div class="form-check form-switch">
+                        {% if 'info.add_apartment' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_apartment" name="add_apartment"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_apartment" name="add_apartment"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_apartment">PODE CADASTRAR NOVOS APARTAMENTOS</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.view_resident' in user.get_all_permissions or 'info.add_resident' in user.get_all_permissions or 'info.change_resident' in user.get_all_permissions or 'info.contact_resident' in user.get_all_permissions %}
+                    Moradores:
+                    <div class="form-check form-switch">
+                        {% if 'info.view_resident' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_resident" name="view_resident"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_resident" name="view_resident"
+                            >
+                        {% endif %}
+
+                        <label class="form-check-label" for="id_view_resident">PODE VER OS MORADORES CADASTRADOS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.add_resident' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_resident" name="add_resident"
+                                   checked
+                            >
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_resident" name="add_resident"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_resident">PODE CADASTRAR NOVOS MORADORES</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.change_resident' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_change_resident"
+                                   name="change_resident"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_change_resident"
+                                   name="change_resident"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_change_resident">PODE ATUALIZAR MORADORES
+                            CADASTRADOS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.contact_resident' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_contact_resident"
+                                   name="contact_resident"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_contact_resident"
+                                   name="contact_resident"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_contact_resident">PODE INTERFONAR PARA MORADORES
+                            CADASTRADOS</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.change_visitant' in user.get_all_permissions %}
+                    Visitantes:
+                    <div class="form-check form-switch">
+                        {% if 'info.change_visitant' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_change_visitant"
+                                   name="change_visitant"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_change_visitant"
+                                   name="change_visitant"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_change_visitant">PODE LIBERAR A ENTRADA DE
+                            VISITANTES</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.view_informative' in user.get_all_permissions  or 'info.add_informative' in user.get_all_permissions or 'info.change_informative' in user.get_all_permissions or 'info.delete_informative' in user.get_all_permissions or 'info.export_informative' in user.get_all_permissions %}
+                    Atividades:
+                    <div class="form-check form-switch">
+                        {% if 'info.view_informative' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_informative"
+                                   name="view_informative"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_informative"
+                                   name="view_informative"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_view_informative">PODE VER AS ATIVIDADES
+                            CADASTRADAS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.add_informative' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_informative"
+                                   name="add_informative"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_informative"
+                                   name="add_informative"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_informative">PODE CADASTRAR NOVAS ATIVIDADES</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.change_informative' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_change_informative"
+                                   name="change_informative" checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_change_informative"
+                                   name="change_informative">
+                        {% endif %}
+                        <label class="form-check-label" for="id_change_informative">PODE ATUALIZAR AS ATIVIDADES
+                            CADASTRADAS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.delete_informative' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_delete_informative"
+                                   name="delete_informative" checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_delete_informative"
+                                   name="delete_informative">
+                        {% endif %}
+                        <label class="form-check-label" for="id_delete_informative">PODE APAGAR ATIVIDADES
+                            CADASTRADAS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.export_informative' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_export_informative"
+                                   name="export_informative" checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_export_informative"
+                                   name="export_informative">
+                        {% endif %}
+                        <label class="form-check-label" for="id_export_informative">PODE EXPORTAR ATIVIDADES CADASTRADAS
+                            PARA PDF</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.view_order' in user.get_all_permissions or 'info.add_order' in user.get_all_permissions or 'info.change_order' in user.get_all_permissions %}
+                    Correspondências:
+                    <div class="form-check form-switch">
+                        {% if 'info.view_order' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_order" name="view_order" checked
+                            >
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_order" name="view_order">
+                        {% endif %}
+                        <label class="form-check-label" for="id_view_order">PODE VER AS CORRESPONDÊNCIAS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.add_order' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_order" name="add_order" checked
+                            >
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_order" name="add_order">
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_order">PODE NOTIFICAR UMA CORRESPONDÊNCIA AO
+                            MORADOR</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.change_order' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_change_order" name="change_order"
+                                   checked
+                            >
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_change_order" name="change_order"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_change_order">PODE ENTREGAR UMA CORRESPONDÊNCIA AO
+                            MORADOR</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.view_message' in user.get_all_permissions or 'info.add_message' in user.get_all_permissions or 'info.add_message_block' in user.get_all_permissions or 'info.add_message_all' in user.get_all_permissions %}
+                    Comunicados:
+                    <div class="form-check form-switch">
+                        {% if 'info.view_message' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_message" name="view_message"
+                                   checked
+                            >
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_message" name="view_message"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_view_message">PODE VER OS COMUNICADOS ENVIADOS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.add_message' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_message" name="add_message"
+                                   checked
+                            >
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_message" name="add_message"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_message">PODE ENVIAR COMUNICADOS AO MORADOR</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.add_message_block' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_message_block"
+                                   name="add_message_block" checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_message_block"
+                                   name="add_message_block">
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_message_block">PODE ENVIAR COMUNICADOS AO
+                            BLOCO</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.add_message_all' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_message_all"
+                                   name="add_message_all"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_message_all"
+                                   name="add_message_all"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_message_all">PODE ENVIAR COMUNICADOS A TODO
+                            CONDOMÍNIO</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.view_review' in user.get_all_permissions or 'info.add_review' in user.get_all_permissions %}
+                    Avaliações:
+                    <div class="form-check form-switch">
+                        {% if 'info.view_review' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_review" name="view_review"
+                                   checked
+                            >
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_review" name="view_review">
+                        {% endif %}
+                        <label class="form-check-label" for="id_view_review">PODE VER AS AVALIAÇÕES SOLICITADAS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.add_review' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_review" name="add_review" checked
+                            >
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_review" name="add_review">
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_review">PODE SOLICITAR UMA AVALIAÇÃO AOS
+                            MORADORES</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.view_surveymodel' in user.get_all_permissions or 'info.add_surveymodel' in user.get_all_permissions %}
+                    Enquetes:
+                    <div class="form-check form-switch">
+                        {% if 'info.view_surveymodel' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_surveymodel"
+                                   name="view_surveymodel"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_surveymodel"
+                                   name="view_surveymodel"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_view_surveymodel">PODE VER AS ENQUETES
+                            REALIZADAS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.add_surveymodel' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_surveymodel"
+                                   name="add_surveymodel"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_surveymodel"
+                                   name="add_surveymodel"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_surveymodel">PODE FAZER UMA NOVA ENQUETE</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.add_contract' in user.get_all_permissions or 'info.view_contract' in user.get_all_permissions or 'info.change_contract' in user.get_all_permissions or 'info.delete_contract' in user.get_all_permissions %}
+                    Contratos:
+                    <div class="form-check form-switch">
+                        {% if 'info.add_contract' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_contract" name="add_contract"
+                                   checked
+                            >
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_contract" name="add_contract"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_contract">PODE ADICIONAR VENCIMENTO DE
+                            CONTRATOS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.view_contract' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_contract" name="view_contract"
+                                   checked
+                            >
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_contract" name="view_contract"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_contract">PODE VISUALIZAR OS VENCIMENTOS
+                            CADASTRADOS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.change_contract' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_change_contract"
+                                   name="change_contract"
+                                   checked
+                            >
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_change_contract"
+                                   name="change_contract"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_change_contract">PODE EDITAR VENCIMENTO DE
+                            CONTRATOS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.delete_contract' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_delete_contract"
+                                   name="delete_contract"
+                                   checked
+                            >
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_delete_contract"
+                                   name="delete_contract"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_delete_contract">PODE CANCELAR NOTIFICAÇÃO DE
+                            VENCIMENTOS</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.view_checklist' in user.get_all_permissions or 'info.add_checklist' in user.get_all_permissions %}
+                    Listas de checagem:
+                    <div class="form-check form-switch">
+                        {% if 'info.view_checklist' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_checklist" name="view_checklist"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_checklist" name="view_checklist"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_view_checklist">PODE VER E CHECAR AS LISTAS DE
+                            CHECAGEM</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.add_checklist' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_checklist" name="add_checklist"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_checklist" name="add_checklist"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_checklist">PODE SOLICITAR UMA LISTAS DE
+                            CHECAGEM</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.add_product' in user.get_all_permissions or 'info.add_storageentry' in user.get_all_permissions %}
+                    Estoque:
+                    <div class="form-check form-switch">
+                        {% if 'info.add_product' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_product" name="add_product"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_product" name="add_product"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_product">PODE CADASTRAR PRODUTOS NO
+                            ESTOQUE</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.add_storageentry' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_storageentry"
+                                   name="add_storageentry"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_storageentry"
+                                   name="add_storageentry"
+                            >
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_storageentry">PODE FAZER ENTRADAS E SAÍDAS DE
+                            PORDUTOS
+                            NO ESTOQUE</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.activity_report' in user.get_all_permissions or 'info.order_report' in user.get_all_permissions or 'info.message_report' in user.get_all_permissions or 'info.checklist_report' in user.get_all_permissions or 'info.contract_report' in user.get_all_permissions or 'info.survey_report' in user.get_all_permissions or 'info.review_report' in user.get_all_permissions or 'info.resident_report' in user.get_all_permissions or 'info.location_report' in user.get_all_permissions or 'info.visitant_report' in user.get_all_permissions or 'info.storage_report' in user.get_all_permissions %}
+                    Relatórios:
+                    <div class="form-check form-switch">
+                        {% if 'info.activity_report' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_activity_report"
+                                   name="activity_report"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_activity_report"
+                                   name="activity_report">
+                        {% endif %}
+                        <label class="form-check-label" for="id_activity_report">PODE SOLICITAR RELATÓRIO DAS
+                            ATIVIDADES</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.order_report' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_order_report" name="order_report"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_order_report" name="order_report">
+                        {% endif %}
+                        <label class="form-check-label" for="id_order_report">PODE SOLICITAR RELATÓRIO DAS
+                            CORRESPONDÊNCIAS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.message_report' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_message_report" name="message_report"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_message_report"
+                                   name="message_report">
+                        {% endif %}
+                        <label class="form-check-label" for="id_message_report">PODE SOLICITAR RELATÓRIO DOS
+                            COMUNICADOS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.checklist_report' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_checklist_report"
+                                   name="checklist_report"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_checklist_report"
+                                   name="checklist_report">
+                        {% endif %}
+                        <label class="form-check-label" for="id_checklist_report">PODE SOLICITAR RELATÓRIO DOS
+                            CHECKLISTS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.contract_report' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_contract_report"
+                                   name="contract_report"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_contract_report"
+                                   name="contract_report">
+                        {% endif %}
+                        <label class="form-check-label" for="id_contract_report">PODE SOLICITAR RELATÓRIO DOS
+                            VENCIMENTOS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.survey_report' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_survey_report" name="survey_report"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_survey_report"
+                                   name="survey_report">
+                        {% endif %}
+                        <label class="form-check-label" for="id_survey_report">PODE SOLICITAR RELATÓRIO DAS
+                            ENQUETES</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.review_report' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_review_report" name="review_report"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_review_report"
+                                   name="review_report">
+                        {% endif %}
+                        <label class="form-check-label" for="id_review_report">PODE SOLICITAR RELATÓRIO DAS
+                            AVALIAÇÕES</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.resident_report' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_resident_report"
+                                   name="resident_report"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_resident_report"
+                                   name="resident_report">
+                        {% endif %}
+                        <label class="form-check-label" for="id_resident_report">PODE SOLICITAR RELATÓRIO DOS
+                            MORADORES</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.location_report' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_location_report"
+                                   name="location_report"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_location_report"
+                                   name="location_report">
+                        {% endif %}
+                        <label class="form-check-label" for="id_location_report">PODE SOLICITAR RELATÓRIO DAS
+                            LOCALIZAÇÕES</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.visitant_report' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_visitant_report"
+                                   name="visitant_report"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_visitant_report"
+                                   name="visitant_report">
+                        {% endif %}
+                        <label class="form-check-label" for="id_visitant_report">PODE SOLICITAR RELATÓRIO DOS
+                            VISITANTES</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.storage_report' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_storage_report" name="storage_report"
+                                   checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_storage_report"
+                                   name="storage_report">
+                        {% endif %}
+                        <label class="form-check-label" for="id_storage_report">PODE SOLICITAR RELATÓRIO DO
+                            ESTOQUE</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.view_userlocation' in user.get_all_permissions %}
+                    Localizações:
+                    <div class="form-check form-switch">
+                        {% if 'info.view_userlocation' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_userlocation"
+                                   name="view_userlocation" checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_userlocation"
+                                   name="view_userlocation">
+                        {% endif %}
+                        <label class="form-check-label" for="id_view_userlocation">PODE VER AS LOCALIZAÇÕES DOS
+                            UTILIZADORES</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.add_timeline' in user.get_all_permissions %}
+                    Timelines:
+                    <div class="form-check form-switch">
+                        {% if 'info.add_timeline' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_timeline"
+                                   name="add_timeline" checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_add_timeline"
+                                   name="add_timeline">
+                        {% endif %}
+                        <label class="form-check-label" for="id_add_timeline">PODE CRIAR UMA TIMELINE E SUAS
+                            ETAPAS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.view_timeline' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_timeline"
+                                   name="view_timeline" checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_view_timeline"
+                                   name="view_timeline">
+                        {% endif %}
+                        <label class="form-check-label" for="id_view_timeline">PODE VER AS TIMELINES CRIADAS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {% if 'info.timeline_report' in employee.get_all_permissions %}
+                            <input class="form-check-input permission" type="checkbox" id="id_timeline_report"
+                                   name="timeline_report" checked>
+                        {% else %}
+                            <input class="form-check-input permission" type="checkbox" id="id_timeline_report"
+                                   name="timeline_report">
+                        {% endif %}
+                        <label class="form-check-label" for="id_timeline_report">PODE SOLICITAR RELATÓRIO DE
+                            TIMELINES</label>
+                    </div>
+                    <hr>
+                {% endif %}
+                {% if 'info.add_bill' in user.get_all_permissions or 'info.view_bill' in user.get_all_permissions or 'info.delete_bill' in user.get_all_permissions %}
+                    Financeiro:
+                    {% if 'info.add_bill' in user.get_all_permissions %}
+                        <div class="form-check form-switch">
+                            <input class="form-check-input permission" type="checkbox" id="id_add_bill" name="add_bill" checked>
+                            <label class="form-check-label" for="id_add_bill">PODE ADICIONAR BOLETOS</label>
+                        </div>
+                    {% else %}
+                        <div class="form-check form-switch">
+                            <input class="form-check-input permission" type="checkbox" id="id_add_bill" name="add_bill">
+                            <label class="form-check-label" for="id_add_bill">PODE ADICIONAR BOLETOS</label>
+                        </div>
+                    {% endif %}
+                    {% if 'info.view_bill' in user.get_all_permissions %}
+                        <div class="form-check form-switch">
+                            <input class="form-check-input permission" type="checkbox" id="id_view_bill" name="view_bill" checked>
+                            <label class="form-check-label" for="id_view_bill">PODE VER OS BOLETOS ADICIONADOS</label>
+                        </div>
+                    {% else %}
+                        <div class="form-check form-switch">
+                            <input class="form-check-input permission" type="checkbox" id="id_view_bill" name="view_bill">
+                            <label class="form-check-label" for="id_view_bill">PODE VER OS BOLETOS ADICIONADOS</label>
+                        </div>
+                    {% endif %}
+                    {% if 'info.delete_bill' in user.get_all_permissions %}
+                        <div class="form-check form-switch">
+                            <input class="form-check-input permission" type="checkbox" id="id_delete_bill" name="delete_bill" checked>
+                            <label class="form-check-label" for="id_delete_bill">PODE REMOVER BOLETOS</label>
+                        </div>
+                    {% else %}
+                        <div class="form-check form-switch">
+                            <input class="form-check-input permission" type="checkbox" id="id_delete_bill" name="delete_bill">
+                            <label class="form-check-label" for="id_delete_bill">PODE REMOVER BOLETOS</label>
+                        </div>
+                    {% endif %}
+                    <hr>
+                {% endif %}
+                {% if 'info.add_documents' in user.get_all_permissions %}
+                    Documentos:
+                    {% if 'info.add_documents' in user.get_all_permissions or 'info.view_folder' in user.get_all_permissions or 'info.delete_folder' in user.get_all_permissions %}
+                        <div class="form-check form-switch">
+                            <input class="form-check-input permission" type="checkbox" id="id_add_documents" name="add_documents" checked>
+                            <label class="form-check-label" for="id_add_bill">PODE ADICIONAR DOCUMENTOS</label>
+                        </div>
+                    {% else %}
+                        <div class="form-check form-switch">
+                            <input class="form-check-input permission" type="checkbox" id="id_add_documents" name="add_documents">
+                            <label class="form-check-label" for="id_add_bill">PODE ADICIONAR DOCUMENTOS</label>
+                        </div>
+                    {% endif %}
+                    {% if 'info.view_folder' in user.get_all_permissions %}
+                        <div class="form-check form-switch">
+                            <input class="form-check-input permission" type="checkbox" id="id_view_folder" name="view_folder" checked>
+                            <label class="form-check-label" for="id_view_folder">PODE VER OS DOCUMENTOS ADICIONADOS</label>
+                        </div>
+                    {% else %}
+                        <div class="form-check form-switch">
+                            <input class="form-check-input permission" type="checkbox" id="id_view_folder" name="view_folder">
+                            <label class="form-check-label" for="id_view_folder">PODE VER OS DOCUMENTOS ADICIONADOS</label>
+                        </div>
+                    {% endif %}
+                    {% if 'info.delete_folder' in user.get_all_permissions %}
+                        <div class="form-check form-switch">
+                            <input class="form-check-input permission" type="checkbox" id="id_delete_folder" name="delete_folder" checked>
+                            <label class="form-check-label" for="id_delete_folder">PODE REMOVER DOCUMENTOS</label>
+                        </div>
+                    {% else %}
+                        <div class="form-check form-switch">
+                            <input class="form-check-input permission" type="checkbox" id="id_delete_folder" name="delete_folder">
+                            <label class="form-check-label" for="id_delete_folder">PODE REMOVER DOCUMENTOS</label>
+                        </div>
+                    {% endif %}
+                    <hr>
+                {% endif %}
+            {% else %} O usuário ainda não foi ativado {% endif %}
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">ATUALIZAR FUNCIONÁRIO</button>
+            <br>
+            <br>
+            <div class="text-center">
+                <a href="{% url 'info:employees' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+            </div>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            $("#checkAll").click(function () {
+                $(".permission").prop('checked', $(this).prop('checked'));
+            });
+
+            $(".form-check-input").change(function () {
+                if ($(".permission:checked").length == $(".permission").length) {
+                    $("#checkAll").prop('checked', true);
+                } else {
+                    $("#checkAll").prop('checked', false);
+                }
+            });
+        })
+        ;
+    </script>
+{% endblock %}

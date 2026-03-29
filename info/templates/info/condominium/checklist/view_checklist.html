@@ -1,0 +1,82 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+
+
+    <div class="container">
+    <br>
+    <div id="report" class="report">
+
+
+    <h3 style="margin: 20px;">{{ checklist.title }}</h3>
+    <hr>
+    <h5 style="margin: 20px;">Atividades: </h5>
+
+    <br>
+    <br>
+    <div class="container">
+
+        {% for task in tasks %}
+            {% if task.is_completed %}
+                <div class="row list-group-item-success p-2">
+            {% elif task.reported_problem %}
+                <div class="row list-group-item-danger p-2">
+            {% else %}
+                <div class="row p-2">
+            {% endif %}
+
+        <div class="col-6">
+            {{ task.task_name }}
+        </div>
+        <div class="col">
+            {% if not task.is_completed %}
+                <a href="{% url 'info:resolve-task' task.id %}" class="btn btn-success btn-sm">
+                    <i class="fa-solid fa-check" style="margin-right: 5px;"></i>Verificado
+                </a>
+            {% endif %}
+        </div>
+        <div class="col">
+            {% if not task.reported_problem %}
+                {% if not task.is_completed %}
+                    <a href="{% url 'info:report-task' task.id %}" class="btn btn-danger btn-sm">
+                        <i class="fa-solid fa-triangle-exclamation" style="margin-right: 5px;"></i>Reportar problema
+                    </a>
+
+
+                {% endif %}
+            {% else %}
+                <a href="{% url 'info:view-task-problem' task.id %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-eye" style="margin-right: 5px;"></i>Ver problema
+                </a>
+            {% endif %}
+        </div>
+        </div>
+            <hr>
+        {% endfor %}
+        </div>
+        </div>
+        <br>
+        <br>
+        <div class="text-center">
+            <div class="row">
+                <div class="col"></div>
+                <div class="col">
+                    <a id="return-link" href="{% url 'info:checklists' %}" class="btn btn-danger">
+                        <i class="fa fa-arrow-left"> Voltar</i>
+                    </a>
+                </div>
+                <div class="col"></div>
+                <div class="col">
+                    <a id="export-link" href="{% url 'info:view-checklist-report' checklist.id %}" class="btn btn-info">
+                        <i class="fa-regular fa-file-pdf"></i>
+                        Exportar PDF
+                    </a>
+                </div>
+                <div class="col"></div>
+            </div>
+            <br>
+            <br>
+        </div>
+    </div>
+{% endblock %}

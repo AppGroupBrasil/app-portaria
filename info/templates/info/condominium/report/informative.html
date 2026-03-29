@@ -1,0 +1,258 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width-device-width, initial-scale=1">
+    <title>Info</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link href="{% static 'fontawesomefree/css/all.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"
+            integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"
+            integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"
+            integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ"
+            crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(() => {
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+
+            $(document).on('click', '.btn_print', function (event) {
+                if (event) {
+                    event.preventDefault();
+                }
+
+                let element = document.getElementById('report')
+                {#let randomString = Math.random().toString(36).substring(2, 15);#}
+                let timestamp = Date.now();
+                let opt = {
+                    margin: [0.5, 0.5, 0.5, 0.5],
+                    filename: 'Atividade_' + timestamp + '.pdf',
+                    image: {type: 'jpeg', quality: 0.98},
+                    html2canvas: {scale: 2},
+                    pagebreak: {mode: ['auto', 'css', 'legacy']}, // Enable page break support
+                    enableLinks: true,
+                    enableStyles: true,
+                    page: {format: 'a4'},
+                    jsPDF: {unity: 'in', format: 'letter', orientation: 'portrait'}
+
+                };
+
+                html2pdf().set(opt).from(element).save();
+
+            });
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Listen for changes in the select element
+            $('#images_size').on('change', function () {
+                let selectedClass = $(this).val();
+
+                // Update the class of the card rows
+                $('#cards-rows').removeClass().addClass(selectedClass);
+            });
+        });
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <br>
+    <br>
+    <div id="report-actions">
+        <div class="text-center" style="padding: 20px">
+            <input type="button" id="pdf_button" value="Exportar PDF" class="btn btn-info btn_print">
+        </div>
+        <br>
+        <div class="row justify-content-center">
+            <div class="col">
+            </div>
+            <div class="col">
+                Exibir imagens:
+            </div>
+            <div class="col">
+                <select name="images_size" id="images_size"
+                        class="text-center justify-content-center form-select form-select-sm">
+                    <option value="row row-cols-1 row-cols-md-4 g-5">Pequenas</option>
+                    <option value="row row-cols-1 row-cols-md-2 g-5">Médias</option>
+                    <option value="row row-cols-1 row-cols-md-1 g-5">Grandes</option>
+                </select>
+            </div>
+            <div class="col">
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <br>
+    <div id="report" class="report">
+
+        <div class="report-header">
+            <div class="report-header-text">
+                <div class="row-inline">
+                    Condomínio: <strong><span
+                        style="margin-left: 10px;">{{ informative.condominium.condominium_name }}</span></strong>
+                </div>
+
+                <div class="row-inline">
+                    Endereço: <strong><span
+                        style="margin-left: 10px;">{{ informative.condominium.address }}</span></strong>
+                </div>
+                <div class="row-inline">
+                    Síndico/Responsável: <strong><span
+                        style="margin-left: 10px;">{{ informative.condominium.liquidator_name }}</span></strong>
+                </div>
+                {% if informative.condominium.admin_name %}
+                    <div class="row-inline">
+                        Administradora: <strong><span
+                            style="margin-left: 10px;">{{ informative.condominium.admin_name }}</span></strong>
+                    </div>
+                {% endif %}
+                <div class="row-inline">
+                    Whatsapp: <strong><span
+                        style="margin-left: 10px;">{{ informative.condominium.whatsapp }}</span></strong>
+                </div>
+                <div class="row-inline">
+                    Email: <strong><span style="margin-left: 10px;">{{ informative.condominium.email }}</span></strong>
+                </div>
+                {% if informative.condominium.site %}
+                    <div class="row-inline">
+                        Site: <strong><span
+                            style="margin-left: 10px;">{{ informative.condominium.site }}</span></strong>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <h4 class="text-center" style="margin: 20px;">Tipo: {{ informative.kind }}</h4>
+        <h4 class="text-center" style="margin: 20px;">Nome: {{ informative.title }}</h4>
+        <h6 class="text-center" style="margin: 20px;">Descrição: {{ informative.description }}</h6>
+        <h5 style="margin: 20px;">Atividades: </h5>
+
+        <div class="container justify-content-center">
+            <div id="cards-rows" class="row row-cols-1 row-cols-md-4 g-5">
+                {% for card in card_list %}
+                    <div class="col">
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Nome da função: {{ card.title }}</h5>
+                            </div>
+                            {% if card.description %}
+                                <ul class="card-subtitle">
+                                <li>
+                                    <p class="card-text">
+                                        Descrição:{{ card.description }}
+                                    </p>
+                                </li>
+
+                            {% endif %}
+                            {% if card.files %}
+                                <li class="card-subtitle">Arquivos:</li>
+                                <ul>
+                                    {% for file in card.files %}
+                                        <li class="">
+                                            <a href="{{ file }}" target="_blank">{{ file }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            {% if card.video %}
+                                <li>Vídeo:</li>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <a href="{{ card.video }}" target="_blank">{{ card.video }}</a>
+                                    </li>
+                                </ul>
+                            {% endif %}
+                            </ul>
+                            {% if card.img %}
+                                <img class="card-img-bottom" src="{{ card.img }}" alt="Card image cap"
+                                >
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+        </div>
+        {% if informative.location %}
+            <br>
+            <br>
+            <p>Atividade realizada por {{ informative.location.condominium.condominium_name }},
+                em {{ informative.location.address }}</p>
+            <br>
+        {% endif %}
+        {% if test %}
+            <div class="watermark">
+                <div class="watermark-text"><span style="white-space: nowrap;">Período&nbsp;de&nbsp;teste&nbsp;de&nbsp;7&nbsp;dias!</span>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <br>
+    <br>
+    <div class="text-center">
+        {% if how_to_export_text %}
+            <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                    data-bs-placement="top"
+                    data-bs-content="{{ how_to_export_text }}"
+                    data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                    class="fa-regular fa-circle-question fa-xl"></i>
+            </button>
+        {% elif how_to_export_link %}
+            <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_export_link }}"><i
+                    class="fa-regular fa-circle-question fa-xl"></i></a>
+        {% endif %}
+        <br><br>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <a id="return-link" href="{% url 'info:informative' %}" class="btn btn-danger">
+                    <i class="fa fa-arrow-left"> </i>
+                    Voltar
+                </a>
+            </div>
+            <div class="col">
+                <a id="return-link" href="{% url 'info:edit-informative' informative.id %}"
+                   class="btn btn-outline-info">
+                    <i class="fa fa-edit"></i>
+                    Editar
+                </a>
+            </div>
+            <div class="col">
+                <a id="return-link" href="{% url 'info:clone-informative' informative.id %}"
+                   class="btn btn-outline-info">
+                    <i class="fa fa-copy"></i>
+                    Duplicar
+                </a>
+            </div>
+            <div class="col"></div>
+        </div>
+        <br>
+        <br>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl);
+        });
+    })
+    ;
+</script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Visitantes</h2>
+        <br>
+        <div class="text-start">
+            <a href="{% url 'info:add-visitant-security' %}" class="btn btn-info ">
+                ADICIONAR VISITANTE</a>
+            {% if not employee %}
+                <a href="{% url 'info:visitant-mandatory' %}" class="btn btn-warning ">
+                    CONFIGURAR LIBERAÇÃO</a>
+            {% endif %}
+        </div>
+        <br>
+        <div class="text-end">
+            <div style="font-size: large;" id="dynamic-time"></div>
+        </div>
+        <div class="text-end">
+            <h4> Total de veículos: <span
+                    style="font-size: 40px; color: red"><strong>{{ vehicle_counter }}</strong></span></h4>
+        </div>
+        <br>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Registrar</th>
+                    <th scope="col">Placa do Veículo</th>
+                    <th scope="col">Modelo do Veículo</th>
+                    <th scope="col">Bloco/Apartamento</th>
+                    <th scope="col">Nome do Visitante</th>
+                    <th scope="col">Liberado até</th>
+                    <th scope="col">Liberado por</th>
+                    <th scope="col">Tempo Decorrido</th>
+                    <th scope="col">Observações</th>
+                    <th scope="col">Código da entrega</th>
+                    <th scope="col">Vagas ocupadas pelo APT</th>
+                </tr>
+                <tr>
+                    <form method="GET" id="search_form" class="search-form">
+                        <td class="no-sort" scope="row">
+
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control" type="text" id="search_visitant_plate"
+                                   name="visitant_plate"
+                                   placeholder="Buscar Placa.."
+                                   value="{{ request.GET.visitant_plate }}" style="background-color: yellow">
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control" type="text" id="search_visitant_model"
+                                   name="visitant_model"
+                                   placeholder="Modelo do veículo.."
+                                   value="{{ request.GET.visitant_model }}" style="background-color: yellow">
+                        </td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control" type="text" id="search_block_apartment"
+                                   name="block_apartment"
+                                   placeholder="Buscar Bloco Apartamento.."
+                                   value="{{ request.GET.block_apartment }}" style="background-color: yellow">
+                        </td>
+                        <td class="no-sort" scope="row">
+
+                        </td>
+                        <td class="no-sort" scope="row">
+
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control" type="text" id="id_search_resident"
+                                   name="search_resident"
+                                   placeholder="Buscar Morador.."
+                                   value="{{ request.GET.search_resident }}" style="background-color: yellow">
+                        </td>
+                        <td class="no-sort" scope="col"></td>
+                        <td class="no-sort" scope="col"></td>
+                        <td class="no-sort" scope="col"></td>
+                        <td class="no-sort" scope="col"></td>
+                    </form>
+                </tr>
+                </thead>
+                <tbody>
+                {% for visitant in visitants_list %}
+
+                    {% if visitant.can_leave and visitant.arrived %}
+                        <tr class="table-success">
+                    {% elif visitant.visit and not visitant.leaves %}
+                        <tr class="list-group-item-danger">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+                <td scope="row">
+                    {% if visitant.visit and not visitant.leaves %}
+                        {% if visitant.can_leave %}
+                            <a href="{% url 'info:visitant-departure' visitant.id %}" class="btn btn-danger ">
+                                SAÍDA </a>
+                        {% else %}
+                            <button type="button" class="btn btn-danger ms-auto" data-bs-container="body"
+                                    data-bs-toggle="popover"
+                                    data-bs-placement="top"
+                                    data-bs-content="O morador deve liberar a saída do visitantes antes!"
+                                    data-bs-original-title="Saída ainda não liberada" aria-describedby="popover64109">
+                                SAÍDA
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'info:visitant-arrival' visitant.id %}" class="btn btn-info ">
+                            CHEGADA </a>
+                    {% endif %}
+
+                </td>
+                <td>{{ visitant.vehicle_plate }}</td>
+                <td>{{ visitant.vehicle_model }}</td>
+                <td>{{ visitant.apartment }}</td>
+                <td>{{ visitant.name }}</td>
+                {% if visitant.is_permanent %}
+                    <td>Pernamentemente</td>
+                {% else %}
+                    <td>{{ visitant.until }}</td>
+                {% endif %}
+                <td>{{ visitant.resident }}</td>
+
+                {% if visitant.visit_time %}
+                    <td>
+                        {{ visitant.visit_time }}
+                    </td>
+                {% elif not visitant.visit_in %}
+                    <td>Não Chegou</td>
+                {% else %}
+
+                    <td>
+                        <strong>
+                            <div id="clock_{{ visitant.id }}"></div>
+                        </strong>
+
+                        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+                        <script>
+                            $(document).ready(function () {
+                                var startTime = new Date("{{ visitant.visit_in|timezone:"America/Sao_Paulo" }}"); // Replace with your Django DateTimeField value
+
+                                let currentTime = new Date();
+                                let timeDifference = Math.floor((currentTime - startTime) / 1000);
+
+                                let hours = Math.floor(timeDifference / 3600);
+                                let minutes = Math.floor((timeDifference % 3600) / 60);
+                                let seconds = timeDifference % 60;
+
+                                let formattedTime = hours.toString().padStart(2, '0') + ":" +
+                                    minutes.toString().padStart(2, '0') + ":" +
+                                    seconds.toString().padStart(2, '0');
+
+                                $('#clock_{{ visitant.id }}').text(formattedTime);
+
+
+                                // Update the clock every second
+                                setInterval(() => {
+                                    let currentTime = new Date();
+                                    let timeDifference = Math.floor((currentTime - startTime) / 1000);
+
+                                    let hours = Math.floor(timeDifference / 3600);
+                                    let minutes = Math.floor((timeDifference % 3600) / 60);
+                                    let seconds = timeDifference % 60;
+
+                                    let formattedTime = hours.toString().padStart(2, '0') + ":" +
+                                        minutes.toString().padStart(2, '0') + ":" +
+                                        seconds.toString().padStart(2, '0');
+
+                                    $('#clock_{{ visitant.id }}').text(formattedTime);
+                                }, 1000);
+                            });
+                        </script>
+                    </td>
+
+                {% endif %}
+                <td>{{ visitant.comment }}</td>
+                <td>{{ visitant.delivery_code }}</td>
+                <td>{{ visitant.count }}</td>
+                </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+            {% include 'info/pagination.html' %}
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let searchForm = $('#search_form');
+            let searchPlate = $('#search_visitant_plate');
+            let searchModel = $('#search_visitant_model');
+            let searchResident = $('#id_search_resident');
+            let searchBlockApt = $('#search_block_apartment');
+
+            $(searchPlate).on('change', function () {
+                searchForm.submit();
+            });
+            $(searchModel).on('change', function () {
+                searchForm.submit();
+            });
+            $(searchResident).on('change', function () {
+                searchForm.submit();
+            });
+            $(searchBlockApt).on('change', function () {
+                searchForm.submit();
+            });
+
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        });
+
+
+        function updateDynamicTime() {
+            $.ajax({
+                url: "{% url 'info:get-server-time' %}",
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $('#dynamic-time').text(data.current_time);
+                },
+                error: function (error) {
+                    console.log('Error fetching server time:', error);
+                }
+            });
+        }
+
+        setInterval(updateDynamicTime, 1000);
+        updateDynamicTime();
+
+
+    </script>
+
+
+{% endblock %}

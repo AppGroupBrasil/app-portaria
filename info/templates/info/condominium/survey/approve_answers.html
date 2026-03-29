@@ -1,0 +1,113 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Respostas para {{ question }}</h2>
+        <br>
+        <hr>
+
+        {% if answers %}
+            <div class="dashboard">
+                <div class="dashboard-item"><a href="{% url 'info:approve-all' survey_id %}" class="btn btn-info ">APROVAR
+                    TODOS</a></div>
+                <div class="dashboard-item"><a href="{% url 'info:reprove-all' survey_id %}" class="btn btn-danger ">IMPUGNAR
+                    TODOS</a></div>
+            </div>
+        {% endif %}
+        <div class="table-container">
+            <table class="table table-hover sortable">
+                <thead>
+                <tr class="table-primary">
+                    <th class="no-sort" scope="col">Ações</th>
+                    <th class="no-sort" scope="col">Morador</th>
+                    <th class="no-sort" scope="col">Email</th>
+                    <th class="no-sort" scope="col">Bloco</th>
+                    <th class="no-sort" scope="col">Apartamento</th>
+                    <th scope="col">Data</th>
+                </tr>
+                <tr>
+                    <form method="GET" id="search_form">
+                        <td class="no-sort"></td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control bg-y" type="text" id="id_search_resident"
+                                   name="search_resident"
+                                   placeholder="Nome para buscar..."
+                                   value="{{ request.GET.search_resident }}">
+                        </td>
+                        <td class="no-sort" scope="col">
+                            <input class="form-control bg-y" type="text" id="id_search_email"
+                                   name="search_email"
+                                   placeholder="Email para buscar..."
+                                   value="{{ request.GET.search_email }}">
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="text" id="id_search_block"
+                                   name="search_block"
+                                   placeholder="Bloco para buscar..."
+                                   value="{{ request.GET.search_block }}">
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="text" id="id_search_apartment"
+                                   name="search_apartment"
+                                   placeholder="Apartamento para buscar..."
+                                   value="{{ request.GET.search_apartment }}">
+                        </td>
+                        <td class="no-sort"></td>
+                    </form>
+                </tr>
+
+                </thead>
+                <tbody>
+                {% for answer in answers %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'info:survey-answer-detail' answer.id %}" class="btn btn-info ">APROVAR</a>
+                        </td>
+                        <td scope="row">{{ answer.name }}</td>
+                        <td>{{ answer.email }}</td>
+                        <td>{{ answer.block }}</td>
+                        <td>{{ answer.apartment }}</td>
+                        <td data-sort="{{ answer.created |date:'YMd' }}">{{ answer.created|timezone:"America/Sao_Paulo" }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:surveys' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    {#    <script src="{% static 'js/clients.js' %}"></script>#}
+    <script src="{% static 'js/sortable.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            let searchForm = $('#search_form');
+            let searchResident = $('#id_search_resident');
+            let searchEmail = $('#id_search_email');
+            let searchBlock = $('#id_search_block');
+            let searchApartment = $('#id_search_apartment');
+
+            $(searchResident).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchEmail).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchBlock).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchApartment).on('change', function () {
+                searchForm.submit();
+            });
+        });
+    </script>
+{% endblock %}

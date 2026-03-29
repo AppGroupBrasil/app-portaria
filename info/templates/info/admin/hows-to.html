@@ -1,0 +1,42 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Ajudas</h2>
+        <br>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Local</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Valor</th>
+                    <th class="no-sort" scope="col">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if hows_to %}
+                    {% for how_to in hows_to %}
+                        <tr>
+                            <td scope="row">{{ how_to.name }}</td>
+                            <td>{{ how_to.kind }}</td>
+                            <td>{{ how_to.value }}</td>
+                            <td><a href="{% url 'info:edit-how-to' how_to.id %}" class="me-2"><span><i
+                                    class="fas fa-edit"></i></span></a></td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 detail-layout">
+        <h2>Tem certeza que deseja remover?</h2>
+        <hr>
+        <br>
+        <div class="container">
+
+            <div class="row my-2">
+                <div class="col">
+                    <a id="block-link my-2" href="http://{{ domain }}/{{ next }}"
+                       class="btn btn-outline-success">
+                        {#                <a id="block-link" href="#" class="btn btn-outline-danger">#}
+                        SIM <i class="fa-solid fa-user-lock"></i>
+                    </a>
+                </div>
+                <div class="col">
+                    <a id="block-link my-2" href="http://{{ domain }}/{{ previous }}"
+                       class="btn btn-outline-danger">
+                        {#                <a id="block-link" href="#" class="btn btn-outline-danger">#}
+                        NÃO <i class="fa-solid fa-user-lock"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+
+
+{% endblock %}

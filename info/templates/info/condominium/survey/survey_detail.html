@@ -1,0 +1,83 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Detalhe da Enquete</h2>
+        <br>
+        <br>
+        <a class="dashboard-link" href="{% url 'info:survey-anonimous-answer' survey.id %}">
+            <div class="custom-icon">
+                <i class="fa-solid fa-square-arrow-up-right fa-2xl" style="color: #3498db"></i>
+                <br>
+                Gerar link resposta anônima
+            </div>
+        </a>
+        <br>
+        <hr>
+        <h3>{{ survey.question }}</h3>
+        <br>
+        {% if 'info.add_surveymodel' in user.get_all_permissions %}
+            <a class="dashboard-link" href="{% url 'info:approve-answers' id %}">
+                <div class="icon">
+                    <i class="fa-solid fa-check-to-slot fa-2xl m-4" style="color: #3498db"></i>
+                    <br>
+                    Validar Votos
+                </div>
+            </a>
+        {% endif %}
+        <br>
+        {% for option in options %}
+            <div class="option">
+
+                <div class="progress">
+                    <div class="progress-bar" style="width: {{ option.votes|percentage:total_votes }};"></div>
+                </div>
+                <p>{{ option.option }} {{ option.votes }} votos</p>
+
+
+                <hr>
+            </div>
+        {% endfor %}
+        <br>
+        <br>
+        <div class="text-center">
+{#            <div class="row-inline-2">#}
+{#                <div class="col"></div>#}
+                <div class="col">
+                    <a id="return-link" href="{% url 'info:surveys' %}" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"> </i>
+                        Voltar
+                    </a>
+                </div>
+                <div class="col my-3">
+                    {% if not 'info.my_surveys' in user.get_all_permissions and 'info.add_surveymodel' in user.get_all_permissions and not survey.is_ended %}
+                        <a id="end-link" href="{% url 'info:survey-end' survey.id %}"
+                           class="text-center btn btn-primary">
+                            ENCERRAR / RESULTADO
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="col my-3">
+                    <a id="export-link" href="{% url 'info:survey-report' survey.id %}" class="btn btn-info">
+                        <i class="fa-regular fa-file-pdf"></i>
+                        Exportar PDF
+                    </a>
+                </div>
+                <div class="col">
+                    <a id="report-link" href="{% url 'info:survey-votes-report' survey.id %}" class="btn btn-warning">
+                        <i class="fa-regular fa-file-pdf"></i>
+                        VOTOS
+                    </a>
+                </div>
+
+            <br>
+            <br>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    {#    <script src="{% static 'js/clients.js' %}"></script>#}
+    <script src="{% static 'js/sortable.js' %}"></script>
+
+{% endblock %}

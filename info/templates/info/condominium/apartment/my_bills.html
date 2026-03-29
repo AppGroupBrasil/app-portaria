@@ -1,0 +1,66 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Meus boletos</h2>
+        <br>
+
+        <div class="text-end">
+            {% if how_to_residents_text %}
+                <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                        data-bs-placement="left"
+                        data-bs-content="{{ how_to_residents_text }}"
+                        data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                        class="fa-regular fa-circle-question icon-minus fa-xl"></i>
+                </button>
+            {% elif how_to_residents_link %}
+                <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_residents_link }}"><i
+                        class="fa-regular fa-circle-question icon-minus fa-xl"></i></a>
+            {% endif %}
+        </div>
+
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Ação</th>
+                    <th scope="col">Arquivo</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for bill in bills %}
+
+
+                    <tr>
+                        <td scope="row">
+                            <div class="row-inline">
+                                <a href="{{ bill.file.url }}" class="btn btn-info" download>BAIXAR</a>
+                            </div>
+                        </td>
+                        <td>{{ bill.file }}</td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl);
+        });
+        })
+        ;
+    </script>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Contrato de Vencimento</h2>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+{#            {{ form.item.label_tag }}#}
+{#            {{ form.item }}#}
+{#            {{ form.descrioption.label_tag }}#}
+{#            {{ form.descrioption }}#}
+{#            {{ form.image.label_tag }}#}
+{#            {{ form.image }}#}
+{#            {{ form.last_maintenance.label_tag }}#}
+{#            {{ form.last_maintenance }}#}
+{#            {{ form.next_maintenance.label_tag }}#}
+{#            {{ form.next_maintenance }}#}
+{#            {{ form.to_email.label_tag }}#}
+{#            {{ form.to_email }}#}
+{#            {{ form.days_to_notify.label_tag }}#}
+{#            {{ form.days_to_notify }}#}
+            {{ form|crispy }}
+
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">ADICIONAR VENCIMENTO</button>
+        </form>
+        <br>
+    </div>
+    <br>
+{% endblock %}

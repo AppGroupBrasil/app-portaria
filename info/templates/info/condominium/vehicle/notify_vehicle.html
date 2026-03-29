@@ -1,0 +1,24 @@
+<html lang="pt">
+<head></head>
+<body>
+
+<h2>Veículo Cadastrado:</h2>
+
+<h2>Nome: {{ name }}</h2>
+
+<h2>Veículo: {{ vehicle }}</h2>
+
+<h2>Placa: {{ vehicle_plate }}</h2>
+
+{% if obs %}
+    <h2>obs: {{ obs }}</h2>
+{% endif %}
+
+<h2>Protocol:</h2>
+<h1><strong>{{ protocol }}</strong></h1>
+
+<br>
+<br>
+{% include 'info/condominium/account/signature.html' %}
+</body>
+</html>

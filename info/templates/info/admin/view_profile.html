@@ -1,0 +1,115 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load tz %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 detail-layout">
+        <h2>Detalhes do Condomínio</h2>
+        <hr>
+        <br>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    Nome: {{ profile.condominium_name }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    Email: {{ profile.email }}
+                </div>
+            </div>
+            {% if profile.cnpj %}
+                <div class="row">
+                    <div class="col">
+                        CNPJ: {{ profile.cnpj }}
+                    </div>
+                </div>
+            {% endif %}
+            <div class="row">
+                <div class="col">
+                    Criado em: {{ profile.created|timezone:"America/Sao_Paulo" }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    Espira em: {{ profile.plan_expiration }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    Situação: {% if profile.is_active %}Ativo{% else %}Bloqueado{% endif %}
+                </div>
+            </div>
+
+            <div class="row my-2">
+                <div class="col">
+                    <a id="block-link my-2" href="{% url 'info:configure-profile' profile.id %}"
+                       class="btn btn-outline-warning">
+                        {#                <a id="block-link" href="#" class="btn btn-outline-danger">#}
+                        Configurar <i class="fa-solid fa-user-lock"></i>
+                    </a>
+                </div>
+                <div class="col">
+                    <a id="block-link my-2" href="{% url 'info:view-password-reset' profile.id %}"
+                       class="btn btn-outline-info">
+                        {#                <a id="block-link" href="#" class="btn btn-outline-danger">#}
+                        Resetar Senha <i class="fa-solid fa-user-lock"></i>
+                    </a>
+                </div>
+                <div class="col">
+                    <a id="block-link my-2" href="{% url 'info:configure-messages' profile.id %}"
+                       class="btn btn-outline-primary">
+                        {#                <a id="block-link" href="#" class="btn btn-outline-danger">#}
+                        Mensagens<i class="fa-solid fa-user-lock"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            {% if profile.is_active %}
+                <a id="block-link" href="{% url 'info:block-profile' profile.id %}" class="btn btn-outline-danger">
+                    {#                <a id="block-link" href="#" class="btn btn-outline-danger">#}
+                    Bloquear <i class="fa-solid fa-user-lock"></i>
+                </a>
+
+            {% else %}
+                <br>
+                <br>
+                <div class="container">
+
+                    <form method="GET" id="unblock_form">
+                        <div class="row justify-content-center">
+                            <div class="col">
+
+                                Desbloquear por:
+                            </div>
+                            <div class="col">
+                                <select name="new_expiration" id="new_expiration"
+                                        class="form-control text-center justify-content-center">
+                                    <option value="">Selecionar dias</option>
+                                    <option value="7">7 Dias</option>
+                                    <option value="30">1 Mês</option>
+                                    <option value="90">3 Meses</option>
+                                    <option value="180">6 Meses</option>
+                                    <option value="365">1 Ano</option>
+                                </select>
+
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-outline-success">Desbloquear <i
+                                        class="fa-solid fa-lock-open"></i></button>
+                            </div>
+                        </div>
+                    </form>
+
+
+                    {#                    </div>#}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <br>
+
+
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Minhas Reservas</h2>
+        <br>
+        <a class="dashboard-link" href="{% url 'info:booking-places' %}">
+            <div class="icon">
+                <i class="fa-regular fa-calendar-check fa-2xl m-4" style="color: #3498db"></i>
+                <br>
+                Fazer Reserva
+            </div>
+        </a>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Ação</th>
+                    <th scope="col">Área</th>
+                    <th scope="col">Data</th>
+                    <th scope="col">Horário</th>
+                    <th scope="col">Reservado por</th>
+                    <th scope="col">Status</th>
+                    <th class="no-sort" scope="col">Aprovada</th>
+                    <th class="no-sort" scope="col">Cancelada</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for booking in reservation %}
+
+                    {% if booking.status == 'PENDENTE' %}
+                        <tr class="table-warning">
+                            {% elif booking.status == 'CANCELADA' %}
+                        <tr class="list-group-item-danger">
+                            {% else %}
+                        <tr class="table-success">
+                    {% endif %}
+                <td scope="row">
+                    {% if booking.status == "PENDENTE" and booking.wait_payment %}
+                        <a href="{% url 'info:add-booking-payment' booking.id %}" class="btn btn-info ">
+                            PAGAR</a>
+                    {% elif booking.status != "CANCELADA" %}
+                        <a href="{% url 'info:cancel-booking' booking.id %}" class="btn btn-primary ">
+                            CANCELAR</a>
+
+                        {#                            <a href="{% url 'info:edit-my-activity' activity.id %}" class="mx-2"><span><i#}
+                        {#                                    class="fa-regular fa-pen-to-square"></i></span></a>#}
+                    {% else %}
+                        <a href="/confirm-delete/my-booking/delete-booking.{{ booking.id }}" class="btn btn-danger ">
+                            EXCLUIR</a>
+                    {% endif %}
+                    {#                        <a href="{% url 'info:view-my-activity' activity.id %}" class=""><span>#}
+                    {#                                    <i class="fa-regular fa-eye"></i></span></a>#}
+                    <a href="{% url 'info:export-booking' booking.id %}"
+                       class="btn btn-primary me-2"><span><i class="fa-solid fa-file-pdf"></i></span></a>
+
+                </td>
+                <td>{{ booking.place.name }}</td>
+                <td>{{ booking.date|date:"d/m/Y" }}</td>
+                <td>Das {{ booking.time.init_time|time:"H:i" }} Até {{ booking.time.end_time|time:"H:i" }}</td>
+                <td>{{ booking.resident.condominium_name }}</td>
+                <td>{{ booking.status }}</td>
+                {% if booking.approved_by %}
+                    <td>{{ booking.approved_by }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+                {% if booking.canceled_by %}
+                    <td>{{ booking.canceled_by }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    {#    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>#}
+    {#    <script>#}
+    {#        $(document).ready(function () {#}
+    {#            let searchForm = $('#search_form');#}
+    {#            let searchProtocol = $('#search_protocol');#}
+    {#            let searchTitle = $('#search_title');#}
+    {#            let searchStatus = $('#search_status_filter');#}
+    {##}
+    {#            $(searchProtocol).on('change', function () {#}
+    {#                searchForm.submit();#}
+    {#            });#}
+    {##}
+    {#            $(searchTitle).on('change', function () {#}
+    {#                searchForm.submit();#}
+    {#            });#}
+    {##}
+    {#            $(searchStatus).on('change', function () {#}
+    {#                searchForm.submit();#}
+    {#            });#}
+    {#        });#}
+    {#    </script>#}
+{% endblock %}

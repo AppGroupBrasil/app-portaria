@@ -1,0 +1,38 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Ocultar contato</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            <br>
+            <p>Funcionários podem usar seu contato de whatsapp para enviar mensagens ou fazer chamadas direcionadas a
+                você.</p>
+            <br>
+            <div class="form-check form-switch">
+                {% if user.hide_contact %}
+                    <input class="form-check-input" type="checkbox" id="id_hide"
+                           name="hide"
+                           checked>
+                {% else %}
+                    <input class="form-check-input" type="checkbox" id="id_hide"
+                           name="hide"
+                    >
+                {% endif %}
+                <label class="form-check-label" for="id_hide">OCULTAR CONTATO</label>
+            </div>
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">ATUALIZAR</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+
+{% endblock %}

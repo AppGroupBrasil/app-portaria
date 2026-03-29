@@ -1,0 +1,21 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Adicionar Atividade</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <br>
+            <button id="submitActivity" type="submit" class="btn btn-primary w-100 btn-block p-2">REGISTRAR</button>
+            <br>
+        </form>
+        <br>
+
+    </div>
+    <br>
+{% endblock %}

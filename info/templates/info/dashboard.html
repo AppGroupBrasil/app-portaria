@@ -1,0 +1,923 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center ">
+
+        {% if not user.is_staff %}
+            <div class="profile-header">
+                {#                {% if perms.info.add_visitant or perms.info.my_reviews %}#}
+                {% if user.resident_in %}
+                    <div class="position-relative">
+                        <img src="{% static 'img/morador.png' %}" class="profile">
+                        {% if notifications.count %}
+
+                            <a class="text-primary notification"
+                               data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                <span style="opacity: 0;"><i class="fas fa-bell text-primary"></i></span>
+                                {% if notifications %}
+                                    <span class="notification-counter">{{ notifications.count }}</span>
+                                {% endif %}
+                            </a>
+                        {% else %}
+                            <a style="font-size: 45px; top: 10px; left: 285px; position: absolute; opacity: 0"
+                               class=" text-light nav-item
+                                                   dropdown
+                                                ">
+                                <i class="fas fa-bell text-primary"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                    <br>
+                    <br>
+
+                {% elif is_employee or profile == 'security' %}
+                    <div class="text-center position-relative">
+                        <img src="{% static 'img/Portaria e funcionário.png' %}" class="profile"
+                        >
+                        {% if notifications.count %}
+
+                            <a class="text-primary notification"
+                               data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                <span style="opacity: 0;"><i class="fas fa-bell text-primary"></i></span>
+                                {% if notifications %}
+                                    <span class="notification-counter">{{ notifications.count }}</span>
+                                {% endif %}
+                            </a>
+                        {% else %}
+                            <a style="font-size: 45px; top: 10px; left: 285px; position: absolute; opacity: 0"
+                               class=" text-light nav-item
+                                                   dropdown
+                                                ">
+                                <i class="fas fa-bell text-primary"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                    <br>
+                    <br>
+                {% elif profile == 'intercom' %}
+                    <div class="text-center position-relative">
+                        <img src="{% static 'img/interfonia.png' %}" class="profile">
+                    </div>
+                    <br>
+                    <br>
+                {% elif profile == 'inspect' %}
+                    <div class="text-center position-relative">
+                        <img src="{% static 'img/vistoria.png' %}" class="profile">
+                    </div>
+                    <br>
+                    <br>
+                {% elif profile == 'maintenance' %}
+                    <div class="text-center position-relative">
+                        <img src="{% static 'img/maintenance.png' %}" class="profile">
+                    </div>
+                    <br>
+                    <br>
+                {% elif profile == 'finance' %}
+                    <div class="text-center position-relative">
+                        <img src="{% static 'img/finance.png' %}" class="profile">
+                    </div>
+                    <br>
+                    <br>
+                {% elif profile == 'monitor' %}
+                    <div class="text-center position-relative">
+                        <img src="{% static 'img/maintenance.png' %}" class="profile">
+                    </div>
+                    <br>
+                    <br>
+
+                {% else %}
+
+                    <div class="text-center position-relative">
+                        {% if profile == 'main' %}
+                            <img src="{% static 'img/sindico.png' %}" class="profile"
+                            >
+                        {% else %}
+                            <img src="{% static 'img/administradora.png' %}" class="profile"
+                            >
+                        {% endif %}
+
+                        {% if notifications.count %}
+
+                            <a class="text-primary notification"
+                               data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                <span style="opacity: 0;"><i class="fas fa-bell text-primary"></i></span>
+                                {% if notifications %}
+                                    <span class="notification-counter">{{ notifications.count }}</span>
+                                {% endif %}
+                            </a>
+                        {% else %}
+                            <a style="font-size: 45px; top: 10px; left: 285px; position: absolute; opacity: 0"
+                               class=" text-light nav-item
+                                                   dropdown
+                                                ">
+                                <i class="fas fa-bell text-primary"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                    <br>
+                    <br>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="dashboard">
+            {% if user.is_staff %}
+
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:add-from-excel' %}">
+                        <div class="icon">
+                            <i class="fa-regular fa-file-excel fa-2xl m-4" style="color: #3498db"></i>
+                            <br>
+                            Adicionar por Excel
+                        </div>
+                    </a>
+                </div>
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:clients' %}">
+                        <div class="icon">
+                            <i class="fa-solid fa-city fa-2xl m-4" style="color: #3498db"></i>
+                            <br>
+                            Clientes Cadastrados
+                        </div>
+                    </a>
+                </div>
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:hows-to' %}">
+                        <div class="icon">
+                            <i class="fa-regular fa-circle-question icon-minus fa-2xl m-4" style="color: #3498db"></i>
+                            <br>
+                            Ajudas
+                        </div>
+                    </a>
+                </div>
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:messages-bills' %}">
+                        <div class="icon">
+                            <i class="fa-solid fa-dollar-sign icon-minus fa-2xl m-4" style="color: #3498db"></i>
+                            <br>
+                            Cobranças
+                        </div>
+                    </a>
+                </div>
+                {#            </div>#}
+
+            {% elif user.is_administrator and not user.comdominium_name %}
+                <div class="text-center position-relative w-100">
+                    <img src="{% static 'img/cadastro_cat.png' %}" class="category">
+                </div>
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:admin-condominiums' %}">
+                        <div class="icon">
+                            <i class="custom-icon"
+                               style="background-image: url({% static 'img/Cadastro de apartamento.png' %});"></i>
+                            <br>
+                            Condomínios
+                        </div>
+
+                    </a>
+                </div>
+            {% else %}
+                {% if user.managed_by and adm %}
+                    <div class="dashboard-item"></div>
+                    <div class="dashboard-item">
+                        <a href="{% url 'info:back-admin' %}" class="btn btn-warning ">
+                            CONDOMÍNIOS</a>
+                    </div>
+
+                {% endif %}
+
+                {% if not user.resident_in %}
+                    <div class="dashboard">
+                        <div class="dashboard-item">
+                            {% if control and not control.check_out %}
+                                <a href="{% url 'info:user-check-out' %}" class="btn btn-danger ">
+                                    CHECK-OUT</a>
+                            {% else %}
+                                <a href="{% url 'info:user-check-in' %}" class="btn btn-success ">
+                                    CHECK-IN</a>
+                            {% endif %}
+
+                        </div>
+                        <div class="dashboard-item">
+                            {% if session_time %}
+                                Ultima Sessão: <strong>{{ session_time }}</strong>
+                            {% else %}
+                                {% if start_clock %}
+                                    Sessão ativa:<strong>
+                                    <div id="session_clock"></div>
+                                </strong>
+
+                                    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+                                    <script>
+                                        $(document).ready(function () {
+                                            var startTime = new Date("{{ start_clock }}");
+                                            let currentTime = new Date();
+                                            let timeDifference = Math.floor((currentTime - startTime) / 1000);
+                                            let hours = Math.floor(timeDifference / 3600);
+                                            let minutes = Math.floor((timeDifference % 3600) / 60);
+                                            let seconds = timeDifference % 60;
+
+                                            let formattedTime = hours.toString().padStart(2, '0') + ":" +
+                                                minutes.toString().padStart(2, '0') + ":" +
+                                                seconds.toString().padStart(2, '0');
+
+                                            $('#session_clock').text(formattedTime);
+
+                                            setInterval(() => {
+                                                let currentTime = new Date();
+                                                let timeDifference = Math.floor((currentTime - startTime) / 1000);
+
+                                                let hours = Math.floor(timeDifference / 3600);
+                                                let minutes = Math.floor((timeDifference % 3600) / 60);
+                                                let seconds = timeDifference % 60;
+
+                                                let formattedTime = hours.toString().padStart(2, '0') + ":" +
+                                                    minutes.toString().padStart(2, '0') + ":" +
+                                                    seconds.toString().padStart(2, '0');
+
+                                                $('#session_clock').text(formattedTime);
+                                            }, 1000);
+                                        });
+                                    </script>
+
+                                {% endif %}
+
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+                    {% if 'info.view_apartment' in user.get_all_permissions or 'info.add_apartment' in user.get_all_permissions or 'info.view_resident' in user.get_all_permissions or 'info.add_resident' in user.get_all_permissions or 'info.add_employee' in user.get_all_permissions %}
+
+                        <div class="text-center position-relative w-100">
+                            <img src="{% static 'img/cadastro_cat.png' %}" class="category">
+                        </div>
+
+                        {% if 'info.view_apartment' in user.get_all_permissions or 'info.add_apartment' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:apartments' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Cadastro de apartamento.png' %});"></i>
+                                        <br>
+                                        Apartamentos
+                                    </div>
+
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.view_resident' in user.get_all_permissions or 'info.add_resident' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:residents' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Cadastro de moradores.png' %});"></i>
+                                        <br>
+                                        Moradores
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.add_employee' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:employees' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Funcionário.png' %});"></i>
+                                        <br>
+                                        Funcionários
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if how_to_create_text %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link"
+                                   data-bs-container="body"
+                                   data-bs-toggle="popover"
+                                   data-bs-placement="left"
+                                   data-bs-content="{{ how_to_create_text }}"
+                                   data-bs-original-title="Como funciona?" aria-describedby="popover64109">
+                                    <div class="icon">
+                                        <i class="custom-bigger-icon"
+                                           style="background-image: url({% static 'img/Tutorial.png' %});"></i>
+                                        <br>
+                                        Tutorial
+                                    </div>
+                                </a>
+                            </div>
+
+                        {% elif how_to_create_link %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" target="_blank" href="{{ how_to_create_link }}">
+                                    <div class="icon">
+                                        <i class="custom-bigger-icon"
+                                           style="background-image: url({% static 'img/Tutorial.png' %});"></i>
+                                        <br>
+                                        Tutorial
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    {% if 'info.activity_report' in user.get_all_permissions or 'info.order_report' in user.get_all_permissions or 'info.message_report' in user.get_all_permissions or 'info.checklist_report' in user.get_all_permissions or 'info.contract_report' in user.get_all_permissions or 'info.survey_report' in user.get_all_permissions or 'info.review_report' in user.get_all_permissions or 'info.resident_report' in user.get_all_permissions or 'info.location_report' in user.get_all_permissions or 'info.visitant_report' in user.get_all_permissions or 'info.storage_report' in user.get_all_permissions or 'info.view_userlocation' in user.get_all_permissions or 'info.add_product' in user.get_all_permissions or 'info.add_storageentry' in user.get_all_permissions or 'info.add_contract' in user.get_all_permissions or 'info.view_contract' in user.get_all_permissions or 'info.view_informative' in user.get_all_permissions or 'info.add_informative' in user.get_all_permissions or 'info.view_checklist' in user.get_all_permissions or 'info.add_checklist' in user.get_all_permissions or 'info.send_bill' in user.get_all_permissions or 'info.add_timeline' in user.get_all_permissions or 'info.view_timeline' in user.get_all_permissions %}
+                        <div class="text-center position-relative w-100">
+                            <img src="{% static 'img/gestores_func_cat.png' %}" class="category">
+                        </div>
+                        {% if 'info.view_informative' in user.get_all_permissions or 'info.add_informative' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:informative' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Atividades_n.png' %});"></i>
+                                        <br>
+                                        Atividades
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.view_checklist' in user.get_all_permissions or 'info.add_checklist' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:checklists' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Checklist.png' %});"></i>
+                                        <br>
+                                        Checklist
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.activity_report' in user.get_all_permissions or 'info.order_report' in user.get_all_permissions or 'info.message_report' in user.get_all_permissions or 'info.checklist_report' in user.get_all_permissions or 'info.contract_report' in user.get_all_permissions or 'info.survey_report' in user.get_all_permissions or 'info.review_report' in user.get_all_permissions or 'info.resident_report' in user.get_all_permissions or 'info.location_report' in user.get_all_permissions or 'info.visitant_report' in user.get_all_permissions or 'info.storage_report' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:reports' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Relátórios.png' %});"></i>
+                                        <br>
+                                        Relatórios
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.view_userlocation' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:locations' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Localização.png' %});"></i>
+                                        <br>
+                                        Localizações
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.add_product' in user.get_all_permissions or 'info.add_storageentry' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:storage' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Estoque.png' %});"></i>
+                                        <br>
+                                        Estoque
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.add_contract' in user.get_all_permissions or 'info.view_contract' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:contracts' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Contratos e serviços.png' %});"></i>
+                                        <br>
+                                        Vencimentos
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.send_bill' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:bills' %}">
+                                    <div class="icon">
+                                        <i class="custom-bigger-icon"
+                                           style="background-image: url({% static 'img/Boleto_n.png' %});"></i>
+                                        <br>
+                                        Financeiro
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.add_timeline' in user.get_all_permissions or 'info.view_timeline' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:timelines' %}">
+                                    <div class="icon">
+                                        <i class="custom-bigger-icon"
+                                           style="background-image: url({% static 'img/timeline.png' %});"></i>
+                                        <br>
+                                        Timeline
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if not user.resident_in and 'info.resident_activity' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:add-maintenance-activity' %}">
+                                    <div class="icon">
+                                        <i class="custom-bigger-icon"
+                                           style="background-image: url({% static 'img/manutencao.png' %});"></i>
+                                        <br>
+                                        Manutenção
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:add-inspect-activity' %}">
+                                    <div class="icon">
+                                        <i class="custom-bigger-icon"
+                                           style="background-image: url({% static 'img/vistoria_icon.png' %});"></i>
+                                        <br>
+                                        Vistoria
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:add-occurrence-activity' %}">
+                                    <div class="icon">
+                                        <i class="custom-bigger-icon"
+                                           style="background-image: url({% static 'img/ocorrencia.png' %});"></i>
+                                        <br>
+                                        Ocorrência
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        <div class="dashboard-item">
+                            {% if how_to_manager_text %}
+                                <a class="dashboard-link"
+                                   data-bs-container="body"
+                                   data-bs-toggle="popover"
+                                   data-bs-placement="left"
+                                   data-bs-content="{{ how_to_manager_text }}"
+                                   data-bs-original-title="Como funciona?" aria-describedby="popover64109">
+                                    <div class="icon">
+                                        <i class="custom-bigger-icon"
+                                           style="background-image: url({% static 'img/Tutorial.png' %});"></i>
+                                        <br>
+                                        Tutorial
+                                    </div>
+                                </a>
+                            {% elif how_to_manager_link %}
+                                <a class="dashboard-link" target="_blank" href="{{ how_to_manager_link }}">
+                                    <div class="icon">
+                                        <i class="custom-bigger-icon"
+                                           style="background-image: url({% static 'img/Tutorial.png' %});"></i>
+                                        <br>
+                                        Tutorial
+                                    </div>
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    {% if 'info.view_surveymodel' in user.get_all_permissions or 'info.add_surveymodel' in user.get_all_permissions or 'info.view_review' in user.get_all_permissions or 'info.add_review' in user.get_all_permissions or 'info.add_message' in user.get_all_permissions or 'info.add_message_block' in user.get_all_permissions or 'info.add_message_all' in user.get_all_permissions or 'info.view_message' in user.get_all_permissions or 'info.resident_activity' in user.get_all_permissions %}
+                        <div class="text-center position-relative w-100">
+                            <img src="{% static 'img/gestores_moradores_cat.png' %}" class="category">
+                        </div>
+                        {% if 'info.view_surveymodel' in user.get_all_permissions or 'info.add_surveymodel' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:surveys' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Enquete.png' %});"></i>
+                                        <br>
+                                        Enquetes
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.view_review' in user.get_all_permissions or 'info.add_review' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:reviews' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Avaliações.png' %});"></i>
+                                        <br>
+                                        Avaliações
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.add_message' in user.get_all_permissions or 'info.add_message_block' in user.get_all_permissions or 'info.add_message_all' in user.get_all_permissions or 'info.view_message' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:messages' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Avisos e comunicados.png' %});"></i>
+                                        <br>
+                                        Comunicados
+                                    </div>
+                                </a>
+                            </div>
+
+                        {% endif %}
+                        {% if 'info.resident_activity' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:resident-activities' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/solicitacoes.png' %});"></i>
+                                        <br>
+                                        Solicitações
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.add_reservation' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:booking' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Reservas.png' %});"></i>
+                                        <br>
+                                        Reservas
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if not user.resident_in and 'info.add_documents' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:documents' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Documentos.png' %});"></i>
+                                        <br>
+                                        Documentos
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+                        {% if 'info.add_message' in user.get_all_permissions or 'info.add_message_block' in user.get_all_permissions or 'info.add_message_all' in user.get_all_permissions or 'info.view_message' in user.get_all_permissions %}
+                            <div class="dashboard-item">
+                                <a class="dashboard-link" href="{% url 'info:notify' %}">
+                                    <div class="icon">
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/notificacao.png' %});"></i>
+                                        <br>
+                                        Notificar
+                                    </div>
+                                </a>
+                            </div>
+
+                        {% endif %}
+
+                        {% if not user.resident_in %}
+                            {% if 'info.my_notifications' in user.get_all_permissions %}
+                                <div class="dashboard-item">
+                                    <a class="dashboard-link" href="{% url 'info:my-notifications' %}">
+                                        <div class="icon">
+                                            {% if security %}
+                                                <i class="custom-icon"
+                                                   style="background-image: url({% static 'img/portaria_sino.png' %});"></i>
+                                            {% else %}
+                                                <i class="custom-icon"
+                                                   style="background-image: url({% static 'img/sindico_sino.png' %});"></i>
+                                            {% endif %}
+
+                                            <br>
+                                            Avisos
+                                        </div>
+                                    </a>
+                                </div>
+                            {% endif %}
+
+                            <div class="dashboard-item">
+                                {% if how_to_manager_resident_text %}
+                                    <a class="dashboard-link"
+                                       data-bs-container="body"
+                                       data-bs-toggle="popover"
+                                       data-bs-placement="left"
+                                       data-bs-content="{{ how_to_manager_resident_text }}"
+                                       data-bs-original-title="Como funciona?" aria-describedby="popover64109">
+                                        <div class="icon">
+                                            <i class="custom-bigger-icon"
+                                               style="background-image: url({% static 'img/Tutorial.png' %});"></i>
+                                            <br>
+                                            Tutorial
+                                        </div>
+                                    </a>
+                                {% elif how_to_manager_resident_link %}
+                                    <a class="dashboard-link" target="_blank" href="{{ how_to_manager_resident_link }}">
+                                        <div class="icon">
+                                            <i class="custom-bigger-icon"
+                                               style="background-image: url({% static 'img/Tutorial.png' %});"></i>
+                                            <br>
+                                            Tutorial
+                                        </div>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+
+                {% if user.resident_in %}
+                    {% if 'info.my_notifications' in user.get_all_permissions %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:my-notifications' %}">
+                                <div class="icon">
+                                    <i class="custom-icon"
+                                       style="background-image: url({% static 'img/Sino.png' %});"></i>
+                                    <br>
+                                    Avisos
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    {% if 'info.view_order' in user.get_all_permissions and show_orders %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:my-orders' %}">
+                                <div class="icon">
+                                    <i class="custom-icon"
+                                       style="background-image: url({% static 'img/Aviso de Correspondência.png' %});"></i>
+                                    <br>
+                                    Correspondência
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    {% if 'info.my_reviews' in user.get_all_permissions and show_review %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:my-review' %}">
+                                <div class="icon">
+                                    <i class="custom-icon"
+                                       style="background-image: url({% static 'img/Minhas Avaliações.png' %});"></i>
+                                    <br>
+                                    Avaliações
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if 'info.my_surveys' in user.get_all_permissions and show_survey %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:my-survey' %}">
+                                <div class="icon">
+                                    <i class="custom-icon"
+                                       style="background-image: url({% static 'img/Enquete_morador.png' %});"></i>
+                                    <br>
+                                    Enquetes
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if 'info.add_visitant' in user.get_all_permissions %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:resident-visitants' %}">
+                                <div class="icon">
+                                    <i class="custom-icon"
+                                       style="background-image: url({% static 'img/Liberado_morador.png' %});"></i>
+                                    <br>
+                                    Liberado
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if 'info.my_bills' in user.get_all_permissions and show_bill %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:my-bills' %}">
+                                <div class="icon">
+                                    <i class="custom-bigger-icon"
+                                       style="background-image: url({% static 'img/Boleto_morador.png' %});"></i>
+                                    <br>
+                                    Financeiro
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if 'info.my_activity' in user.get_all_permissions %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:my-activities' %}">
+                                <div class="icon">
+                                    <i class="custom-icon"
+                                       style="background-image: url({% static 'img/Atividades_morador.png' %});"></i>
+                                    <br>
+                                    Solicitações
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if 'info.my_booking' in user.get_all_permissions %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:my-booking' %}">
+                                <div class="icon">
+                                    <i class="custom-icon"
+                                       style="background-image: url({% static 'img/Reservas_morador.png' %});"></i>
+                                    <br>
+                                    Reservas
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if user.resident_in and 'info.my_documents' in user.get_all_permissions %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:resident-documents' %}">
+                                <div class="icon">
+                                    <i class="custom-icon"
+                                       style="background-image: url({% static 'img/Documentos_morador.png' %});"></i>
+                                    <br>
+                                    Documentos
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endif %}
+                {% if not user.resident_in and 'info.view_order' in user.get_all_permissions or 'info.add_order' in user.get_all_permissions or 'info.change_visitant' in user.get_all_permissions or 'info.contact_resident' in user.get_all_permissions %}
+                    <div class="text-center position-relative w-100">
+                        <img src="{% static 'img/portaria_morador_cat.png' %}" class="category">
+                    </div>
+
+                    {% if 'info.view_order' in user.get_all_permissions or 'info.add_order' in user.get_all_permissions %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:orders' %}">
+                                <div class="icon">
+                                    <i class="custom-icon"
+                                       style="background-image: url({% static 'img/Aviso de Correspondência.png' %});"></i>
+                                    <br>
+                                    Correspondência
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if 'info.change_visitant' in user.get_all_permissions %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:condominium-visitants' %}">
+                                <div class="icon">
+                                    {% if security %}
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Liberado_port.png' %});"></i>
+                                    {% else %}
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Liberado_port.png' %});"></i>
+                                    {% endif %}
+                                    <br>
+                                    Liberado
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    {% if 'info.contact_resident' in user.get_all_permissions %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:contacts' %}">
+                                <div class="icon">
+                                    {% if security %}
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Interfone_port.png' %});"></i>
+                                    {% else %}
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/Interfone_port.png' %});"></i>
+                                    {% endif %}
+                                    <br>
+                                    Interfone
+                                </div>
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if not user.resident_in %}
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:pedestrians' %}">
+                                <div class="icon">
+                                    {% if security %}
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/pedestres.png' %});"></i>
+                                    {% else %}
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/pedestres.png' %});"></i>
+                                    {% endif %}
+                                    <br>
+                                    Pedestres
+                                </div>
+                            </a>
+                        </div>
+                        <div class="dashboard-item">
+                            <a class="dashboard-link" href="{% url 'info:vehicles' %}">
+                                <div class="icon">
+                                    {% if security %}
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/veiculos.png' %});"></i>
+                                    {% else %}
+                                        <i class="custom-icon"
+                                           style="background-image: url({% static 'img/veiculos.png' %});"></i>
+                                    {% endif %}
+                                    <br>
+                                    Veículos
+                                </div>
+                            </a>
+                        </div>
+
+
+                    {% endif %}
+                    <div class="dashboard-item">
+                        {% if how_to_security_text %}
+                            <a class="dashboard-link"
+                               data-bs-container="body"
+                               data-bs-toggle="popover"
+                               data-bs-placement="left"
+                               data-bs-content="{{ how_to_security_text }}"
+                               data-bs-original-title="Como funciona?" aria-describedby="popover64109">
+                                <div class="icon">
+                                    <i class="custom-bigger-icon"
+                                       style="background-image: url({% static 'img/tutorial_portaria.png' %});"></i>
+                                    <br>
+                                    Tutorial
+                                </div>
+                            </a>
+                        {% elif how_to_security_link %}
+                            <a class="dashboard-link" target="_blank" href="{{ how_to_security_link }}">
+                                <div class="icon">
+                                    <i class="custom-bigger-icon"
+                                       style="background-image: url({% static 'img/tutorial_portaria.png' %});"></i>
+                                    <br>
+                                    Tutorial
+                                </div>
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+
+
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-sm ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            <i class="fas fa-bell text-danger"></i>&nbsp;&nbsp;Notificações
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for notification in notifications %}
+                                    <tr>
+                                        <th scope="row">{{ notification.message }}</th>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            $('#exampleModal').on('show.bs.modal', function (event) {
+                // Call your JavaScript function here
+                updateValueInDjangoView();
+            });
+
+            $('#exampleModal').on('hidden.bs.modal', function () {
+                // Refresh the page
+                location.reload();
+            });
+
+            function updateValueInDjangoView() {
+                // Make an AJAX request to your Django view to update the value
+                $.ajax({
+                    url: '{% url "info:read-notification" %}',
+                    method: 'GET',
+                    success: function (response) {
+                        pendings = 0;
+                    },
+                    error: function (error) {
+                        // Handle errors if needed
+                    }
+                });
+            }
+
+
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+
+        });
+    </script>
+
+{% endblock %}

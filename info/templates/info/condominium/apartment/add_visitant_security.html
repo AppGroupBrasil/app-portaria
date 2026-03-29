@@ -1,0 +1,93 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Liberar Visitante/Encomenda</h2>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+            {% csrf_token %}
+            {{ form.name.label_tag }}
+            {{ form.name }}
+            {{ form.block.label_tag }}
+            {{ form.block }}
+            {{ form.apartment.label_tag }}
+            {{ form.apartment }}
+            {{ form.until.label_tag }}
+            {{ form.until }}
+            {{ form.comment.label_tag }}
+            {{ form.comment }}
+            {{ form.document.label_tag }}
+            {{ form.document }}
+            {% if mandatory.allow_vehicle %}
+                {{ form.vehicle_model.label_tag }}
+                {{ form.vehicle_model }}
+                {{ form.vehicle_plate.label_tag }}
+                {{ form.vehicle_plate }}
+            {% endif %}
+            {% if mandatory.photo %}
+                {{ form.photo.label_tag }}
+                {{ form.photo }}
+            {% endif %}
+            {% if mandatory.pic %}
+                <div id="camera" class="camera w-100">
+                    <br>
+                    <p>
+                        Tire uma foto. Ela será usada para validação do registro.
+                    </p>
+                    <video id="video" class="w-100">Video stream não disponível.</video>
+                    <button id="startbutton" type="button">Envie uma foto</button>
+                    <canvas id="canvas">
+                    </canvas>
+                </div>
+                <br>
+
+                <div id="preview" class="hidden text-center w-75">
+                    Visualização:
+                    <img id="prev_p" name="prev_p" alt="Foto" style="width: 100%;">
+                </div>
+                {{ form.webimg }}
+            {% endif %}
+            <br>
+            <br>
+
+            <button id="submitResident" type="submit" class="btn btn-primary w-100 btn-block p-2">LIBERAR</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        let blockAddResident = document.getElementById('id_block');
+
+        blockAddResident.addEventListener('change', () => {
+            let block_id = blockAddResident.value;
+            if (block_id) {
+                $('#id_apartment').prop('disabled', false).empty();
+                $.ajax({
+                    url: '/get-apartments/',
+                    data: {block_id: block_id},
+                    success: function (response) {
+                        $('#id_apartment').empty();
+                        $('#id_apartment').append('<option value="">Selecione o apartamento</option>');
+                        $.each(response, function (key, value) {
+                            $('#id_apartment').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                        {#let emailResidentFieldValue = document.getElementById('id_email').value;#}
+                        {#if (emailResidentFieldValue) {#}
+                        {#    submitResidentBtn.disabled = false;#}
+                        {# } #}
+                    }
+                });
+            } else {
+                // If no category is selected, disable the apartment select field and clear its options
+                $('#id_apartment').prop('disabled', true).empty();
+            }
+        });
+    </script>
+{% endblock %}

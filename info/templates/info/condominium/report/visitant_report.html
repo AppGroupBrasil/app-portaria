@@ -1,0 +1,21 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Relatório de Visitantes</h2>
+        <hr>
+        <br>
+        <br>
+        <form id="form" method="POST" autocomplete="off">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <span><strong><p>Deixe o bloco em branco caso queira o relatório de todos os blocos.</p></strong></span>
+            <br>
+            <br>
+            <button id="getLocationBtn" class="btn btn-primary w-100 btn-block p-2">Gerar Relatório</button>
+        </form>
+    </div>
+
+{% endblock %}

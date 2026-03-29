@@ -1,0 +1,95 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Mensagens Enviadas</h2>
+        <br>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover sortable">
+                <thead>
+                <tr class="table-primary">
+                    <th class="no-sort" scope="col">Ações</th>
+                    <th scope="col">Tipo</th>
+                    <th class="no-sort" scope="col">Bloco</th>
+                    <th class="no-sort" scope="col">Apartamento</th>
+                    <th scope="col">Envio</th>
+
+                </tr>
+                <tr>
+                    <form method="GET" id="search_form">
+                        <td class="no-sort"></td>
+                        <td class="no-sort" scope="row"></td>
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="text" id="search_message_block"
+                                   name="message_block"
+                                   placeholder="Bloco"
+                                   value="{{ request.GET.message_block }}">
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="text" id="search_message_apartment"
+                                   name="message_apartment"
+                                   placeholder="Apartamento"
+                                   value="{{ request.GET.message_apartment }}">
+                        </td>
+                        <td class="no-sort" scope="col">
+                            <input class="form-control bg-y" type="date" id="search_message_created"
+                                   name="message_created"
+                                   placeholder="Envio em..."
+                                   value="{{ request.GET.message_created }}">
+                        </td>
+
+                    </form>
+                </tr>
+                </thead>
+                <tbody>
+                {% for message in messages %}
+
+                    <tr>
+                        <td scope="row">
+                            <a href="{% url 'info:view-message' message.id %}"
+                               class="btn btn-primary btn-sm me-2"><span><i class="fas fa-eye"></i></span></a>
+                        </td>
+                        <td>{{ message.kind }}</td>
+                        <td>{{ message.block }}</td>
+                        <td>{{ message.apartment }}</td>
+                        <td data-sort="{{ message.created |date:'YMd' }}">{{ message.created|timezone:"America/Sao_Paulo" }}</td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:messages' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/sortable.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            let searchForm = $('#search_form');
+            let searchBlock = $('#search_message_block');
+            let searchApartment = $('#search_message_apartment');
+            let searchCreated = $('#search_message_created');
+
+            $(searchBlock).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchApartment).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchCreated).on('change', function () {
+                searchForm.submit();
+            });
+
+        });
+    </script>
+{% endblock %}

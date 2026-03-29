@@ -1,0 +1,55 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Atualizar</h2>
+        <h3>Área para reserva</h3>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+
+            {{ form|crispy }}
+            <br>
+            <label style="color: red">Perminitir nova reserva <strong>somente</strong> quando as reservas nesta área, não utilizadas, forem menores que:</label>
+            <br><br>
+            <label for="id_allow_new">Número de reservas não utilizadas</label>
+            <input class="form-control" type="number" id="id_allow_new" name="allow_new" value="{{ place.allow_new_reservation }}">
+            <br>
+
+            <div class="form-check form-switch">
+                {% if place.auto_confirmation %}
+                    <input class="form-check-input" type="checkbox" id="id_auto_confirmation" name="auto_confirmation"
+                           checked>
+                {% else %}
+                    <input class="form-check-input" type="checkbox" id="id_auto_confirmation" name="auto_confirmation">
+                {% endif %}
+                <label class="form-check-label" for="id_auto_confirmation">Confirmação automãtica?</label>
+            </div>
+            <br>
+            <div class="form-check form-switch">
+                {% if place.multi_reservations %}
+                    <input class="form-check-input" type="checkbox" id="id_multi_reservations" name="multi_reservations"
+                           checked>
+                {% else %}
+                    <input class="form-check-input" type="checkbox" id="id_multi_reservations"
+                           name="multi_reservations">
+                {% endif %}
+
+                <label class="form-check-label" for="id_multi_reservations">Permite multiplas reservas?</label>
+            </div>
+            <br>
+
+            <br>
+            <br>
+
+            <button id="submitResident" type="submit" class="btn btn-primary w-100 btn-block p-2">ATUALIZAR</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+{% endblock %}

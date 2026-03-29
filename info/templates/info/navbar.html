@@ -1,0 +1,104 @@
+{% load static %}
+<nav class="primary-navbar navbar navbar-expand-lg navbar-dark bg-primary justify-content-between">
+    <a class="navbar-brand main-heading" href="{% url 'info:home' %}" style="padding-left: 30px;">
+        &nbsp; <img class="nav-logo" src="{% static 'img/pwa/Logo.png' %}">
+    </a>
+    <button
+            class="navbar-toggler highlight-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNavDropdown"
+            aria-controls="navbarNavDropdown"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+    >
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav mr-auto container-fluid">
+            &nbsp; &nbsp; &nbsp;
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a style="margin-left: 10px;" class="nav-link" id="btn-nav" href="{% url 'info:dashboard' %}">Dashboard
+                        &nbsp; <i class="fa fa-home"
+                                  aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li class="nav-item dropdown ">
+                    <a style="margin-left: 10px;" class="nav-link dropdown-toggle highlight-toggler" href="#" role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        {{ user.email }}<i class="me-2 mx-2 fa-solid fa-user"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>{% if user.resident_in %}
+
+                            <a class="dropdown-item" href="{% url 'info:update-resident-profile' %}">Atualizar
+                                Informações</a>
+                        {% else %}
+                            <a class="dropdown-item" href="{% url 'info:update-profile' %}">Atualizar
+                                Informações</a>
+                        {% endif %}
+
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'info:update-password' %}">Atualizar Senha</a>
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'info:update-email' %}">Atualizar Email</a></li>
+                        {% if not 'info.add_visitant' in user.get_all_permissions %}
+                            <li><a class="dropdown-item" href="{% url 'info:add-signature' %}">Assinatura de
+                                emails</a>
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'info:add-logo' %}">Logo dos relatórios</a>
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'info:config-dashboard' %}">Configurar
+                                exibição</a>
+                            </li>
+                        {% elif not user.is_staff %}
+                            <li><a class="dropdown-item" href="{% url 'info:hide-contact' %}">Ocultar meu
+                                contato</a>
+                            </li>
+                        {% endif %}
+                        {% if not user.work_for and not user.resident_in %}
+                            <li><a class="dropdown-item" href="{% url 'info:configure-profile' user.id %}">Funcionalidades dos Gestores</a>
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'info:config-residents' %}">Funcionalidades dos Moradores</a>
+                            </li>
+                        {% endif %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'info:sign-out' %}">Sair &nbsp; <i
+                                    class="fa fa-sign-out"
+                                    aria-hidden="true"></i> </a>
+                        </li>
+                    </ul>
+                </li>
+                </ul>
+
+
+
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'info:sign-up' %}"> Cadastrar </a>
+                </li>
+                &nbsp;     &nbsp;     &nbsp;
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'info:sign-in' %}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a target="_blank" class="nav-link" href="https://www.appportaria.com.br/">Demonstração</a>
+                </li>
+                <li class="nav-item">
+                    <a target="_blank" class="nav-link"
+                       href="https://www.appportaria.com.br/">Planos</a>
+                </li>
+                <li class="nav-item">
+                    <a target="_blank" class="nav-link"
+                       href="{% url 'info:policy' %}">Política de Pricvacidade</a>
+                </li>
+                </ul>
+            {% endif %}
+    </div>
+
+</nav>

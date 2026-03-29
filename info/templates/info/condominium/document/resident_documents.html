@@ -1,0 +1,97 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block head %}
+    <style>
+        /* Custom styles for circular button */
+
+        .folder-list {
+            max-width: 500px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            display: flex; /* Use flexbox */
+            align-items: center; /* Center items vertically */
+        }
+
+        .folder-list img {
+            max-width: 50px;
+            margin-right: 15px; /* Add margin to create space between image and text */
+        }
+
+        .name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .info {
+            font-size: 14px;
+        }
+
+        .options-btn {
+            cursor: pointer;
+            margin-left: auto; /* Push the button to the right */
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <!-- Toggle content -->
+    <div class="text-center">
+        <h2>Documentos</h2>
+        {% if parent_id %}
+            <h3>Subpasta</h3>
+        {% endif %}
+        <h3><strong>{{ name }}</strong></h3>
+        <br>
+
+        {% if parent_id %}
+            <div class="text-end">
+                <a class="options-btn btn btn-primary" href="{% url 'info:back-resident-folder' parent_id %}"><span>
+                <i class="fa-solid fa-arrow-left"></i></span></a>
+            </div>
+        {% endif %}
+
+        <br>
+
+        {% for folder in folders %}
+            <div class="folder-list">
+                {% if parent_id %}
+                    <img src="{% static 'img/subfolder.png' %}" alt="">
+                {% else %}
+                    <img src="{% static 'img/folder.png' %}" alt="">
+                {% endif %}
+                <a class="dashboard-link" href="{% url 'info:resident-folder' folder.id %}">
+                    <div>
+                        <div class="name">{{ folder.name }}</div>
+                        <div class="info">Arquivos: {{ folder.files }} , Pastas: {{ folder.folders }}</div>
+                    </div>
+                </a>
+            </div>
+            <br>
+        {% endfor %}
+        {% for file in files %}
+            <div class="folder-list">
+                <img src="{% static 'img/file.png' %}" alt="">
+                <a class="dashboard-link" href="{{ file.file.url }}" download>
+                    <div>
+                        <div class="name">{{ file.name|truncatechars:15 }}</div>
+                        <div class="info">Tamanho: {{ file.file.size|filesizeformat }} , Atualizado
+                            em: {{ file.created|timezone:"America/Sao_Paulo"|date:"d/m/Y" }}</div>
+                    </div>
+                </a>
+                <a class="options-btn btn btn-primary btn-sm" href="{{ file.file.url }}" download><span><i
+                        class="fa-regular fa-circle-down"></i></span></a>
+            </div>
+            <br>
+        {% endfor %}
+        <br>
+        <br>
+        <a id="return-link" href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+        <br>
+        <br>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+{#        <img class="home-logo" src="{% static 'img/pwa/Logo.png' %}" alt="Card image cap" >#}
+{#        <br>#}
+        <br>
+        <br>
+        <a class="btn btn-primary home-btn" type="button" href="{% url 'info:sign-in' %}">ACESSAR MINHA CONTA</a>
+        <br/>
+        <br/>
+        <a class="btn btn-info home-btn" type="button" href="{% url 'info:sign-up' %}">CADASTRE-SE</a>
+        <br/>
+        <br/>
+        <a href="https://wa.me/5581999618516" target="_blank"><img border="0" src="{% static 'img/whatsapp.png' %}"
+                                                                   class="media-object img-fluid contact"></a>
+    </div>
+
+{% endblock %}

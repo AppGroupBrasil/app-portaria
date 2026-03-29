@@ -1,0 +1,86 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Cadastro de Morador</h2>
+        <br>
+        <br>
+        <a class="dashboard-link" href="{% url 'info:add-resident-excel' %}">
+            <div class="icon">
+                <i class="fa-regular fa-file-excel fa-2xl m-4" style="color: #3498db"></i>
+                <br>
+                Adicionar por Excel
+            </div>
+        </a>
+
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+            {{ form|crispy }}
+
+            <label id="lblError" style="color:red"></label>
+
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="id_remove" name="remove">
+                <label class="form-check-label" for="id_reply">Remover morador antigo</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="id_default_pass"
+                       name="default_pass" checked>
+                <label class="form-check-label" for="id_default_pass">
+                    Cadastrar senha do morador
+                </label>
+            </div>
+            <div id="password_section" class="">
+                <br>
+                <span style="color: red"><p>ATENÇÃO:<br>
+                Utilize apenas 4 números para criar a senha de acesso.</p></span>
+                <br>
+                <label for="id_new_password1" class=" requiredField">
+                    Senha<span class="asteriskField">*</span> </label>
+                <input type="password" name="new_password1" placeholder="*Nova senha numérica.."
+                       class="form-control form-control-lg password textinput textInput" maxlength="4" required=""
+                       id="id_new_password1" >
+                <label for="id_new_password2" class=" requiredField">
+                    Confirme a senha<span class="asteriskField">*</span> </label>
+                <input type="password" name="new_password2" placeholder="*Confirme nova senha.."
+                       class="form-control form-control-lg password textinput textInput" maxlength="4" required=""
+                       id="id_new_password2" >
+            </div>
+            <br>
+            <br>
+
+            <button id="submitResident" type="submit" class="btn btn-primary w-100 btn-block p-2">Cadastrar</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+    <script src="{% static 'js/add_resident.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let defaultPass = $('#id_default_pass');
+            let passSection = $('#password_section');
+            let pass = $('#id_new_password1');
+            let confirm = $('#id_new_password2');
+
+            defaultPass.on('change', () => {
+
+                if (defaultPass.is(":checked")) {
+                    passSection.removeClass("hidden");
+                    pass.removeAttr('disabled');
+                    confirm.removeAttr('disabled');
+                } else {
+                    passSection.addClass("hidden");
+                    pass.attr('disabled', 'disabled');
+                    confirm.attr('disabled', 'disabled');
+                }
+            });
+        });
+    </script>
+{% endblock %}

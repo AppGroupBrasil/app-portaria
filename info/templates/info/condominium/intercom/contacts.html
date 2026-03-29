@@ -1,0 +1,84 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Moradores/Responsáveis Cadastrados</h2>
+        <br>
+        <div class="container mt-5">
+            <h1 class="mb-4">INTERFONAR</h1>
+            <br>
+            <br>
+            <form method="GET" id="search_form">
+                <label>Busca pelo Bloco ou Apartamento:</label>
+                <input class="form-control bg-y" type="text" id="search_contact_apartment"
+                       name="contact_apartment"
+                       placeholder="Buscar Bloco/Apartamento"
+                       value="{{ request.GET.contact_apartment }}">
+                <br>
+                <label>Busca pelo Nome:</label>
+                <input class="form-control bg-y" type="text" id="search_contact_name"
+                       name="contact_name"
+                       placeholder="Buscar Nome"
+                       value="{{ request.GET.contact_name }}">
+
+            </form>
+            <br>
+            <br>
+            <div class="row">
+                {% for resident in residents %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card mb-4">
+                            {#                    <img src="{% static 'img/user_placeholder.png' %}" class="card-img-top" alt="User Image">#}
+                            <div class="card-body">
+                                <h5 class="card-title"><strong>{{ resident.apartment.block.name }}
+                                    / {{ resident.apartment.number }} {{ resident.apartment.complement }}</strong></h5>
+                                <h5 class="card-title">{{ resident.name }}</h5>
+                                <p class="card-text">
+                                    {% if resident.email %}
+                                        <a href="{% url 'info:message-resident' %}"><i
+                                                class="fa-solid fa-envelope-circle-check fa-2xl m-4"></i></a>
+                                    {% endif %}
+                                    {% if resident.whatsapp and not resident.hide_contact %}
+                                        {% if 'Mobile' in request.META.HTTP_USER_AGENT or 'Android' in request.META.HTTP_USER_AGENT or 'iPhone' in request.META.HTTP_USER_AGENT %}
+                                            <a href="tel:+55{{ resident.whatsapp }}"><i
+                                                    class="fa-solid fa-phone fa-2xl m-4"></i></a>
+                                        {% endif %}
+                                        <a href="https://wa.me/55{{ resident.whatsapp }}" target="_blank"><i
+                                                class="fa-brands fa-whatsapp fa-2xl m-4"></i></a>
+                                    {% endif %}
+
+
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let searchForm = $('#search_form');
+            let searchApartment = $('#search_contact_apartment');
+            let searchName = $('#search_contact_name');
+
+            $(searchApartment).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchName).on('change', function () {
+                searchForm.submit();
+            });
+        });
+    </script>
+
+{% endblock %}

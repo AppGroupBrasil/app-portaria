@@ -1,0 +1,39 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.appportaria",
+      "sha256_cert_fingerprints": [
+        "B8:79:E0:F8:AC:60:87:E4:58:65:0E:9B:03:A3:6C:5F:2A:1E:8D:35:21:68:CC:51:EC:86:E2:A2:7D:B8:76:F4"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.appportaria.twa",
+      "sha256_cert_fingerprints": [
+        "8B:24:B0:24:B8:65:9C:A7:C3:22:58:B7:11:7C:50:A4:AB:14:40:3D:F3:1D:B4:87:C9:07:A0:2E:3C:EE:32:87"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "twa.com.appportaria.twa",
+      "package_name": "twa.com.appportaria.twa",
+      "sha256_cert_fingerprints": [
+        "8B:24:B0:24:B8:65:9C:A7:C3:22:58:B7:11:7C:50:A4:AB:14:40:3D:F3:1D:B4:87:C9:07:A0:2E:3C:EE:32:87"
+      ]
+    }
+  }
+]

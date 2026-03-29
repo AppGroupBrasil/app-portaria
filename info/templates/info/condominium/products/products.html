@@ -1,0 +1,64 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Produtos do Estoque</h2>
+        <br>
+        {% if 'info.add_product' in user.get_all_permissions %}
+            <a class="dashboard-link" href="{% url 'info:add-product' %}">
+                <i class="fa-solid fa-prescription-bottle-medical fa-2xl m-4" style="color: #3498db"></i>
+                <br>
+                Cadastrar Produto
+            </a>
+        {% endif %}
+        <br>
+        {% if 'info.view_product' in user.get_all_permissions %}
+            <hr>
+            <div class="table-container">
+                <table class="table table-hover">
+                    <thead>
+                    <tr class="table-primary">
+                        <th scope="col">Ações</th>
+                        <th scope="col">Nome</th>
+                        <th scope="col">Descrição</th>
+                        <th scope="col">Quantidade em estoque</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <th scope="row">
+                                <a class="btn btn-primary btn-sm me-2"
+                                   href="{% url 'info:view-product' product.id %}"><i class="fas fa-eye"></i></a>
+                                {#                            <a href="#"><i class="fas fa-eye me-2"></i></a>#}
+                                {% if 'info.change_product' in user.get_all_permissions %}
+                                    <a class="btn btn-primary btn-sm me-2"
+                                       href="{% url 'info:edit-product' product.id %}"><span><i
+                                            {#                                <a href="#"><span><i#}
+                                            class="fas fa-edit"></i></span></a>
+                                {% endif %}
+                                {% if 'info.delete_product' in user.get_all_permissions %}
+                                    <a class="btn btn-primary btn-sm me-2"
+                                       href="{% url 'info:delete-product' product.id %}"><span><i
+                                            class="fas fa-trash-can"></i></span></a>
+                                {% endif %}
+                            </th>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.description }}</td>
+                            <td>{{ product.quantity }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+
+{% endblock %}

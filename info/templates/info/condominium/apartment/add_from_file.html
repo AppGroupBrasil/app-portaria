@@ -1,0 +1,32 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Cadastro de moradores pelo Excel</h2>
+
+        <br>
+        <br>
+
+        <a class="dashboard-link" href="{% static 'doc/ModeloCadastroMoradores.xlsx' %}" download>
+            <img style="mar: 15px; max-width: 50px;" src="{% static 'img/excel.png' %}" alt="">
+            <div class="name">Baixar Modelo para Cadastro</div>
+
+        </a>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <br>
+            <button id="submit" type="submit" class="btn btn-primary w-100 btn-block p-2">CADASTRAR</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+
+{% endblock %}

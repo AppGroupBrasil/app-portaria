@@ -1,0 +1,177 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Reserva</h2>
+        <h3>{{ place.name }}</h3>
+        <hr>
+        <br>
+        <br>
+        <form id="form" method="POST" autocomplete="off">
+            {% csrf_token %}
+            <p>Legenda do calendário de reservas:</p>
+            <button class="btn btn-outline-danger" disabled> dia</button>
+            <strong>Não tem horários disponíveis</strong><br>
+            <button class="btn btn-outline-warning my-2" disabled> dia</button>
+            <strong>Com reserva pendentes</strong><br>
+            <button class="btn btn-outline-success" disabled> dia</button>
+            <strong>Com reserva confirmadas</strong><br>
+            <br>
+            {{ form|crispy }}
+            <br>
+            <br>
+            {#            <button id="getLocationBtn" class="btn btn-primary w-100 btn-block p-2">HORÁRIOS DISPONÍVEIS</button>#}
+        </form>
+
+
+    </div>
+    <br>
+    <br>
+
+    <div class="text-center">
+        <h2>Total de reservas realizadas desta área</h2>
+        <p><span style="color: red; font-family: Calibri, Arial, sans-serif; font-size: 20px; font-weight: bold;">Todas as reservas que constarem nesta relação já foram reservadas por outro morador.</span>
+        </p>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Data</th>
+                    <th scope="col">Horário</th>
+                    <th scope="col">Morador</th>
+                    <th scope="col">Status</th>
+                </tr>
+                <tr>
+                    <form method="GET" id="search_form" class="search-form">
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="date" id="search_date"
+                                   name="search_date"
+                                   placeholder="Data..."
+                                   value="{{ request.GET.search_date }}">
+                        </td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control bg-y" type="time" id="search_time"
+                                   name="search_time"
+                                   placeholder="Horário..."
+                                   value="{{ request.GET.search_time }}">
+                        </td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control bg-y" type="text" id="search_resident"
+                                   name="search_resident"
+                                   placeholder="Reservado por"
+                                   value="{{ request.GET.search_resident }}">
+                        </td>
+                        <td class="no-sort"></td>
+
+                    </form>
+                </tr>
+                </thead>
+                {% if reservation %}
+                    <tbody>
+                    {% for booking in reservation %}
+
+                        {% if booking.status == 'PENDENTE' %}
+                            <tr class="table-warning">
+                                {% elif booking.status == 'CANCELADA' %}
+                            <tr class="list-group-item-danger">
+                                {% else %}
+                            <tr class="table-success">
+                        {% endif %}
+
+                    <td>{{ booking.date|date:"d/m/Y" }}</td>
+                    <td>Das {{ booking.time.init_time|time:"H:i" }} Até {{ booking.time.end_time|time:"H:i" }}</td>
+                    <td>{{ booking.resident.condominium_name }}</td>
+                    <td>{{ booking.status }}</td>
+                    </tr>
+                    {% endfor %}
+
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        let $j = jQuery.noConflict();
+        $j(document).ready(function () {
+            let mForm = $j('#form');
+            let searchDate = $j('#id_date');
+
+            $j(searchDate).on('change', function () {
+                mForm.submit();
+            });
+
+            let searchForm = $j('#search_form');
+            let searchBookedDate = $j('#search_date');
+            let searchTime = $j('#search_time');
+            let searchResudent = $j('#search_resident');
+
+            $j(searchBookedDate).on('change', function () {
+                searchForm.submit();
+            });
+
+            $j(searchTime).on('change', function () {
+                searchForm.submit();
+            });
+
+            $j(searchResudent).on('change', function () {
+                searchForm.submit();
+            });
+
+            let enableDays = ['25/02/24', '29/02/2024'];
+
+            let pending_days = {{ pending_days|safe }};
+            let confirmed_days = {{ confirmed_days|safe }};
+            let unavailable_days = {{ unavailable_days|safe }};
+
+            $j('.datepicker').datepicker({
+                dateFormat: 'yy-mm-dd',
+
+                beforeShowDay: function (date) {
+                    let dateString = $j.datepicker.formatDate('yy-mm-dd', date);
+                    let result = [true, '', ''];
+
+                    // Check if the current date matches the special date
+                    if (confirmed_days.includes(dateString)) {
+                        result[1] = 'confirmed-date';
+                    }
+
+                    if (pending_days.includes(dateString)) {
+                        result[1] = 'pending-date';
+                    }
+
+                    if (unavailable_days.includes(dateString)) {
+                        result[1] = 'unavailable-date';
+                    }
+
+                    return result;
+                }
+            });
+        });
+    </script>
+
+    <style>
+        /* Add this style to your HTML template or external stylesheet */
+        .pending-date {
+            background-color: #ffcc00; /* Replace with your desired background color */
+        }
+
+        .confirmed-date {
+            background-color: #18bc9c; /* Replace with your desired background color */
+        }
+
+        .unavailable-date {
+            background-color: #e74c3c; /* Replace with your desired background color */
+        }
+    </style>
+
+{% endblock %}
+
+
+
+
+

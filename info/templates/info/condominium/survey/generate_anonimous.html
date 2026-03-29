@@ -1,0 +1,74 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <p id="successMessage" class="alert alert-success float-center text-center message-text hidden">
+            Link copiado para área de transferência!
+        </p>
+        <br>
+        <h2>Link de Resposta</h2>
+        <hr>
+        <br>
+        <p> O link para resposta da enquete foi gerado.</p>
+        <br>
+        <form id="link_form" method="POST" autocomplete="off">
+            {% csrf_token %}
+
+            <label>Link:</label>
+            <br>
+            <input class="w-100" type="text" id="id_link" name="link" readonly style="word-wrap: break-word;"
+                   value="http://{{ domain }}{% url 'info:anonimous-survey-answer' uidb64=uid token=token email=survey_email %}">
+            <br>
+            <br>
+            <button type="button" class="btn btn-primary w-100 btn-block p-2" id="copyButton">Copiar link</button>
+            <br>
+            <br>
+            <a href="{% url 'info:surveys' %}" class="btn btn-danger w-100 btn-block p-2">Voltar</a>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+    <script>
+        document.getElementById("copyButton").addEventListener("click", function () {
+            // Get the input field's value
+            const linkField = document.getElementById("id_link");
+            const linkValue = linkField.value;
+
+            // Create a temporary textarea element to copy the value to the clipboard
+            const tempTextarea = document.createElement("textarea");
+            tempTextarea.value = linkValue;
+
+            // Append the textarea to the document (not visible to the user)
+            document.body.appendChild(tempTextarea);
+
+            // Select the text in the textarea
+            tempTextarea.select();
+
+            // Copy the selected text to the clipboard
+            document.execCommand("copy");
+
+            // Remove the temporary textarea from the document
+            document.body.removeChild(tempTextarea);
+
+            // Optionally, you can show a message to indicate successful copy
+            {#alert("Text copied to clipboard!");#}
+            const successMessage = document.getElementById("successMessage");
+            successMessage.classList.remove("hidden");
+            setTimeout(function () {
+                successMessage.classList.add("hidden");
+            }, 4000);
+        });
+    </script>
+    <script>
+        document.getElementById("send").addEventListener("click", function () {
+            let linkForm = $('#link_form');
+            linkForm.submit();
+        });
+    </script>
+
+
+
+{% endblock %}

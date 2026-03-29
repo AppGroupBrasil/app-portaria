@@ -1,0 +1,106 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Visitantes</h2>
+        <br>
+        <div class="dashboard">
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:add-visitant' %}">
+                    <div class="custom-icon">
+                        <i class="fa-solid fa-house-user fa-2xl" style="color: #3498db"></i>
+                        <br>
+                        Liberar Visitante / Encomenda
+                    </div>
+                </a>
+            </div>
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:add-internal-leave' %}">
+                    <div class="custom-icon">
+                        <i class="fa-solid fa-person-walking-arrow-right fa-2xl" style="color: #3498db"></i>
+                        <br>
+                        Liberar saída interna
+                    </div>
+                </a>
+            </div>
+        </div>
+        <br>
+        <div class="text-end">
+            {% if how_to_resident_visitants_text %}
+                <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                        data-bs-placement="left"
+                        data-bs-content="{{ how_to_resident_visitants_text }}"
+                        data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                        class="fa-regular fa-circle-question fa-xl"></i>
+                </button>
+            {% elif how_to_resident_visitants_link %}
+                <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_resident_visitants_link }}"><i
+                        class="fa-regular fa-circle-question fa-xl"></i></a>
+            {% endif %}
+        </div>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Ação</th>
+                    <th scope="col">Placa do Veículo</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Liberado até</th>
+                    <th scope="col">Observações</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for visitant in visitants_list %}
+                    {% if visitant.can_leave %}
+                        <tr class="table-success">
+                    {% elif visitant.visit and not visitant.leaves %}
+                        <tr class="list-group-item-danger">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+                <th scope="row">
+                    {#                <a href="{% url 'info:remove-visitant' visitant.id %}" class=""><i#}
+                    {#                        class="fa-regular fa-trash-can"></i></a>#}
+                    <a href="/confirm-delete/resident-visitants/remove-visitant.{{ visitant.id }}"
+                       class="btn btn-primary btn-sm"><i
+                            class="fa-regular fa-trash-can"></i></a>
+                    {% if visitant.visit and not visitant.leaves and not visitant.can_leave %}
+                        <a href="{% url 'info:allow-departure' visitant.id %}" class="mx-2 btn btn-danger ">
+                            LIBERAR SAÍDA</a>
+                    {% endif %}
+                </th>
+                <td>{{ visitant.vehicle_plate }}</td>
+                <td>{{ visitant.name }}</td>
+                {% if visitant.is_permanent %}
+                    <td>Pernamentemente</td>
+                {% else %}
+                    <td>{{ visitant.until }}</td>
+                {% endif %}
+                <td>{{ visitant.comment }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        })
+        ;
+    </script>
+
+
+{% endblock %}

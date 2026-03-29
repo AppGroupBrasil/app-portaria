@@ -1,0 +1,66 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Adicionar etapa</h2>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+
+            <div id="phase-list">
+                {% if formset %}
+                    {{ formset.management_form }}
+                    {% for form in formset %}
+                        <hr>
+                        <br>
+                        <div class="phase">
+                            {{ form|crispy }}
+                        </div>
+
+                    {% endfor %}
+                    <div id="phase-empty-form" class="hidden">
+                        <hr>
+                        <br>
+                        {{ formset.empty_form|crispy }}
+                    </div>
+
+                {% endif %}
+            <br>
+            </div>
+            <br>
+            <br>
+            <button id="add-more-phase" type="button" class="btn btn-info w-100 btn-block p-2">Adicionar outra</button>
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">FINALIZAR</button>
+            <br>
+        </form>
+        <br>
+    </div>
+    <br>
+    <script>
+        const addPhaseBtn = document.getElementById('add-more-phase');
+        const totalPhaseNewForms = document.getElementById('id_phase-TOTAL_FORMS')
+        addPhaseBtn.addEventListener('click', () => {
+            if (event) {
+                event.preventDefault();
+            }
+
+            const currentPhaseForms = document.getElementsByClassName('phase');
+            let currentPhaseCounter = currentPhaseForms.length;
+            const emptyPhaseElement = document.getElementById('phase-empty-form').cloneNode(true);
+            emptyPhaseElement.setAttribute('class', 'phase')
+            emptyPhaseElement.setAttribute('id', `form-phase-${currentPhaseCounter}`)
+            const regex = new RegExp('__prefix__', 'g');
+            emptyPhaseElement.innerHTML = emptyPhaseElement.innerHTML.replace(regex, currentPhaseCounter);
+
+
+            totalPhaseNewForms.setAttribute('value', currentPhaseCounter + 1);
+
+            const formTarget = document.getElementById('phase-list');
+            formTarget.append(emptyPhaseElement);
+        });
+    </script>
+
+{% endblock %}

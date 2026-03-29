@@ -1,0 +1,33 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Enviar boleto ao(s) Morador(es)</h2>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+            <p>Para enviar um boleto ao morador, renomeie o nome do arquivo que deseja enviar para o padrão:<br>
+            nome-do-bloco_apartamento-complemento.pdf.</p>
+
+            <span style="color: red; font-weight: bold;"><p>O bloco e o apartamento são separados por um underline _ </p>
+            <p>Onde houverem espaços, utilize um hífen - </p>
+            <p>Exemplo: bloco-01_101-B.pdf </p>
+                </span>
+            <br>
+            <br>
+            {{ form|crispy }}
+
+            <br>
+            <br>
+            <button id="submitNotification" type="submit" class="btn btn-primary w-100 btn-block p-2">Enviar</button>
+            <br>
+        </form>
+        <br>
+
+    </div>
+    <br>
+    <script src="{% static 'js/add_resident.js' %}"></script>
+
+{% endblock %}

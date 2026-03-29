@@ -1,0 +1,84 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Enquetes</h2>
+        <br>
+        {% if 'info.add_surveymodel' in user.get_all_permissions %}
+            <a class="dashboard-link" href="{% url 'info:check-in' page='add-survey' %}">
+                <div class="icon">
+                    <i class="fa-solid fa-person-circle-question fa-2xl m-4" style="color: #3498db"></i>
+                    <br>
+                    Fazer Enquete
+                </div>
+            </a>
+        {% endif %}
+        <br>
+        <div class="text-end">
+            {% if how_to_survey_list_text %}
+                <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                        data-bs-placement="left"
+                        data-bs-content="{{ how_to_survey_list_text }}"
+                        data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                        class="fa-regular fa-circle-question fa-xl"></i>
+                </button>
+            {% elif how_to_survey_list_link %}
+                <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_survey_list_link }}"><i
+                        class="fa-regular fa-circle-question fa-xl"></i></a>
+            {% endif %}
+        </div>
+        {% if 'info.view_surveymodel' in user.get_all_permissions %}
+            <hr>
+            <div class="table-container">
+                <table class="table table-hover sortable">
+                    <thead>
+                    <tr class="table-primary">
+                        <th class="no-sort" scope="col">Ações</th>
+                        <th scope="col">Questão</th>
+                        <th class="no-sort" scope="col">Total de votos</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for survey in surveys %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'info:survey-detail' survey.id %}"
+                                   class="btn btn-primary btn-sm me-2"><span><i
+                                        class="fas fa-eye"></i></span></a>
+                                <a id="export-link" href="{% url 'info:survey-report' survey.id %}"
+                                   class="btn btn-primary btn-sm mx-2">
+                                    <i class="fa-regular fa-file-pdf"></i>
+                                </a>
+                                <a href="/confirm-delete/surveys/remove-survey.{{ survey.id }}"
+                                   class="btn btn-primary btn-sm"><span><i
+                                        class="fa-regular fa-trash-can"></i></span></a>
+                            </td>
+                            <td scope="row">{{ survey.question }}</td>
+                            <td>{{ survey.votes }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/sortable.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        })
+        ;
+    </script>
+
+{% endblock %}

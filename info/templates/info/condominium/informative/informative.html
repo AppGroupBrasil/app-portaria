@@ -1,0 +1,116 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Atividades Cadastradas</h2>
+        <br>
+        {% if 'info.add_informative' in user.get_all_permissions %}
+            <a class="dashboard-link" href="{% url 'info:check-in' page='add-informative' %}">
+                <div class="icon">
+                    <i class="fa-regular fa-file-lines fa-2xl m-4" style="color: #3498db"></i>
+                    <br>
+                    Adicionar Atividade
+                </div>
+            </a>
+        {% endif %}
+        <br>
+        <div class="text-end">
+            {% if how_to_informative_list_text %}
+                <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                        data-bs-placement="left"
+                        data-bs-content="{{ how_to_informative_list_text }}"
+                        data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                        class="fa-regular fa-circle-question fa-xl"></i>
+                </button>
+            {% elif how_to_informative_list_link %}
+                <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_informative_list_link }}"><i
+                        class="fa-regular fa-circle-question fa-xl"></i></a>
+            {% endif %}
+        </div>
+        {% if 'info.view_informative' in user.get_all_permissions %}
+            <hr>
+            <div class="table-container">
+                <table class="table table-hover sortable">
+                    <thead>
+                    <tr class="table-primary">
+                        <th class="no-sort" scope="col">Ações</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Nome</th>
+                        <th class="no-sort" scope="col">Descrição</th>
+                        <th scope="col">Criação</th>
+                    </tr>
+                    <tr>
+                        <form method="GET" id="search_form">
+                            <td class="no-sort"></td>
+                            <td class="no-sort"></td>
+                            <td class="no-sort" scope="row">
+                                <input class="form-control bg-y" type="text" id="search_informative_name"
+                                       name="informative_name"
+                                       placeholder="Nome para buscar..."
+                                       value="{{ request.GET.informative_name }}">
+                            </td>
+                            <td class="no-sort"></td>
+                            <td class="no-sort" scope="col">
+                                <input class="form-control bg-y" type="date" id="search_informative_created"
+                                       name="informative_created"
+                                       placeholder="Criado em..."
+                                       value="{{ request.GET.informative_created }}">
+                            </td>
+                        </form>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for informative in informative_list %}
+
+
+                        <tr>
+                            <td scope="row">
+                                {% if 'info.change_informative' in user.get_all_permissions %}
+                                    <a class="btn btn-primary btn-sm me-2"
+                                       href="check-in/edit-informative.{{ informative.id }}"><span><i
+                                            class="fas fa-edit"></i></span></a>
+                                {% endif %}
+                                {% if 'info.export_informative' in user.get_all_permissions %}
+                                    <a href="check-in/export-informative.{{ informative.id }}"
+                                       class="btn btn-primary btn-sm me-2"><span><i
+                                            class="fas fa-eye"></i></span></a>
+                                {% endif %}
+                                {% if 'info.delete_informative' in user.get_all_permissions %}
+                                    <a href="/confirm-delete/invormative/delete-informative.{{ informative.id }}"
+                                       class="btn btn-primary btn-sm me-2"><span><i
+                                            class="fa-regular fa-trash-can"></i></span></a>
+                                {% endif %}
+                            </td>
+                            <td>{{ informative.kind }}</td>
+                            <td>{{ informative.title }}</td>
+                            <td>{{ informative.description }}</td>
+                            <td data-sort="{{ informative.created |date:'YMd' }}">{{ informative.created|timezone:"America/Sao_Paulo" }}</td>
+                        </tr>
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/informative.js' %}"></script>
+    <script src="{% static 'js/sortable.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        })
+        ;
+    </script>
+{% endblock %}

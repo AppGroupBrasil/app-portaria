@@ -1,0 +1,81 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Detalhes Informativo</h2>
+        <hr>
+        <br>
+        <form method="GET">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <br>
+            <div id="function-list">
+
+                {% if function_formset %}
+                    {{ function_formset.management_form }}
+                    {% for form in function_formset %}
+                        <hr>
+                        <br>
+                        <div class="activity">
+                            {{ form|crispy }}
+                        </div>
+
+                    {% endfor %}
+                    <div id="function-empty-form" class="hidden">
+                        <hr>
+                        <br>
+                        {{ function_formset.empty_form|crispy }}
+                    </div>
+
+                {% endif %}
+            </div>
+
+            <br>
+            <br>
+
+            <div id="image-list">
+                {% if images_formset %}
+                    {% for image_instance in images_formset %}
+                        <br>
+                        <img src="{{ image_instance.image.url }}" alt="Thumbnail">
+                        <br>
+
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div id="fiels-list">
+                {% if files_formset %}
+                    {% for file_instance in files_formset %}
+                        <br>
+                        <a href="{{ file_instance.url }}" target="_blank">{{ file_instance }}</a>
+                        <br>
+
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <br>
+            <br>
+            <div class="row">
+                <div class="col">
+                    <a id="return-link" href="{% url 'info:informative' %}" class="btn btn-danger">
+                        <i class="fa fa-arrow-left"> Voltar</i>
+                    </a>
+                </div>
+                <div class="col">
+                    <a id="return-link" href="{% url 'info:informative' %}" class="btn btn-info">
+                        <i class="fa fa-arrow-left"> Editar</i>
+                    </a>
+                </div>
+                <div class="col"></div>
+            </div>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+
+{% endblock %}

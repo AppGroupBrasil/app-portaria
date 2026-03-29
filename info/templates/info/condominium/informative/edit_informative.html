@@ -1,0 +1,113 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Atualizar Informativo</h2>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+
+
+            {{ form|crispy }}
+            <br>
+            <br>
+            {#            <div class="row-inline">#}
+            {##}
+            {#                <h4>Função </h4>#}
+            {#                <button id="add-function" type="button" class="btn btn-link w-8 h-10 btn-block p-2"#}
+            {#                        onclick="addFunctionForm()">#}
+            {#                    <i class="fa-sharp fa-solid fa-square-plus fa-xl"></i>#}
+            {#                </button>#}
+            {#                <button id="remove-function" type="button" class="btn btn-link w-10 h-10 btn-block p-2"#}
+            {#                        onclick="deleteFunctionFromInformative()">#}
+            {#                    <i class="fa-sharp fa-solid fa-square-minus icon-minus fa-xl"></i>#}
+            {#                </button>#}
+            {#                {% if how_to_function_text %}#}
+            {#                    <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"#}
+            {#                            data-bs-placement="right"#}
+            {#                            data-bs-content="{{ how_to_function_text }}"#}
+            {#                            data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i#}
+            {#                            class="fa-regular fa-circle-question icon-minus fa-xl"></i>#}
+            {#                    </button>#}
+            {#                {% elif how_to_function_link %}#}
+            {#                    <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_function_link }}"><i#}
+            {#                            class="fa-regular fa-circle-question icon-minus fa-xl"></i></a>#}
+            {#                {% endif %}#}
+            {##}
+            {#            </div>#}
+            <div id="activity-list">
+                {% if function_formset %}
+                    {{ function_formset.management_form }}
+                    {% for activity_form in function_formset %}
+                        <hr>
+                        <br>
+                        <div class="activity">
+                            {{ activity_form|crispy }}
+                        </div>
+
+                    {% endfor %}
+                    <div id="activity-empty-form" class="hidden">
+                        <hr>
+                        <br>
+                        {{ function_formset.empty_form|crispy }}
+                    </div>
+
+                {% endif %}
+                <br>
+            </div>
+            <br>
+            <br>
+            <button id="add-more-activity" type="button" class="btn btn-info w-100 btn-block p-2">Adicionar outra
+            </button>
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">ATUALIZAR</button>
+
+        </form>
+        <br>
+        <a id="return-link" href="{% url 'info:informative' %}" class="btn btn-danger w-100 btn-block p-2 mt-2">
+            <i class="fa fa-arrow-left">Voltar</i>
+        </a>
+
+        <br>
+
+    </div>
+    <br>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        });
+    </script>
+    <script>
+        const addPhaseBtn = document.getElementById('add-more-activity');
+        const totalActivityNewForms = document.getElementById('id_activity-TOTAL_FORMS')
+        addPhaseBtn.addEventListener('click', () => {
+            if (event) {
+                event.preventDefault();
+            }
+
+            const currentActivityForms = document.getElementsByClassName('activity');
+
+            let currentActivityCounter = currentActivityForms.length;
+
+            const emptyActivityElement = document.getElementById('activity-empty-form').cloneNode(true);
+            emptyActivityElement.setAttribute('class', 'activity')
+            emptyActivityElement.setAttribute('id', `form-activity-${currentActivityCounter}`)
+            const regex = new RegExp('__prefix__', 'g');
+            emptyActivityElement.innerHTML = emptyActivityElement.innerHTML.replace(regex, currentActivityCounter);
+
+
+            totalActivityNewForms.setAttribute('value', currentActivityCounter + 1);
+
+            const formTarget = document.getElementById('activity-list');
+            formTarget.append(emptyActivityElement);
+        });
+    </script>
+    {#    <script src="{% static 'js/informative.js' %}"></script>#}
+{% endblock %}

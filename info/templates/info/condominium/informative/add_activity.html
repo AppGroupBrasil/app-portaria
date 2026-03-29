@@ -1,0 +1,78 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Adicionar Atividade</h2>
+        <hr>
+        <br>
+        <div class="text-end">
+            <a href="{% url 'info:add-informative-kind' %}" class="btn btn-info ">
+                ADICIONAR TIPO ATIVIDADE</a>
+        </div>
+        <br>
+        <form method="POST" autocomplete="off" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div id="activity-list">
+                {% if activity_function_formset %}
+                    {{ activity_function_formset.management_form }}
+                    {% for activity_form in activity_function_formset %}
+                        <hr>
+                        <br>
+                        <div class="activity">
+                            {{ activity_form|crispy }}
+                        </div>
+
+                    {% endfor %}
+                    <div id="activity-empty-form" class="hidden">
+                        <hr>
+                        <br>
+                        {{ activity_function_formset.empty_form|crispy }}
+                    </div>
+
+                {% endif %}
+                <br>
+            </div>
+        <br>
+            <a target="_blank"
+               href="https://www.veed.io/send-video?locale=pt-BR&source=%2Fferramentas%2Fhospedagem-de-video%2Fsubir-video"
+               style="color: black; text-decoration: none;">Gerar Link de Vídeo</a>
+            <br>
+            <br>
+            <br>
+            <button id="add-more-activity" type="button" class="btn btn-info w-100 btn-block p-2">Adicionar outra
+            </button>
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">FINALIZAR</button>
+            <br>
+        </form>
+        <br>
+    </div>
+    <br>
+    <script>
+        const addPhaseBtn = document.getElementById('add-more-activity');
+        const totalActivityNewForms = document.getElementById('id_activity-TOTAL_FORMS')
+        addPhaseBtn.addEventListener('click', () => {
+            if (event) {
+                event.preventDefault();
+            }
+
+            const currentActivityForms = document.getElementsByClassName('activity');
+            let currentActivityCounter = currentActivityForms.length;
+            const emptyActivityElement = document.getElementById('activity-empty-form').cloneNode(true);
+            emptyActivityElement.setAttribute('class', 'activity')
+            emptyActivityElement.setAttribute('id', `form-activity-${currentActivityCounter}`)
+            const regex = new RegExp('__prefix__', 'g');
+            emptyActivityElement.innerHTML = emptyActivityElement.innerHTML.replace(regex,);
+
+
+            totalActivityNewForms.setAttribute('value', currentActivityCounter + 1);
+
+            const formTarget = document.getElementById('activity-list');
+            formTarget.append(emptyActivityElement);
+        });
+    </script>
+
+{% endblock %}

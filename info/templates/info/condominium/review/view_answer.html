@@ -1,0 +1,52 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Avaliação: {{ service }}</h2>
+        {% if item.image %}
+            <img class="w-100 selectable-img my-3" src="{{ item.image.url }}" alt="Thumbnail">
+        {% endif %}
+
+        <hr>
+        <br>
+        {% if valid %}
+            <div class="text-center">
+                <a href="{% url 'info:export-answer' id %}" class="btn btn-info m-2">
+                    Exportar em PDF </a>
+            </div>
+            <br>
+        {% endif %}
+        <br>
+        {{ form|crispy }}
+        {% if img %}
+            <br><br>
+            <img class="w-100" src="{{ img.url }}" alt="Thumbnail">
+        {% endif %}
+
+        {% if not valid %}
+            {% if pic %}
+                <br><br>
+                <p>Foto enviada para validação:</p>
+                <img class="w-100" src="{{ pic.url }}" alt="Thumbnail">
+            {% else %}
+                <p>Não enviou foto para validação do voto</p>
+            {% endif %}
+            <br><br>
+            <div class="text-center row-inline">
+                <div class="w-50">
+                    <a href="{% url 'info:approve-answer' id %}" class="btn btn-info ">APROVAR</a>
+                </div>
+                <div class="w-50">
+                    <a href="{% url 'info:reprove-answer' id %}" class="btn btn-danger ">IMPUGNAR</a>
+                </div>
+            </div>
+            <br>
+            <span style="color: red; font-size: 17px; font-weight: bold;"><p>Ao impugnar um voto ele não será considerado na contagem final da enquete</p></span>
+        {% endif %}
+
+
+    </div>
+    <br>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}

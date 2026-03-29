@@ -1,0 +1,83 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/timeline.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/lightbox.min.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="text-center">
+        <h2>Detalhes da linha do tempo</h2>
+        <br>
+        <a class="dashboard-link" href="{% url 'info:add-phase' id %}">
+            <div class="custom-icon">
+                <i class="fa-solid fa-clock-rotate-left fa-2xl m-4" style="color: #3498db"></i>
+                <br>
+                Adicionar Etapa
+            </div>
+        </a>
+        <br>
+        <div class="timeline">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="timeline-container">
+
+                            <div class="timeline-end">
+                                <p>{{ timeline.end_date|date:"d M Y" }}</p>
+                            </div>
+
+                            <div class="timeline-continue">
+                                {#                                    {% for year, phases in timeline_data.items %}#}
+                                {% for phase in phases %}
+                                    {% if forloop.counter|divisibleby:2 %}
+                                        {% include 'info/condominium/timeline/right_card.html' with heading=phase.title date=phase.end_date body=phase.description img=phase.image link=phase.link %}
+                                    {% else %}
+                                        {% include 'info/condominium/timeline/left_card.html' with heading=phase.title date=phase.end_date body=phase.description img=phase.image link=phase.link %}
+                                    {% endif %}
+                                {% endfor %}
+                                {#                                    {% include 'timeline/snippets/year_circle.html' with year=year %}#}
+                                {#                                    {% endfor %}#}
+                            </div>
+
+                            <div class="timeline-start">
+                                <p>{{ timeline.start_date|date:"d M Y" }}</p>
+                            </div>
+
+                            <div class="timeline-launch">
+                                <div class="timeline-box">
+                                    <div class="timeline-text">
+                                        <h3>{{ timeline.title }}</h3>
+                                        <p>{{ timeline.description }}</p>
+                                        <p>{{ timeline.user.condominium_naame }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div id="report-actions">
+            <div class="text-center" style="padding: 20px">
+                <a href="{% url 'info:export-timeline' timeline.id %}" class="btn btn-info btn_print">Exportar PDF</a>
+            </div>
+            <br>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:timelines' %}" class="btn btn-danger">Voltar</a>
+    <br>
+        <br>
+    </div>
+    <script src="{% static 'js/lightbox.min.js' %}"></script>
+    <script>
+    lightbox.option({
+        'resizeDuration': 200,
+        'wrapAround': true
+    })
+</script>
+
+{% endblock %}

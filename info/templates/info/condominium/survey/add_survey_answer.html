@@ -1,0 +1,217 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Nova Enquete</h2>
+        <hr>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            <br>
+            <label>Seu Nome:</label>
+            <input id="id_name" name="name" type="text" class="form-control">
+            <br>
+            {{ form|crispy }}
+            <br>
+            <br>
+            <h3> Pergunta:</h3>
+            <h4> {{ question }} ?</h4>
+            <br>
+            <fieldset class="form-group">
+                <legend class="mt-4">Sua Resposta:</legend>
+                <br>
+                {% for option in options %}
+                    <div class="form-check">
+                        {% if option.is_link %}
+                            <a target="_blank" href="{{ option.option }}">{{ option.option }}</a>
+                            <input class="form-check-input" type="radio" name="optionsRadio"
+                                   id="optionRadio_{{ forloop.counter }}"
+                                   value="Link {{ forloop.counter }}" readonly>
+
+                            <label class="form-check-label" for="optionRadio_{{ forloop.counter }}">
+                            </label>
+                        {% elif option.image %}
+                            <img class="w-100" src="{{ option.image.url }}" alt="Thumbnail">
+                            <input class="form-check-input" type="radio" name="optionsRadio"
+                                   id="optionRadio_{{ forloop.counter }}"
+                                   value="{{  option.option}}" readonly>
+                            <label class="form-check-label" for="optionRadio_{{ forloop.counter }}">
+                                {{ option.option }}
+                            </label>
+                        {% else %}
+                            <input class="form-check-input" type="radio" name="optionsRadio"
+                                   id="optionRadio_{{ forloop.counter }}"
+                                   value="{{ option }}">
+                            <label class="form-check-label" for="optionRadio_{{ forloop.counter }}">
+                                {{ option }}
+                            </label>
+                        {% endif %}
+
+                    </div>
+                {% endfor %}
+            </fieldset>
+            <input id="id_webimg" name="webimg" type="text" style="display: none;">
+
+
+            <div id="camera" class="camera w-100">
+                <br>
+                <p>
+                    Envie sua foto. Ela será usada para validação do seu voto pelo organizador da enquete.
+                </p>
+                <video id="video" class="w-100">Video stream não disponível.</video>
+                <button id="startbutton" type="button">Envie uma foto</button>
+                <canvas id="canvas">
+                </canvas>
+            </div>
+            <br>
+
+            <div id="preview" class="hidden text-center w-75">
+                Visualização:
+                <img id="photo" name="photo" alt="Sua Foto" style="width: 100%;">
+            </div>
+            <br>
+            <br>
+            <button id="submitAnswer" type="submit" class="btn btn-primary w-100 btn-block p-2">Enviar Resposta</button>
+        </form>
+        <br>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let kindOption = document.getElementById('id_kind');
+        kindOption.addEventListener('change', () => {
+                let kind_value = kindOption.value;
+                if (kind_value === "MORADOR") {
+                    document.getElementById('div_id_block').setAttribute('class', '');
+                    document.getElementById('div_id_apartment').setAttribute('class', '');
+                } else {
+                    document.getElementById('div_id_block').setAttribute('class', 'hidden');
+                    document.getElementById('div_id_apartment').setAttribute('class', 'hidden');
+                }
+            }
+        );
+
+        let blockOption = document.getElementById('id_block');
+        blockOption.addEventListener('change', () => {
+            let block_id = blockOption.value;
+            if (block_id) {
+                $('#id_apartment').prop('disabled', false).empty();
+                $.ajax({
+                    url: '/get-apartments/',
+                    data: {block_id: block_id},
+                    success: function (response) {
+                        $('#id_apartment').empty();
+                        $('#id_apartment').append('<option value="">Selecione o apartamento</option>');
+                        $.each(response, function (key, value) {
+                            $('#id_apartment').append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                    }
+                });
+            } else {
+                // If no category is selected, disable the apartment select field and clear its options
+                $('#id_apartment').prop('disabled', true).empty();
+            }
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            document.getElementById('div_id_block').setAttribute('class', 'hidden');
+            document.getElementById('div_id_apartment').setAttribute('class', 'hidden');
+            $('#submitAnswer').prop('disabled', true);
+            $('input[name=optionsRadio]').on('change', function () {
+                if ($('input[name=optionsRadio]:checked').length > 0) {
+                    $('#submitAnswer').prop('disabled', false);
+                } else {
+                    $('#submitAnswer').prop('disabled', true);
+                }
+            });
+        });
+
+        let width = 1280;    // We will scale the photo width to this
+        let height = 720;     // This will be computed based on the input stream
+        let streaming = false;
+        let video = null;
+        let canvas = null;
+        let photo = null;
+        let startbutton = null;
+        let preview = null;
+
+        function startup() {
+            video = document.getElementById('video');
+            canvas = document.getElementById('canvas');
+            photo = document.getElementById('photo');
+            startbutton = document.getElementById('startbutton');
+            preview = document.getElementById('preview');
+
+            navigator.mediaDevices.getUserMedia({video: true, audio: false})
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function (err) {
+                    console.log("An error occurred: " + err);
+                });
+
+            video.addEventListener('canplay', function (ev) {
+                if (!streaming) {
+                    height = video.videoHeight / (video.videoWidth / width);
+
+                    // Firefox currently has a bug where the height can't be read from
+                    // the video, so we will make assumptions if this happens.
+
+                    if (isNaN(height)) {
+                        height = width / (4 / 3);
+                    }
+
+                    video.setAttribute('width', width);
+                    video.setAttribute('height', height);
+                    canvas.setAttribute('height', height);
+                    canvas.setAttribute('width', width);
+                    streaming = true;
+                }
+            }, false);
+
+            startbutton.addEventListener('click', function (ev) {
+                takepicture();
+                ev.preventDefault();
+            }, false);
+
+            clearphoto();
+        }
+
+        function clearphoto() {
+            let context = canvas.getContext('2d');
+            context.fillStyle = "#AAA";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            let data = canvas.toDataURL('image/png');
+            photo.setAttribute('src', data);
+            preview.setAttribute('class', 'hidden');
+            preview.setAttribute('value', '');
+            let webimgField = document.getElementById('id_webimg');
+            webimgField.value = '';
+        }
+
+        function takepicture() {
+            let context = canvas.getContext('2d');
+            if (width && height) {
+                canvas.width = width;
+                canvas.height = height;
+                context.drawImage(video, 0, 0, width, height);
+
+                let data = canvas.toDataURL('image/jpeg');
+                photo.setAttribute('src', data);
+                preview.setAttribute('class', '');
+
+                let webimgField = document.getElementById('id_webimg');
+                webimgField.value = data;
+
+
+            } else {
+                clearphoto();
+            }
+        }
+
+        window.addEventListener('load', startup, false);
+    </script>
+
+{% endblock %}

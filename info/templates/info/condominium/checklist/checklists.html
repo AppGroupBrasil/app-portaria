@@ -1,0 +1,125 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Checklists Cadastrados</h2>
+        <br>
+        {% if 'info.add_checklist' in user.get_all_permissions %}
+            <a class="dashboard-link" href="{% url 'info:check-in' page='add-checklist' %}">
+                <div class="icon">
+                    <i class="fa-solid fa-list-check fa-2xl m-4" style="color: #3498db"></i>
+                    <br>
+                    Adicionar Checklist
+                </div>
+            </a>
+        {% endif %}
+        <div class="text-end">
+            {% if how_to_checklist_text %}
+                <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                        data-bs-placement="left"
+                        data-bs-content="{{ how_to_checklist_text }}"
+                        data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                        class="fa-regular fa-circle-question icon-minus fa-xl"></i>
+                </button>
+            {% elif how_to_checklist_link %}
+                <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_checklist_link }}"><i
+                        class="fa-regular fa-circle-question icon-minus fa-xl"></i></a>
+            {% endif %}
+        </div>
+
+        <br>
+        {% if 'info.view_checklist' in user.get_all_permissions %}
+            <hr>
+            <div class="table-container">
+                <table class="table table-hover sortable">
+                    <thead>
+                    <tr class="table-primary">
+                        <th class="no-sort" scope="col">Ações</th>
+                        <th scope="col">Nome</th>
+                        <th scope="col">Criação</th>
+                        <th class="no-sort" scope="col">Status</th>
+
+                    </tr>
+                    <tr>
+                        <form method="GET" id="search_form">
+                            <td class="no-sort"></td>
+                            <td class="no-sort" scope="row">
+                                <input class="form-control bg-y" type="text" id="search_checklist_name"
+                                       name="checklist_name"
+                                       placeholder="Nome para buscar..."
+                                       value="{{ request.GET.checklist_name }}">
+                            </td>
+                            <td class="no-sort" scope="col">
+                                <input class="form-control bg-y" type="date" id="search_checklist_created"
+                                       name="checklist_created"
+                                       placeholder="Criado em..."
+                                       value="{{ request.GET.checklist_created }}">
+                            </td>
+                            <td class="no-sort"></td>
+                        </form>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for checklist in checklists_list %}
+                        {% if checklist.status == 'Ainda não verificado!' %}
+                            <tr class="table-light">
+                                {% elif checklist.status == 'Problema reportado!' %}
+                            <tr class="list-group-item-danger">
+                                {% else %}
+                            <tr class="table-success">
+                        {% endif %}
+                    <td>
+                        <a href="/check-in/view-checklist.{{ checklist.id }}" class="btn btn-primary btn-sm me-2"><i
+                                class="fas fa-eye"></i></a>
+                        <a id="export-link" href="/check-in/view-checklist-report.{{ checklist.id }}"
+                           class="btn btn-primary btn-sm me-2">
+                            <i class="fa-regular fa-file-pdf"></i>
+                        </a>
+
+                        {% if 'info.add_checklist' in user.get_all_permissions %}
+                            <a href="/check-in/edit-checklist.{{ checklist.id }}" class="btn btn-primary btn-sm me-2"><i
+                                    class="fas fa-edit"></i></a>
+                            <a href="/confirm-delete/checklists/delete-checklist.{{ checklist.id }}"
+                               class="btn btn-primary btn-sm me-2"><span><i
+                                    class="fa-regular fa-trash-can"></i></span></a>
+                        {% endif %}
+                        {% if 'info.add_checklist' in user.get_all_permissions and checklist.status != 'Ainda não verificado!' %}
+                            <a id="export-link" href="{% url 'info:clear-checklist' checklist.id %}"
+                               class="btn btn-danger me-2">
+                                REFAZER</i>
+                            </a>
+                        {% endif %}
+                    </td>
+                    <td scope="row">{{ checklist.title }}</td>
+                    <td data-sort="{{ checklist.created |date:'YMd' }}">{{ checklist.created|timezone:"America/Sao_Paulo" }}</td>
+                    <td>{{ checklist.status }}</td>
+                    </tr>
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/checklist.js' %}"></script>
+    <script src="{% static 'js/sortable.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        })
+        ;
+    </script>
+{% endblock %}

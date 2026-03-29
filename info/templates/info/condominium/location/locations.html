@@ -1,0 +1,81 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Localizações</h2>
+        <br>
+        <div class="text-end">
+            {% if how_to_location_text %}
+                <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                        data-bs-placement="left"
+                        data-bs-content="{{ how_to_location_text }}"
+                        data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                        class="fa-regular fa-circle-question fa-xl"></i>
+                </button>
+            {% elif how_to_location_link %}
+                <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_location_link }}"><i
+                        class="fa-regular fa-circle-question fa-xl"></i></a>
+            {% endif %}
+        </div>
+
+        <br>
+        {% if 'info.location_report' in user.get_all_permissions %}
+            <a class="dashboard-link" href="{% url 'info:export-locations' %}">
+                <div class="custom-icon2">
+                    <i class="fa-solid fa-map-location-dot fa-2xl m-4" style="color: #3498db"></i>
+                    <br>
+                    Exportar em PDF
+                </div>
+            </a>
+        {% endif %}
+        <br>
+        <br>
+        <div class="table-container">
+            <table class="table table-hover sortable">
+                <thead>
+                <tr class="table-primary">
+                    <th class="no-sort" scope="col">Usuário</th>
+                    <th class="no-sort" scope="col">IP</th>
+                    <th class="no-sort" scope="col">Endereço</th>
+                    <th class="no-sort" scope="col">Latitude</th>
+                    <th class="no-sort" scope="col">Longitude</th>
+                    <th scope="col">Data</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for location in locations %}
+                    <tr>
+                        <td class="no-sort" scope="row">{{ location.condominium.condominium_name }}</td>
+                        <td>{{ location.ip_address }}</td>
+                        <td>{{ location.address }}</td>
+                        <td>{{ location.latitude }}</td>
+                        <td>{{ location.longitude }}</td>
+                        <td data-sort="{{ location.created |date:'YMd' }}">{{ location.created|timezone:"America/Sao_Paulo" }}</td>
+                        {#                    <td><a href="{% url 'info:survey-detail' survey.id %}" class="me-2"><span><i class="fas fa-eye"></i></span></a></td>#}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="{% static 'js/sortable.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        })
+        ;
+    </script>
+
+{% endblock %}

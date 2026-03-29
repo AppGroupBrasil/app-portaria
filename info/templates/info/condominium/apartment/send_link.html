@@ -1,0 +1,50 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+
+        <div class="dashboard">
+
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:send-to-resident' link %}">
+                    <div class="icon">
+                        <i class="fa-solid fa-house-user fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Enviar ao Morador
+                    </div>
+                </a>
+            </div>
+
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:send-to-block' link %}">
+                    <div class="icon">
+                        <i class="fa-solid fa-building-un fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Enviar ao Bloco
+                    </div>
+
+                </a>
+            </div>
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:send-to-all' link %}">
+                    <div class="custom-icon">
+                        <i class="fa-solid fa-city fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Enviar para Todos
+                    </div>
+                </a>
+            </div>
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:send-to-email' link %}">
+                    <div class="custom-icon">
+                        <i class="fa-solid fa-envelope-circle-check fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Enviar ao email
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Comunicar Morador</h2>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+            {{ form|crispy }}
+
+            <div class="row-inline">
+
+                <h4>Anexos </h4>
+                <button id="add-file" type="button" class="btn btn-link w-8 h-10 btn-block p-2"
+                        onclick="addFileForm()">
+                    <i class="fa-sharp fa-solid fa-square-plus fa-xl"></i>
+                </button>
+                <button id="remove-file" type="button" class="btn btn-link w-10 h-10 btn-block p-2"
+                        onclick="removeFileForm()">
+                    <i class="fa-sharp fa-solid fa-square-minus icon-minus fa-xl"></i>
+                </button>
+                {% if how_to_attachments_text %}
+                    <button type="button" class="btn btn-link ms-auto" data-bs-container="body"
+                            data-bs-toggle="popover"
+                            data-bs-placement="right"
+                            data-bs-content="{{ how_to_attachments_text }}"
+                            data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                            class="fa-regular fa-circle-question fa-xl"></i>
+                    </button>
+                {% elif how_to_attachments_link %}
+                    <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_attachments_link }}"><i
+                            class="fa-regular fa-circle-question fa-xl"></i></a>
+                {% endif %}
+            </div>
+            <div id="files-list">
+                {% if files_formset %}
+                    {{ files_formset.management_form }}
+                    {% for form in files_formset %}
+                        <hr>
+                        <br>
+                        <div class="message-file">
+                            {{ form|crispy }}
+                        </div>
+
+                    {% endfor %}
+                    <div id="file-empty-form" class="hidden">
+                        <br>
+                        {{ files_formset.empty_form|crispy }}
+                    </div>
+
+                {% endif %}
+            </div>
+
+            <br>
+            <br>
+            <button id="submitNotification" type="submit" class="btn btn-primary w-100 btn-block p-2">Comunicar
+                Morador
+            </button>
+            <br>
+        </form>
+        <br>
+
+    </div>
+    <br>
+    <script src="{% static 'js/message_resident.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        })
+        ;
+    </script>
+
+{% endblock %}

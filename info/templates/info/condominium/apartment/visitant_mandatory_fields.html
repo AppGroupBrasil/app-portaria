@@ -1,0 +1,116 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <p id="message" class="alert alert-success float-center text-center message-text" hidden>
+
+        </p>
+        <h2>Gerenciamento de campos obrigatórios para</h2>
+        <h3>Visitantes</h3>
+        <hr>
+        <p>Selecione quais vão ser os campos obrigatórios para funcionários ou portaria ao registrar chegada de
+            visitantes.</p>
+        <br>
+        <br>
+        <h5>Campos obrigatórios</h5>
+        <br>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            <div class="form-check form-switch">
+                {% if mandatory.document %}
+                    <input class="form-check-input" type="checkbox" id="id_document" name="document" checked>
+                {% else %}
+                    <input class="form-check-input" type="checkbox" id="id_document" name="document">
+                {% endif %}
+                <label class="form-check-label" for="id_document">Documento</label>
+            </div>
+            <div class="form-check form-switch">
+                {% if mandatory.vehicle_model %}
+                    <input class="form-check-input" type="checkbox" id="id_security_namel" name="security_name" checked>
+                {% else %}
+                    <input class="form-check-input" type="checkbox" id="id_security_name" name="security_name">
+                {% endif %}
+                <label class="form-check-label" for="id_security_name">Quem registrou</label>
+            </div>
+            <div class="form-check form-switch">
+                {% if mandatory.allow_vehicle %}
+                    <input class="form-check-input" type="checkbox" id="id_allow_vehicle" name="allow_vehicle" checked>
+                {% else %}
+                    <input class="form-check-input" type="checkbox" id="id_allow_vehicle" name="allow_vehicle">
+                {% endif %}
+                <label class="form-check-label" for="id_allow_vehicle">Entrada de veículos</label>
+            </div>
+            <div id="div_vehicle_model" class="form-check form-switch hidden">
+                {% if mandatory.vehicle_model %}
+                    <input class="form-check-input" type="checkbox" id="id_vehicle_model" name="vehicle_model" checked>
+                {% else %}
+                    <input class="form-check-input" type="checkbox" id="id_vehicle_model" name="vehicle_model">
+                {% endif %}
+                <label class="form-check-label" for="id_vehicle_model">Modelo do veículo</label>
+            </div>
+            <div id="div_vehicle_plate" class="form-check form-switch hidden">
+                {% if mandatory.vehicle_plate %}
+                    <input class="form-check-input" type="checkbox" id="id_vehicle_plate" name="vehicle_plate" checked>
+                {% else %}
+                    <input class="form-check-input" type="checkbox" id="id_vehicle_plate" name="vehicle_plate">
+                {% endif %}
+                <label class="form-check-label" for="id_vehicle_plate">Placa do veículo</label>
+            </div>
+            <div class="form-check form-switch">
+                {% if mandatory.photo %}
+                    <input class="form-check-input" type="checkbox" id="id_photo" name="photo" checked>
+                {% else %}
+                    <input class="form-check-input" type="checkbox" id="id_photo" name="photo">
+                {% endif %}
+                <label class="form-check-label" for="id_photo">Foto da galeria</label>
+            </div>
+            <div class="form-check form-switch">
+                {% if mandatory.pic %}
+                    <input class="form-check-input" type="checkbox" id="id_pic" name="pic" checked>
+                {% else %}
+                    <input class="form-check-input" type="checkbox" id="id_pic" name="pic">
+                {% endif %}
+                <label class="form-check-label" for="id_pic">Foto da câmera</label>
+            </div>
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">ATUALIZAR</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            let vehicleModel = document.getElementById('div_vehicle_model');
+            let vehiclePlate = document.getElementById('div_vehicle_plate');
+            let allowVehicle = document.getElementById('id_allow_vehicle');
+            let alloow = allowVehicle.checked;
+            if (alloow) {
+                vehicleModel.setAttribute('class', 'form-check form-switch');
+                vehiclePlate.setAttribute('class', 'form-check form-switch');
+            } else {
+                vehicleModel.setAttribute('class', 'hidden');
+                vehiclePlate.setAttribute('class', 'hidden');
+            }
+
+        });
+    </script>
+    <script>
+        let allowVehicle = document.getElementById('id_allow_vehicle');
+        let vehicleModel = document.getElementById('div_vehicle_model');
+        let vehiclePlate = document.getElementById('div_vehicle_plate');
+        allowVehicle.addEventListener('change', () => {
+            let alloow = allowVehicle.checked;
+            if (alloow) {
+                vehicleModel.setAttribute('class', 'form-check form-switch');
+                vehiclePlate.setAttribute('class', 'form-check form-switch');
+            } else {
+                vehicleModel.setAttribute('class', 'hidden');
+                vehiclePlate.setAttribute('class', 'hidden');
+            }
+        });
+    </script>
+
+{% endblock %}

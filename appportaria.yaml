@@ -1,0 +1,21 @@
+http:
+  routers:
+    appportaria-http:
+      entryPoints:
+        - http
+      rule: "Host(`appportaria.com`) || Host(`www.appportaria.com`)"
+      service: appportaria-svc
+      priority: 100
+    appportaria-https:
+      entryPoints:
+        - https
+      rule: "Host(`appportaria.com`) || Host(`www.appportaria.com`)"
+      service: appportaria-svc
+      tls:
+        certResolver: letsencrypt
+      priority: 100
+  services:
+    appportaria-svc:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8001"

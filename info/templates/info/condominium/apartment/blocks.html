@@ -1,0 +1,57 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Blocos Cadastrados</h2>
+        <br>
+        {% if 'info.add_apartment' in user.get_all_permissions %}
+
+            <a class="dashboard-link" href="{% url 'info:add-block' %}">
+                <i class="fa-solid fa-building-circle-check fa-2xl m-4" style="color: #3498db"></i>
+                <br>
+                Cadastrar Bloco
+            </a>
+
+            <br>
+            <p><span style="color: red; font-family: Calibri, Arial, sans-serif; font-size: 20px; font-weight: bold;">Realize o cadastro do bloco antes de cadastrar um apartamento.</span>
+            </p>
+            <br>
+        {% endif %}
+        <br>
+        {% if 'info.view_apartment' in user.get_all_permissions %}
+            <hr>
+            <div class="table-container">
+                <table class="table table-hover">
+                    <thead>
+                    <tr class="table-primary">
+                        <th scope="col">Ações</th>
+                        <th scope="col">Nome</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for block in blocks %}
+                        <tr>
+                            <th>
+                                <a href="{% url 'info:update-block' block.id %}" class="btn btn-primary btn-sm"><span><i
+                                        class="fa-regular fa-pen-to-square"></i></span></a>
+                                <a href="/confirm-delete/blocks/remove-block.{{ block.id }}"
+                                   class="btn btn-primary btn-sm mx-2"><span><i
+                                        class="fa-regular fa-trash-can"></i></span></a>
+                            </th>
+                            <th>{{ block.name }}</th>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+        <br>
+        <br>
+        <a href="{% url 'info:apartments' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Encerrar Enquete</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            <br>
+            <p>Deseja notificar todos os moradores votantes do resultado?</p>
+            <br>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="id_notify"
+                       name="notify"
+                       checked>
+                <label class="form-check-label" for="id_hide">NOTIFICAR</label>
+            </div>
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">ENCERRAR</button>
+            <br>
+        </form>
+        <br>
+    </div>
+    <br>
+
+{% endblock %}

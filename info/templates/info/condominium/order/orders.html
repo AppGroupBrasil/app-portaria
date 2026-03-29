@@ -1,0 +1,124 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Correspondências</h2>
+        <br>
+        {% if 'info.add_order' in user.get_all_permissions %}
+            <a class="dashboard-link" href="{% url 'info:notify-order' %}">
+                <div class="icon">
+                    <i class="fa-solid fa-envelopes-bulk fa-2xl m-4" style="color: #3498db"></i>
+                    <br>
+                    Aviso de Correspondência
+                </div>
+            </a>
+        {% endif %}
+        <br>
+        <div class="text-end">
+            {% if how_to_order_list_text %}
+                <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                        data-bs-placement="left"
+                        data-bs-content="{{ how_to_order_list_text }}"
+                        data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                        class="fa-regular fa-circle-question fa-xl"></i>
+                </button>
+            {% elif how_to_order_list_link %}
+                <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_order_list_link }}"><i
+                        class="fa-regular fa-circle-question fa-xl"></i></a>
+            {% endif %}
+        </div>
+        {% if 'info.view_order' in user.get_all_permissions %}
+            <hr>
+            <div class="table-container">
+                <table class="table table-hover">
+                    <thead>
+                    <tr class="table-primary">
+                        <th class="no-sort" scope="col">Ações</th>
+                        <th scope="col">QR CODE</th>
+                        <th scope="col">Bloco</th>
+                        <th scope="col">Apartamento</th>
+                        <th scope="col">Complemento</th>
+                        <th scope="col">Correspondência</th>
+                        <th scope="col">Data</th>
+
+                    </tr>
+                    <tr>
+                        <form method="GET" id="search_form">
+                            <td class="no-sort"></td>
+                            <td class="no-sort">
+                                <input class="form-control bg-y" type="text" id="search_order_code"
+                                       name="order_code"
+                                       placeholder="QR CODE"
+                                       value="{{ request.GET.order_code }}">
+                            </td>
+                            <td class="no-sort" scope="row">
+                            </td>
+                            <td class="no-sort" scope="row">
+
+                            </td>
+                            <td class="no-sort" scope="row">
+
+                            </td>
+                            <td class="no-sort" scope="row">
+
+                            </td>
+
+                            <td class="no-sort" scope="col">
+                            </td>
+
+                        </form>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for order in page_obj %}
+                        <tr>
+                            <td>
+                                <a class="btn btn-primary btn-sm me-2" href="{% url 'info:view-order' order.id %}"><i
+                                        class="fas fa-eye"></i></a>
+                                {% if 'info.change_order' in user.get_all_permissions %}
+                                    <a href="{% url 'info:update-order' order.id %}" class="btn btn-info me-2">
+                                        REGISTRAR </a>
+                                {% endif %}
+                            </td>
+                            <td>{{ order.code }}</td>
+                            <th scope="row">{{ order.apartment.block }}</th>
+                            <td>{{ order.apartment.number }}</td>
+                            <td>{{ order.apartment.complement }}</td>
+                            <td>{{ order.name }}</td>
+
+                            <td>{{ order.created|timezone:"America/Sao_Paulo" }}</td>
+                        </tr>
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% include 'info/pagination.html' %}
+            </div>
+        {% endif %}
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let searchForm = $('#search_form');
+            let searchCode = $('#search_order_code');
+
+            $(searchCode).on('change', function () {
+                searchForm.submit();
+            });
+
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        });
+    </script>
+
+{% endblock %}

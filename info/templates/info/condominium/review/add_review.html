@@ -1,0 +1,115 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Solicitar Avaliação</h2>
+        <div class="text-end">
+            {% if how_to_add_review_text %}
+                <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                        data-bs-placement="left"
+                        data-bs-content="{{ how_to_add_review_text }}"
+                        data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                        class="fa-regular fa-circle-question fa-xl"></i>
+                </button>
+            {% elif how_to_add_review_link %}
+                <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_add_review_link }}"><i
+                        class="fa-regular fa-circle-question fa-xl"></i></a>
+            {% endif %}
+        </div>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+
+            <div id="review-item-list">
+                {% if formset %}
+                    {{ formset.management_form }}
+                    {% for item_form in formset %}
+                        <hr>
+                        <br>
+                        <div class="review-item">
+                            {{ item_form|crispy }}
+                        </div>
+
+                    {% endfor %}
+                    <div id="empty-form" class="hidden">
+                        <hr>
+                        <br>
+                        {{ formset.empty_form|crispy }}
+                    </div>
+                {% endif %}
+            </div>
+            <br>
+            <br>
+            <button id="add-more-item" type="button" class="btn btn-info w-100 btn-block p-2">Adicionar outro item
+            </button>
+            <br>
+            <br>
+
+            {{ form|crispy }}
+            <div id="apartment-options"></div>
+            <br>
+            <br>
+            <button id="submitReview" type="submit" class="btn btn-primary w-100 btn-block p-2" disabled>Solicitar
+                Avaliação
+            </button>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+    <script src="{% static 'js/add_review.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        let sendOption = document.getElementById('id_send_to');
+        sendOption.addEventListener('change', () => {
+                let kind_value = sendOption.value;
+                if (kind_value === "MORADORES") {
+                    document.getElementById('div_id_block').setAttribute('class', '');
+                    let submitBtn = document.getElementById('submitReview');
+                    submitBtn.disabled = true;
+                } else {
+
+                    document.getElementById('div_id_block').setAttribute('class', 'hidden');
+                    document.getElementById('apartment-options').setAttribute('class', 'hidden');
+                    if (kind_value) {
+                        let submitBtn = document.getElementById('submitReview');
+                        submitBtn.disabled = false;
+                    }
+
+                }
+            }
+        );
+    </script>
+    <script>
+        $(document).ready(function () {
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+
+        document.getElementById('div_id_block').setAttribute('class', 'hidden');
+        const addMoreItemBtn = document.getElementById('add-more-item');
+        const totalNewItemForms = document.getElementById('id_review_item-TOTAL_FORMS');
+
+        addMoreItemBtn.addEventListener('click', () => {
+            if (event) {
+                event.preventDefault();
+            }
+
+            const currentReviewItemForms = document.getElementsByClassName('review-item');
+            let currentFormCounter = currentReviewItemForms.length;
+            const emptyFormElement = document.getElementById('empty-form').cloneNode(true);
+            emptyFormElement.setAttribute('class', 'review-item')
+            emptyFormElement.setAttribute('id', `item-form-${currentFormCounter}`)
+            const regex = new RegExp('__prefix__', 'g');
+            emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCounter);
+            totalNewItemForms.setAttribute('value', currentFormCounter + 1);
+
+            const formCopyTarget = document.getElementById('review-item-list');
+            formCopyTarget.append(emptyFormElement);
+        });
+        });
+    </script>
+{% endblock %}

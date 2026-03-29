@@ -1,0 +1,39 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Configurar Mensagens</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <div class="form-check form-switch">
+                {% if info.allow_charge %}
+                    <input class="form-check-input" type="checkbox" id="id_allow_bill"
+                           name="allow_bill" checked>
+                {% else %}
+                    <input class="form-check-input" type="checkbox" id="id_allow_bill"
+                           name="allow_bill">
+                {% endif %}
+                <label class="form-check-label" for="id_default_pass">
+                    Cobrar mensagens extra
+                </label>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">ATUALIZAR</button>
+
+        </form>
+        <a id="return-link" href="/confirm-bill/configure-messages.{{ id }}/bill-messages.{{ id }}"
+           class="btn btn-warning w-100 btn-block p-2 my-2">
+            <i class="fa-regular fa-dollar-sign"> COBRAR</i>
+        </a>
+        <a id="return-link" href="{% url 'info:view-profile' profile.id %}"
+           class="btn btn-danger w-100 btn-block p-2">
+            <i class="fa fa-arrow-left"> VOLTAR</i>
+        </a>
+        <br>
+    </div>
+{% endblock %}

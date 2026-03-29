@@ -1,0 +1,25 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Limites</h2>
+        <h3>para reservas no Condomínio</h3>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+
+            {{ form|crispy }}
+            <br>
+            <br>
+
+            <button id="submitResident" type="submit" class="btn btn-primary w-100 btn-block p-2">CADASTRAR</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+{% endblock %}

@@ -1,0 +1,353 @@
+[
+{
+    "model": "info.howto",
+    "pk": 1,
+    "fields": {
+        "name": "Informativo > Funções",
+        "value": "Adicionar função clicando no +, Remover função clicando no -",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 2,
+    "fields": {
+        "name": "Informativo > Imagens",
+        "value": "https://www.youtube.com/watch?v=xcJtL7QggTI",
+        "kind": "Link"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 3,
+    "fields": {
+        "name": "Informativo > Item",
+        "value": "Adicionar item clicando no +, Remover item clicando no -",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 4,
+    "fields": {
+        "name": "Informativo > Arquivos",
+        "value": "Adicionar arquivo clicando no +, Remover arquivo clicando no -",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 5,
+    "fields": {
+        "name": "Mensagem > Anexos",
+        "value": "Adicionar arquivo ou imagem clicando no +. Remover arquivo ou imagem clicando no -",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 6,
+    "fields": {
+        "name": "Enquete > Respostas",
+        "value": "Adicione opções de respostas clicando no +. Remover opções de resposta clicando no -",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 7,
+    "fields": {
+        "name": "Checklist > Listagem",
+        "value": "Abaixo temos a lista de checklists que foram cadastrados. As linhas verdes são checklists que não tiveram problemas relatados e foram checados. As linhas vermelhas indicam que um problema foi reportado no checklist. As linhas brancas são os checklists que ainda precisam ser checados",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 8,
+    "fields": {
+        "name": "Localizações > Listagem",
+        "value": "Abaixo temos a lista de endereços aproximados de onde ações no sistema foram realizadas",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 9,
+    "fields": {
+        "name": "Moradores > Listagem",
+        "value": "Abaixo você pode ver a lista com todos os moradores cadastrados. Você também pode adicionar um proprietário, inquilino ou responsável de um apartamento clicando no link de \"Cadastrar Morador\"",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 10,
+    "fields": {
+        "name": "Informativo > Exportação",
+        "value": "Você pode alterar alguma informação do documento clicando no ícone de \"Editar\". Também pode fazer uma cópia deste documento que pode ser alterada futuramente, clicando no botão de \"Duplicar\"",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 11,
+    "fields": {
+        "name": "Avaliações > Listagem",
+        "value": "Abaixo temos a lista de avaliações solicitadas aos moradores. Para fazer uma nova solicitação de avaliação, clique no botão de \"Solicitar Avaliação\"",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 12,
+    "fields": {
+        "name": "Enquetes > Listagem",
+        "value": "Abaixo temos a lista de enquetes realizadas junto aos moradores. Para fazer uma nova enquete, clique no botão de \"Fazer Enquete\"",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 13,
+    "fields": {
+        "name": "Correspondências > Listagem",
+        "value": "Abaixo temos a lista de correspondências recebidas. Para fazer uma notificação a um morador de uma nova correspondência, clique no botão de \"Aviso de Correspondência\"",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 14,
+    "fields": {
+        "name": "Atividades > Listagem",
+        "value": "Abaixo temos a lista de atividades realizadas. Para adicionar uma nova atividade, clique no botão de \"Adicionar Atividade\". Você também pode atualizar uma atividade flicando no ícone de edição. Para exportar uma atividade em PDF clique no ícone de Visualização e Para remover uma atividade, basta clicar no ícone da lixeira.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 15,
+    "fields": {
+        "name": "Informativo > Vídeos",
+        "value": "Adicionar link para vídeo demonstrativo clicando no +, Remover link para vídeo clicando no -",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 16,
+    "fields": {
+        "name": "Vencimentos > Listagem",
+        "value": "Abaixo temos a lista de vencimentos de contratos que serão notificados. Para adicionar um vencimento de contrato, clique no botão de \"Adicionar Vencimento\". Para cancelar a notificação de um contrato de vencimento, basta clicar no botão CANCELAR",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 17,
+    "fields": {
+        "name": "Avaliação > Solicitar",
+        "value": "Uma avaliação é lolicitada a todos os moradores do condomínio por email",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 18,
+    "fields": {
+        "name": "Mensagem > CHAT GPT",
+        "value": "Faça login na ferramenta chat gpt e solicite a criação do comunicado. Por exemplo: \"Crie um comunicado para todos os condôminos informando sobre uma interdição na piscina no dia 31/12/2023\"",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 19,
+    "fields": {
+        "name": "Dashboard > Cadastros",
+        "value": "Cadastro de usuários do sistema",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 20,
+    "fields": {
+        "name": "Dashboard > Gestores",
+        "value": "Funções do síndico ou funcionários",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 21,
+    "fields": {
+        "name": "Dashboard > Gestores com Moradores",
+        "value": "Fuções para interagir com os moradores",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 22,
+    "fields": {
+        "name": "Dashboard > Portaria com Moradores",
+        "value": "Fuções de um funcionário adicionado e com permissões de porteiro",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 23,
+    "fields": {
+        "name": "Atividade > Adição",
+        "value": "Para fazer uma adição preencha os campos corretamente. Para editar uma imagem, selecione apenas uma imagem por atividade.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 24,
+    "fields": {
+        "name": "Funcionários > Listagem",
+        "value": "Abaixo temos a lista de funcionários cadastrados. Para adicionar um novo funcionário, clique no botão de \"Adicionar Funcionário\". Você também pode atualizar as permissões do funcionário clicando no ícone de edição. Para visualizar as permissões do funcionário clique no ícone de Visualização e Para remover um funcionário, basta clicar no ícone da lixeira.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 25,
+    "fields": {
+        "name": "Apartamentos > Listagem",
+        "value": "Abaixo temos a lista de apartamentos cadastrados. Para adicionar um novo apartamento, clique no botão de \"Cadastrar Apartamento\". Você também pode atualizar as informações de um apartamento clicando no ícone de edição. Para remover um apartamento, basta clicar no ícone da lixeira. Ou clique em \"Blocos\" para visualizar e gerenciar os blocos cadastrados.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 26,
+    "fields": {
+        "name": "Blocos > Listagem",
+        "value": "Abaixo temos a lista de blocos cadastrados. Para adicionar um novo bloco, clique no botão de \"Cadastrar Bloco\". Você também pode atualizar as informações de um bloco clicando no ícone de edição. Para remover um bloco e seus respectivos apartamentos, basta clicar no ícone da lixeira.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 27,
+    "fields": {
+        "name": "Dashboard > Relatórios",
+        "value": "Lista de relatórios que podem ser gerados a partir deste perfil.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 28,
+    "fields": {
+        "name": "Dashboard > Estoque",
+        "value": "Gerenciamento de estoque, aqui você pode cadastrar novos produtos e lançar entradas e saídas de produtos cadastrados.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 29,
+    "fields": {
+        "name": "Produtos > Listagem",
+        "value": "Abaixo temos a lista de produtos cadastrados. Para adicionar um novo produto, clique no botão de \"Cadastrar Produtos\". Você também pode atualizar um produto clicando no ícone de edição. Para visualizar as informações de um produto clique no ícone de Visualização e Para remover um produto, basta clicar no ícone da lixeira.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 30,
+    "fields": {
+        "name": "Financeiro > Listagem",
+        "value": "Abaixo temos a lista de boletos enviados. Para enviar um novo boleto para um morador, clique no botão de \"Enviar Boletos\".",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 31,
+    "fields": {
+        "name": "Timeline > Listagem",
+        "value": "Abaixo temos a lista de timelines cadastradas. Para adicionar uma nova timeline, clique no botão de \"Adicionar Timeline\". Você também pode atualizar as timelines clicando no ícone de edição. Para visualizar, clique no ícone de Visualização e Para remover um funcionário, basta clicar no ícone da lixeira.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 32,
+    "fields": {
+        "name": "Dashboard > Comunicados",
+        "value": "Gerenciamento de comunicados, aqui você pode enviar novos comunicados para moradores, unidades, blocos ou todo condomínio e verificar todos os comunicados que foram enviados anteriormente.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 33,
+    "fields": {
+        "name": "Mensagens > Listagem",
+        "value": "Abaixo temos a lista de comunicados enviados. Para visualizar detalhes da mensagem enviada, clique no ícone de Visualização.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 34,
+    "fields": {
+        "name": "Solicitações de moradores > Listagem",
+        "value": "Abaixo temos a lista de solicitações feitas pelos moradores. Para visualizar detalhes da solicitação ou adicionar uma resposta para o morador, clique no ícone de Visualização. Para encerrar uma solicitação clique no botão de \"ENCERRAR\".",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 35,
+    "fields": {
+        "name": "Reservas > Listagem",
+        "value": "Abaixo temos a lista de reservas feitas pelos moradores. Você pode cadastrar áreas para reservas, ou editar, gerenciar as áreas cadastradas clicando no botão de \"Cadastrar Áreas\". Caso necessário você pode aprovar ou cancelar uma reserva clicando no botão de \"VALIDAR PAGAMENTO\" se houver valores a serem cobrados.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 36,
+    "fields": {
+        "name": "Documentos > Listagem",
+        "value": "Abaixo temos a lista de documentos e pastas compartilhados com os moradores. Você pode adicionar novos documentos ou pastas que estarão disponíveis para todos os moradores clicando no botão de \"+\". Pastas podem ser renomeadas ou excluídas com todo seu conteúdo clicando nos botões de ação que estão a direita da pasta. Arquivos podem ser excluídos ou baixados através de botões de ação a direita do arquivo.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 37,
+    "fields": {
+        "name": "Visitantes > Listagem",
+        "value": "Abaixo temos a lista de visitantes que tiveram a sua entrada permitida pelo morador ou porteiro. Você pode adicionar novos visitantes clicando no botão de \"ADICIONAR VISITANTE\".  Campos obrigatórios para serem registrados ao cadastrar um novo visitante podem ser configurados no botão de \"CONFIGURAR LIBERAÇÃO\". Você também pode registrar a chegada de visitantes liberados pelo morador clicando no botão de \"CHEGADA\" ou registrar a saída de um visitante clicando no botão de \"SAÍDA\".",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 38,
+    "fields": {
+        "name": "Interfone > Listagem",
+        "value": "Abaixo temos a lista de contatos dos moradores. Você pode entrar em contato com eles através do email, ligação telefônica ou mensagem via whatsApp, caso o morador configurou seus contatos e os deixou públicos.",
+        "kind": "Texto"
+    }
+},
+{
+    "model": "info.howto",
+    "pk": 39,
+    "fields": {
+        "name": "Moradores > Visitantes",
+        "value": "Abaixo temos a lista de visitantes liberados pelo morador. Para liberar um novo visitante ou encomenda, clique no botão de \"Liberar Visitante / Encomenda\". Você também pode fazer a liberação de um veículo interno que já se encontra dentro das instalações, clicando no botão de \"Liberar saída interna\"",
+        "kind": "Texto"
+    }
+}
+]

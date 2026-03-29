@@ -1,0 +1,13 @@
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/root/projetos/condominio_info
+ExecStart=/root/projetos/condominio_info/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/run/gunicorn.sock condominio_info.wsgi:application
+
+[Install]
+WantedBy=multi-user.target

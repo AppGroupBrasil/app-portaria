@@ -1,0 +1,70 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+
+
+        <h2>Áreas</h2>
+        <br>
+        <div class="dashboard">
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:add-place' %}">
+                    <div class="custom-icon2">
+                        <i class="fa-solid fa-chart-area fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Adicionar Área
+                    </div>
+                </a>
+            </div>
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:add-limit' %}">
+                    <div class="custom-icon2">
+                        <i class="fa-solid fa-building-lock fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Configurar Limites
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <br>
+        <br>
+        <div class="dashboard">
+            <div class="container justify-content-center">
+                <div id="cards-rows" class="row row-cols-1 row-cols-md-2 g-5">
+                    {% for place in places %}
+                        <div class="dashboard-item">
+
+                            <div class="card">
+                                {% if place.image %}
+                                    <img src="{{ place.image.url }}" class="card-img-top resized-img" alt="Overview">
+                                {% endif %}
+                                <div class="card-body">
+
+                                    <h5 class="card-title">{{ place.name }}</h5>
+                                    <p class="card-text">Capacidade: {{ place.capacity }} pessoas</p>
+                                    <p class="card-text">Preco: R$ {{ place.price }}</p>
+
+                                    <a href="{% url 'info:place' place.id %}" class="btn btn-primary">Gerenciar</a>
+                                    <a href="{% url 'info:edit-place' place.id %}"
+                                       class="btn btn-info my-2">Parâmetros</a>
+                                    <a href="{% url 'info:edit-time' place.id %}"
+                                       class="btn btn-secondary my-2">Editar Horários</a>
+                                    <a href="/confirm-delete/places/remove-place.{{ place.id }}" class="btn btn-danger">Excluir</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+
+{% endblock %}

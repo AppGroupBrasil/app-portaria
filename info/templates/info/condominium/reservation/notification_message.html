@@ -1,0 +1,19 @@
+{% load static %}
+<html lang="pt">
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<h2>Atenção para o seguinte tópico:</h2>
+
+<h3><strong><p>{{ message }}</p></strong></h3>
+
+<br>
+<h2>Agradecemos desde já.</h2>
+<br>
+<br>
+{% include 'info/condominium/account/signature.html' %}
+</body>
+</html>

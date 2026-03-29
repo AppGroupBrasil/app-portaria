@@ -1,0 +1,24 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h1>Escolha o seu Perfil</h1>
+        <br>
+        <br>
+        <div class="dashboard">
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:profile-detail' 'security' %}">
+                    <div class="icon">
+                        <i class="custom-icon"
+                           style="background-image: url({% static 'img/prof_port.png' %});"></i>
+                        <br>
+                        PORTARIA
+                    </div>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

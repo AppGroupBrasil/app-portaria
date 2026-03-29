@@ -1,0 +1,47 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 detail-layout">
+        <h2>Tem certeza que deseja fazer esta reserva?</h2>
+        <hr>
+        <br>
+        <div class="container">
+
+            <p>Local:</p>
+            <strong>{{ place.name }}</strong>
+            <p>Data:</p>
+            <strong>{{ date|date:"d/m/Y" }}</strong>
+            <p>Horário:</p>
+            Das <strong>{{ time.init_time }}</strong>
+            <br>
+            Até <strong>{{ time.end_time }}</strong>
+
+            {% if place.image %}
+                <img src="{{ place.image.url }}" class="resized-img my-5" alt="Overview">
+            {% endif %}
+            <br>
+            <br>
+
+            <div class="row my-2">
+                <div class="col">
+                    <a id="block-link my-2" href="{% url 'info:reservation' place.id time.id date %}"
+                       class="btn btn-outline-success">
+                        {#                <a id="block-link" href="#" class="btn btn-outline-danger">#}
+                        SIM <i class="fa-solid fa-user-lock"></i>
+                    </a>
+                </div>
+                <div class="col">
+                    <a id="block-link my-2" href="{% url 'info:booking-detail' place.id %}"
+                       class="btn btn-outline-danger">
+                        {#                <a id="block-link" href="#" class="btn btn-outline-danger">#}
+                        NÃO <i class="fa-solid fa-user-lock"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Criação de Registro</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            <label>Campos obrigatórios</label>
+            <br>
+            <br>
+            {{ form.admin_name.label_tag }}
+            {{ form.admin_name }}
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            <label id="lblErrorSignup" style="color:red" class="mb-2"></label>
+{#            <div class="form-control">#}
+            {#                </div>#}
+            <br>
+            <hr>
+            <label>Campos opcionais</label>
+            <br>
+            <br>
+            {{ form.cnpj.label_tag }}
+            {{ form.cnpj }}
+            {{ form.address.label_tag }}
+            {{ form.address }}
+            {{ form.whatsapp.label_tag }}
+            {{ form.whatsapp }}
+            {{ form.site.label_tag }}
+            {{ form.site }}
+
+            <br>
+
+            {#            {{ form|crispy }}#}
+            <button id="submit_signup" type="submit" class="btn btn-primary w-100 btn-block p-2">Criar Registro</button>
+        </form>
+
+        <br>
+
+        <div class="text-center">
+            <p>Já tem um Registro?</p> <a class="btn btn-info w-100" type="button" href="{% url 'info:sign-in' %}">ACESSAR MINHA CONTA</a>
+        </div>
+
+    </div>
+    <br>
+    <script>
+        let signupSubmitBtn = document.getElementById('submit_signup');
+        signupSubmitBtn.disabled = true;
+
+        function validateSignupForm() {
+            console.log("change")
+            let emailFieldValue = document.getElementById('id_email').value;
+            let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            if (!emailPattern.test(emailFieldValue)) {
+                document.getElementById("lblErrorSignup").innerHTML = "Entre com um email valido para receber sua senha";
+                signupSubmitBtn.disabled = true;
+                return false; // Prevent form submission
+            }
+
+            document.getElementById("lblErrorSignup").innerHTML = "";
+
+            signupSubmitBtn.disabled = false;
+            return true; // Allow form submission
+        }
+
+        let signupEmailField = document.getElementById('id_email');
+        signupEmailField.addEventListener('change', validateSignupForm);
+    </script>
+{% endblock %}

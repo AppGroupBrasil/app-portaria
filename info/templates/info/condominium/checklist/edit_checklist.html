@@ -1,0 +1,47 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Editar lista de checagem</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+
+            <div id="task-list">
+                {{ form|crispy }}
+
+                {% if tasks_formset %}
+                    {{ tasks_formset.management_form }}
+                    {% for form in tasks_formset %}
+                        <hr>
+                        <br>
+                        <div class="task">
+                            {{ form|crispy }}
+                        </div>
+
+                    {% endfor %}
+                    <div id="empty-task-form" class="hidden">
+                        <hr>
+                        <br>
+                        {{ tasks_formset.empty_form|crispy }}
+                    </div>
+
+                {% endif %}
+            </div>
+            <br>
+            <br>
+            <button id="add-task" type="button" class="btn btn-info w-100 btn-block p-2">Adicionar outro item</button>
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">Atualizar lista</button>
+            <br>
+        </form>
+        <br>
+    </div>
+    <br>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/checklist.js' %}"></script>
+
+{% endblock %}

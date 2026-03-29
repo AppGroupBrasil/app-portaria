@@ -1,0 +1,140 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Pedestres</h2>
+        <br>
+
+        <a class="dashboard-link" href="{% url 'info:add-pedestrian' %}">
+            <div class="icon">
+                <i class="fa-solid fa-person-walking-dashed-line-arrow-right fa-2xl m-4" style="color: #3498db"></i>
+                <br>
+                Cadastrar Pedestre
+            </div>
+        </a>
+
+        <br>
+        <div class="text-end">
+            <h4> Total de pedestres: <span
+                    style="font-size: 40px; color: red"><strong>{{ pedestrians_counter }}</strong></span></h4>
+        </div>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Registrar</th>
+                    <th scope="col">Protocolo</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Documento</th>
+                    <th scope="col">Destino</th>
+                    <th scope="col">Liberado por</th>
+                    <th scope="col">Observações</th>
+                    <th scope="col">Data</th>
+                </tr>
+                <tr>
+                    <form method="GET" id="search_form" class="search-form">
+                        <td class="no-sort" scope="row"></td>
+                        <td class="no-sort">
+                            <input class="form-control" type="text" id="id_pedestrian_protocol"
+                                   name="pedestrian_protocol"
+                                   placeholder="Protocolo.."
+                                   value="{{ request.GET.pedestrian_protocol }}" style="background-color: yellow">
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control" type="text" id="id_pedestrian_name"
+                                   name="pedestrian_name"
+                                   placeholder="Nome.."
+                                   value="{{ request.GET.pedestrian_name }}" style="background-color: yellow">
+                        </td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control" type="text" id="id_pedestrian_document"
+                                   name="pedestrian_document"
+                                   placeholder="Documento.."
+                                   value="{{ request.GET.pedestrian_document }}" style="background-color: yellow">
+                        </td>
+                        <td class="no-sort"></td>
+                        <td class="no-sort"></td>
+                        <td class="no-sort"></td>
+                        <td class="no-sort" scope="col">
+                            <input class="form-control bg-y" type="date" id="id_pedestrian_date"
+                                   name="pedestrian_date"
+                                   placeholder="Data..."
+                                   value="{{ request.GET.pedestrian_date }}">
+                        </td>
+                    </form>
+                </tr>
+                </thead>
+                <tbody>
+                {% for pedestrian in pedestrians %}
+
+                    {% if not pedestrian.has_leaved and pedestrian.arrived %}
+                        <tr class="table-success">
+                            {% elif pedestrian.has_leaved and not pedestrian.arrived %}
+                        <tr class="list-group-item-danger">
+                            {% else %}
+                        <tr>
+                    {% endif %}
+                <td style="vertical-align: middle;">
+                    {% if not pedestrian.has_leaved %}
+                        <a href="{% url 'info:pedestrian-move' pedestrian.id %}" class="btn btn-danger ">
+                            SAÍDA </a>
+                    {% else %}
+                        <a href="{% url 'info:pedestrian-move' pedestrian.id %}" class="btn btn-info ">
+                            CHEGADA </a>
+                    {% endif %}
+                </td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_pedestrian' pedestrian.id %}" class="dashboard-link">{{ pedestrian.protocol }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_pedestrian' pedestrian.id %}" class="dashboard-link">{{ pedestrian.name }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_pedestrian' pedestrian.id %}" class="dashboard-link">{{ pedestrian.document }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_pedestrian' pedestrian.id %}" class="dashboard-link">{{ pedestrian.destination }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_pedestrian' pedestrian.id %}" class="dashboard-link">{{ pedestrian.authorized_by }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_pedestrian' pedestrian.id %}" class="dashboard-link">{{ pedestrian.obs }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_pedestrian' pedestrian.id %}" class="dashboard-link">{{ pedestrian.created|timezone:"America/Sao_Paulo"|date:"d/m/Y" }}</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% include 'info/pagination.html' %}
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let searchForm = $('#search_form');
+            let searchProtocol = $('#id_pedestrian_protocol');
+            let searchName = $('#id_pedestrian_name');
+            let searchDocument = $('#id_pedestrian_document');
+            let searchDate = $('#id_pedestrian_date');
+
+            $(searchProtocol).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchName).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchProtocol).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchDocument).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchDate).on('change', function () {
+                searchForm.submit();
+            });
+        });
+    </script>
+
+{% endblock %}

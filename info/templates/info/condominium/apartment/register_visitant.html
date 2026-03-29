@@ -1,0 +1,198 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Registro de Chegada</h2>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="alert alert-danger text-start" style="border-left: 5px solid #dc3545;">
+                    <h5 class="mb-2"><i class="fa fa-exclamation-triangle"></i> Não foi possível registrar a entrada</h5>
+                    <p class="mb-2">Verifique os campos abaixo e tente novamente. Se o problema persistir, <strong>tire um print desta tela</strong> e envie para o suporte.</p>
+                    <ul class="mb-2">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li><strong>[{{ field }}]</strong> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    </ul>
+                    <div class="bg-light p-2 rounded" style="font-family: monospace; font-size: 12px;">
+                        Código do erro: REGISTRO_FALHOU | Visitante: {{ visitant.id }} | Condomínio: {{ visitant.condominium.id }} | Visitante: {{ visitant.name }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <label class="form-label">Autorizado para o Bloco</label>
+            <input type="text" class="form-control" value="{{ visitant.block }}" readonly>
+
+            <label class="form-label">Autorizado para o Apartamento</label>
+            <input type="text" class="form-control" value="{{ visitant.apartment }}" readonly>
+
+            <label class="form-label">Nome do Visitante</label>
+            <input type="text" class="form-control" value="{{ visitant.name }}" readonly>
+
+            <label class="form-label">Autorizado até</label>
+            <input type="text" class="form-control" value="{{ visitant.until }}" readonly>
+
+            <label class="form-label">Observações</label>
+            <textarea class="form-control" rows="4" readonly>{{ visitant.comment }}</textarea>
+            {% if img %}
+                <br><br>
+                <img class="w-100" src="{{ img.url }}" alt="Thumbnail">
+                <br><br>
+            {% endif %}
+            {{ form.document.label_tag }}
+            {{ form.document }}
+            {% if mandatory.allow_vehicle %}
+                {{ form.vehicle_model.label_tag }}
+                {{ form.vehicle_model }}
+                {{ form.vehicle_plate.label_tag }}
+                {{ form.vehicle_plate }}
+            {% endif %}
+            {% if mandatory.photo %}
+                {{ form.photo.label_tag }}
+                {{ form.photo }}
+            {% endif %}
+            {% if mandatory.pic %}
+                <div id="camera" class="camera w-100">
+                    <br>
+                    <p>
+                        Tire uma foto. Ela será usada para validação do registro.
+                    </p>
+                    <video id="video" class="w-100">Video stream não disponível.</video>
+                    <button id="startbutton" type="button">Envie uma foto</button>
+                    <canvas id="canvas">
+                    </canvas>
+                </div>
+                <br>
+
+                <div id="preview" class="hidden text-center w-75">
+                    Visualização:
+                    <img id="prev_p" name="prev_p" alt="Foto" style="width: 100%;">
+                </div>
+                {{ form.webimg }}
+            {% endif %}
+
+            <br>
+            <br>
+
+            <button id="submitVisitant" type="submit" class="btn btn-primary w-100 btn-block p-2">REGISTRAR</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+    <script>
+        let width = 1280;    // We will scale the photo width to this
+        let height = 720;     // This will be computed based on the input stream
+
+        // |streaming| indicates whether or not we're currently streaming
+        // video from the camera. Obviously, we start at false.
+
+        let streaming = false;
+
+        // The various HTML elements we need to configure or control. These
+        // will be set by the startup() function.
+
+        let video = null;
+        let canvas = null;
+        let photo = null;
+        let startbutton = null;
+        let preview = null;
+
+        function startup() {
+            video = document.getElementById('video');
+            canvas = document.getElementById('canvas');
+            photo = document.getElementById('prev_p');
+            startbutton = document.getElementById('startbutton');
+            preview = document.getElementById('preview');
+
+            navigator.mediaDevices.getUserMedia({video: true, audio: false})
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function (err) {
+                    console.log("An error occurred: " + err);
+                });
+
+            video.addEventListener('canplay', function (ev) {
+                if (!streaming) {
+                    height = video.videoHeight / (video.videoWidth / width);
+
+                    // Firefox currently has a bug where the height can't be read from
+                    // the video, so we will make assumptions if this happens.
+
+                    if (isNaN(height)) {
+                        height = width / (4 / 3);
+                    }
+
+                    video.setAttribute('width', width);
+                    video.setAttribute('height', height);
+                    canvas.setAttribute('height', height);
+                    canvas.setAttribute('width', width);
+                    streaming = true;
+                }
+            }, false);
+
+            startbutton.addEventListener('click', function (ev) {
+                takepicture();
+                ev.preventDefault();
+            }, false);
+
+            clearphoto();
+        }
+
+        // Fill the photo with an indication that none has been
+        // captured.
+
+        function clearphoto() {
+            let context = canvas.getContext('2d');
+            context.fillStyle = "#AAA";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            let data = canvas.toDataURL('image/png');
+            photo.setAttribute('src', data);
+            preview.setAttribute('class', 'hidden');
+            preview.setAttribute('value', '');
+            let webimgField = document.getElementById('id_webimg');
+            webimgField.value = '';
+        }
+
+        // Capture a photo by fetching the current contents of the video
+        // and drawing it into a canvas, then converting that to a PNG
+        // format data URL. By drawing it on an offscreen canvas and then
+        // drawing that to the screen, we can change its size and/or apply
+        // other changes before drawing it.
+
+        function takepicture() {
+            let context = canvas.getContext('2d');
+            if (width && height) {
+                canvas.width = width;
+                canvas.height = height;
+                context.drawImage(video, 0, 0, width, height);
+
+                let data = canvas.toDataURL('image/jpeg');
+                photo.setAttribute('src', data);
+                preview.setAttribute('class', '');
+
+                let webimgField = document.getElementById('id_webimg');
+                webimgField.value = data;
+
+
+            } else {
+                clearphoto();
+            }
+        }
+
+        // Set up our event listener to run the startup process
+        // once loading is complete.
+        window.addEventListener('load', startup, false);
+    </script>
+    </script>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <p id="message" class="alert alert-success float-center text-center message-text" hidden>
+
+        </p>
+        <h2>Área para reserva</h2>
+        <h3>{{ place.name }}</h3>
+        <hr>
+        <br>
+        {% if place.image %}
+            <img src="{{ place.image.url }}" class="resized-img my-5" alt="Overview">
+        {% endif %}
+        <br>
+        <br>
+        {% if place.description %}
+            <h5>Descrição: <strong>{{ place.description }} pessoas</strong></h5>
+        {% endif %}
+        <h5>Capacidade: <strong>{{ place.capacity }} pessoas</strong></h5>
+        <h5>Preco: <strong>R$ {{ place.price }}</strong></h5>
+        <h5>Antecedência mínima para reservar: <strong>{{ place.minimum_days_to_reserve }} dia(s)</strong></h5>
+        <h5>Antecedência máxima para reservar: <strong>{{ place.maximum_days_to_booking }} dia(s)</strong></h5>
+        <h5>Antecedência para cancelamento: <strong>{{ place.minimum_days_to_cancel }} dia(s)</strong></h5>
+        <h5>Total de reservas:</h5>
+        <ul>
+            <li>Pelo apartamento por dia: <strong>{{ place.maximum_unity_reservation_per_day }}</strong></li>
+            <li>Pelo morador por dia: <strong>{{ place.maximum_resident_reservation_per_day }}</strong></li>
+            <li>Pelo apartamento por semana: <strong>{{ place.maximum_unity_reservation_per_week }}</strong></li>
+            <li>Pelo morador por semana: <strong>{{ place.maximum_resident_reservation_per_week }}</strong></li>
+            <li>Pelo apartamento por mês: <strong>{{ place.maximum_unity_reservation_per_month }}</strong></li>
+            <li>Pelo morador por mês: <strong>{{ place.maximum_resident_reservation_per_month }}</strong></li>
+            <li>Pelo apartamento por ano: <strong>{{ place.maximum_unity_reservation_per_year }}</strong></li>
+            <li>Pelo morador por ano: <strong>{{ place.maximum_resident_reservation_per_year }}</strong></li>
+        </ul>
+        <h5>Multiplas reservas: {% if place.multi_reservations %}
+            <strong>SIM</strong> {% else %} <strong>NÃO</strong> {% endif %}</h5>
+        <h5>Reserva <strong>somente</strong> quando a atual for utilizada?:
+            {% if place.allow_new_reservation %} <strong>SIM</strong> {% else %} <strong>NÃO</strong> {% endif %}</h5>
+        {% if blocked_areas %}
+            <h5>Áreas que esta reserva bloqueia:</h5>
+            <ul>
+                {% for area in blocked_areas %}
+                    <li>{{ area.name }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if place.inspection %}
+            <h5>Vistoria do espaço Reservado: <a target="_blank" href="{{ place.inspection.url }}"><strong>Link para
+                Termo</strong></a></h5>
+        {% endif %}
+        {% if place.internal_regime %}
+            <h5>Regime interno: <a target="_blank" href="{{ place.internal_regime.url }}"><strong>Link para
+                Regime</strong></a></h5>
+        {% endif %}
+        {% if place.rules %}
+            <h5>Regras: <a target="_blank" href="{{ place.rules.url }}"><strong>Link para
+                Regras</strong></a></h5>
+        {% endif %}
+        {% if place.acceptance_terms %}
+            <h5>Termo de aceitação: <a target="_blank" href="{{ place.acceptance_terms.url }}"><strong>Link para
+                Termo de Aceitação</strong></a></h5>
+        {% endif %}
+        <div class="form-check form-switch">
+            {% if place.hidden %}
+                <input class="form-check-input" type="checkbox" id="id_hide" name="hide" checked>
+            {% else %}
+                <input class="form-check-input" type="checkbox" id="id_hide" name="hide">
+            {% endif %}
+            <label class="form-check-label" for="id_hide">Ocultar esta
+                área?</label>
+        </div>
+        <div class="form-check form-switch">
+            {% if place.notification %}
+                <input class="form-check-input" type="checkbox" id="id_notify" name="notify" checked>
+            {% else %}
+                <input class="form-check-input" type="checkbox" id="id_notify" name="notify">
+            {% endif %}
+            <label class="form-check-label" for="id_notify">Receber notificações após reserva?</label>
+        </div>
+        <br>
+        <br>
+        <div class="text-center">
+            {#            <a href="{% url 'info:booking-date' place.id %}" class="btn btn-info my-2">VER HORÁRIOS</a>#}
+            <a href="{% url 'info:places' %}" class="btn btn-danger my-2">VOLTAR</a>
+        </div>
+
+
+    </div>
+    <br>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+
+        let hideOption = document.getElementById('id_hide');
+        hideOption.addEventListener('change', () => {
+            let hide = hideOption.checked ? 1 : 0;
+            console.log(hide);
+
+            $.ajax({
+                url: '/hide-place/{{ place.id }}',
+                data: {hide: hide},
+                success: function (response) {
+                    // message hidded with success
+                    let message_element = document.getElementById('message');
+                    if (hide) {
+                        message_element.innerHTML = "Área ocultada!";
+                    } else {
+                        message_element.innerHTML = "Área será exibida!";
+                    }
+
+                    $('#message').removeAttr("hidden");
+                    setTimeout(function () {
+                        $('#message').attr("hidden", true);
+                    }, 4000);
+
+                }
+            });
+
+        });
+
+        let notifyOption = document.getElementById('id_notify');
+        notifyOption.addEventListener('change', () => {
+            let notify = notifyOption.checked ? 1 : 0;
+            console.log(notify);
+
+            $.ajax({
+                url: '/notify-booking/{{ place.id }}',
+                data: {notify: notify},
+                success: function (response) {
+                    // message hidded with success
+                    let message_element = document.getElementById('message');
+                    if (notify) {
+                        message_element.innerHTML = "Receberá notificações após reserva!";
+                    } else {
+                        message_element.innerHTML = "Notificação não será enviada após reserva!";
+                    }
+
+                    $('#message').removeAttr("hidden");
+                    setTimeout(function () {
+                        $('#message').attr("hidden", true);
+                    }, 4000);
+
+                }
+            });
+
+        });
+    </script>
+{% endblock %}

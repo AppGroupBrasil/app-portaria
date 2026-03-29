@@ -1,0 +1,200 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+
+        <div class="dashboard">
+            {% if 'info.resident_report' in user.get_all_permissions %}
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:export-residents' %}">
+                        <div class="custom-icon2">
+                            <i class="fa-solid fa-person-shelter fa-2xl m-4" style="color: #3498db"></i>
+                            <br>
+                            Relatório de Moradores
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+            {% if 'info.activity_report' in user.get_all_permissions %}
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:activity-report' %}">
+                        <div class="custom-icon2">
+                            <i class="fa-regular fa-file-lines fa-2xl m-4" style="color: #3498db"></i>
+                            <br>
+                            Relatório Atividades
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+            {% if 'info.order_report' in user.get_all_permissions %}
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:order-report' %}">
+                        <div class="custom-icon2">
+                            <i class="fa-solid fa-envelopes-bulk fa-2xl m-4" style="color: #3498db"></i>
+                            Relatório Correspondência
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+            {% if 'info.message_report' in user.get_all_permissions %}
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:message-report' %}">
+                        <div class="custom-icon2">
+                            <i class="fa-solid fa-bullhorn fa-2xl m-4" style="color: #3498db"></i>
+                            <br>
+                            Relatório Comunicados
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+            {% if 'info.review_report' in user.get_all_permissions %}
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:reviews-report' %}">
+                        <div class="custom-icon2">
+                            <i class="fa-solid fa-ranking-star fa-2xl m-4" style="color: #3498db"></i>
+                            <br>
+                            Relatório Avaliações
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+            {% if 'info.survey_report' in user.get_all_permissions %}
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:surveys-report' %}">
+                        <div class="custom-icon2">
+                            <i class="fa-solid fa-person-circle-question fa-2xl m-4" style="color: #3498db"></i>
+                            <br>
+                            Relatório Enquetes
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+            {% if 'info.contract_report' in user.get_all_permissions %}
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:export-contracts' %}">
+                        <div class="custom-icon2">
+                            <i class="fa-solid fa-file-contract fa-2xl m-4" style="color: #3498db"></i>
+                            <br>
+                            Relatório Vencimentos
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+            {% if 'info.checklist_report' in user.get_all_permissions %}
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:checklist-report' %}">
+                        <div class="custom-icon2">
+                            <i class="fa-solid fa-list-check fa-2xl m-4" style="color: #3498db"></i>
+                            <br>
+                            Relatório Checklist
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+            {% if 'info.location_report' in user.get_all_permissions %}
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:export-locations' %}">
+                        <div class="custom-icon2">
+                            <i class="fa-solid fa-map-location-dot fa-2xl m-4" style="color: #3498db"></i>
+                            <br>
+                            Relatório Localizações
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+        {% if 'info.visitant_report' in user.get_all_permissions %}
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:visitant-report' %}">
+                    <div class="custom-icon2">
+                        <i class="fa-solid fa-people-pulling fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Relatório Visitantes
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+        {% if 'info.storage_report' in user.get_all_permissions %}
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:storage-report' %}">
+                    <div class="custom-icon2">
+                        <i class="fa-solid fa-boxes-stacked fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Relatório Estoque
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+        {% if 'info.timeline_report' in user.get_all_permissions %}
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:timeline-report' %}">
+                    <div class="custom-icon2">
+                        <i class="fa-solid fa-timeline fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Relatório Timeline
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+        {% if 'info.resident_activity' in user.get_all_permissions %}
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:resident-activity-report' %}">
+                    <div class="custom-icon2">
+                        <i class="fa-solid fa-person-circle-exclamation fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Relatório Solitcitações
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+        {% if 'info.reservation_report' in user.get_all_permissions %}
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:booking-report' %}">
+                    <div class="custom-icon2">
+                        <i class="fa-regular fa-calendar-days fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Relatório Reservas
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+        {% if 'info.session_report' in user.get_all_permissions %}
+            <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:check-in-report' %}">
+                    <div class="custom-icon2">
+                        <i class="fa-solid fa-user-clock fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Relatório Sessões
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+        <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:pedestrian_report' %}">
+                    <div class="custom-icon2">
+                        <i class="fa-solid fa-person-walking-dashed-line-arrow-right fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Relatório Pedestres
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="dashboard-item">
+                <a class="dashboard-link" href="{% url 'info:vehicle_report' %}">
+                    <div class="custom-icon2">
+                        <i class="fa-solid fa-car-side fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Relatório Veículos
+                    </div>
+                </a>
+            </div>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+
+{% endblock %}

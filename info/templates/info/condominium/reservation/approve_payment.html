@@ -1,0 +1,34 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Validar</h2>
+        <h3>comprovante de pagamento para reserva</h3>
+        <hr>
+        <br>
+
+
+        <h4>Área: <strong>{{ reservation.place }}</strong></h4>
+        <h4>Data: <strong>{{ reservation.date|date:"d/m/Y" }}</strong></h4>
+        <h4>Horário: <strong>Das {{ reservation.time.init_time|time:"H:i" }}
+            Até {{ reservation.time.end_time|time:"H:i" }}</strong></h4>
+        <h4>Reservado por: <strong>{{ reservation.resident }}</strong></h4>
+        <h4>Comprovante:</h4>
+        <br>
+        {% if reservation.payment %}
+            <a href="{{ reservation.payment.url }}" target="_blank"><h4><strong>Baixar Comprovante</strong></h4></a>
+        {% endif %}
+
+
+        <br>
+        <br>
+        <a href="{% url 'info:approve-booking' reservation.id %}" class="btn btn-info">APROVAR RESERVA</a>
+        <a href="{% url 'info:cancel-booking' reservation.id %}"
+           class="btn btn-danger my-2">CANCELAR RESERVA</a>
+
+
+        <br>
+
+    </div>
+{% endblock %}

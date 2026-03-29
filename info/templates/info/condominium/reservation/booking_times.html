@@ -1,0 +1,36 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Reserva</h2>
+        <h3>{{ place.name }}</h3>
+        <hr>
+        <br>
+        <h3>Horários disponíveis:</h3>
+        <br>
+        <label style="color: red"><strong>Atenção!</strong> horários não exibidos <strong>não</strong> estão
+            disponíveis para reserva</label>
+        <br>
+        <br>
+        <div class="dashboard">
+            {% for time in times %}
+                <div class="dashboard-item">
+                    <a class="btn btn-primary"
+                       href="{% url 'info:confirm-reservation' place.id time.id date %}">De: {{ time.init_time|time:"H:i" }}<br>
+                        Até: {{ time.end_time|time:"H:i" }}</a>
+                </div>
+
+            {% endfor %}
+
+
+        </div>
+
+        <br>
+
+
+        <br>
+
+    </div>
+    <br>
+{% endblock %}

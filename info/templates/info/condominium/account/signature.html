@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assinatura</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        .signature {
+            max-width: 500px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            display: flex; /* Use flexbox */
+            align-items: center; /* Center items vertically */
+        }
+
+        .signature img {
+            max-width: 150px;
+            border-radius: 50%;
+            margin-right: 15px; /* Add margin to create space between image and text */
+        }
+
+        .name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .email, .phone {
+            font-size: 14px;
+        }
+
+        .phone {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<h3>Atenciosamente,</h3>
+<br>
+<br>
+{% if signature %}
+<div class="signature">
+    {% if signature_image %}
+        <img src="http://{{ current_site }}{{ signature_image }}" alt="">
+    {% endif %}
+    <div>
+        {% if name %}
+            <div class="name">{{ name }}</div>
+        {% endif %}
+        {% if email %}
+            <div class="email">{{ email }}</div>
+        {% endif %}
+        {% if whatsapp %}
+            <div class="phone">{{ whatsapp }}</div>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+    {{ name }}<br>
+    {{ email }}<br>
+    {% if whatsapp %}
+        {{ whatsapp }}
+    {% endif %}
+{% endif %}
+</body>
+</html>

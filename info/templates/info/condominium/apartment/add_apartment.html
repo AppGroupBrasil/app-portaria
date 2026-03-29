@@ -1,0 +1,54 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Cadastro de apartamento</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+
+            <div id="apartment-list">
+                {{ form|crispy }}
+
+                {% if formset %}
+                    {{ formset.management_form }}
+                    {% for form in formset %}
+                        <hr>
+                        <br>
+                        <div class="apartment">
+                            {{ form|crispy }}
+                        </div>
+
+                    {% endfor %}
+                    <div id="empty-form" class="hidden">
+                        <hr>
+                        <br>
+                        {{ formset.empty_form|crispy }}
+                    </div>
+
+                {% endif %}
+            </div>
+            <br>
+            <br>
+            <button id="add-more" type="button" class="btn btn-info w-100 btn-block p-2">Adicionar outro</button>
+            <br>
+            <br>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="id_reply" name="reply">
+                <label class="form-check-label" for="id_reply">Replicar em todos os blocos</label>
+            </div>
+
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">Cadastrar</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+
+{% endblock %}

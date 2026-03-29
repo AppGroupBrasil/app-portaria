@@ -1,0 +1,81 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Aprovar cadastro de Moradores</h2>
+        <br>
+        <br>
+        <div class="w-25">
+            <form method="POST" autocomplete="off" id="approve_form">
+                {% csrf_token %}
+                <div class="form-check form-switch">
+                    {% if approve %}
+                        <input class="form-check-input" type="checkbox" id="id_approve" name="approve" checked>
+                    {% else %}
+                        <input class="form-check-input" type="checkbox" id="id_approve" name="approve">
+                    {% endif %}
+                    <label class="form-check-label" for="id_approve">Aprovar todos automaticamente</label>
+                </div>
+            </form>
+        </div>
+
+
+        <br>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Ação</th>
+                    <th scope="col">Bloco</th>
+                    <th scope="col">Apartamento</th>
+                    <th scope="col">Complemento</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Email</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                {% for resident in residents %}
+
+
+                    <tr>
+                        <th scope="row">
+                            {% if 'info.change_resident' in user.get_all_permissions %}
+                                <a href="{% url 'info:view-resident' resident.id %}" class="btn btn-info ">APROVAR</a>
+                            {% endif %}
+                        </th>
+                        <td>{{ resident.apartment.block }}</td>
+                        <td>{{ resident.apartment.number }}</td>
+                        <td>{{ resident.apartment.complement }}</td>
+                        <td>{{ resident.name }}</td>
+                        <td>{{ resident.kind }}</td>
+                        <td>{{ resident.email }}</td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let approveForm = $('#approve_form');
+            let approve = $('#id_approve');
+
+            $(approve).on('change', function () {
+                approveForm.submit();
+            });
+        });
+    </script>
+
+{% endblock %}

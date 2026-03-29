@@ -1,0 +1,29 @@
+<html lang="pt">
+<head></head>
+<body>
+
+<h2><strong>Comunicado:</strong></h2>
+
+<h3><p>{{ message }}</p></h3>
+
+{% if link %}
+    <a href="http://{{ domain }}{% url 'info:sign-in' %}">
+        <button style="
+   padding: 10px;
+   border-radius: 8px;
+   background: #fff;
+   color: #18bc9c;
+   appearance: none;
+   font-family: sans-serif;
+   font-weight: bold;
+   border: solid #18bc9c;
+   ">ACESSE A SUA CONTA
+        </button>
+    </a>
+{% endif %}
+
+<br>
+<br>
+{% include 'info/condominium/account/signature.html' %}
+</body>
+</html>

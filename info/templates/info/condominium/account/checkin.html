@@ -1,0 +1,100 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Fazer Check-in</h2>
+        <hr>
+        <br>
+        <p> Para continuar clique no botão abaixo para registrar a sua localização.</p>
+        <br>
+        <form id="check_in_form" method="POST" autocomplete="off">
+            {% csrf_token %}
+            <div class="hidden">
+                <input type="text" id="id_latitude" name="latitude">
+                <input type="text" id="id_longitude" name="longitude">
+            </div>
+            <br>
+            <button id="getLocationBtn" class="btn btn-primary w-100 btn-block p-2">Fazer Check-in</button>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        function getLocationFromIP() {
+            fetch('https://ipinfo.io/json?token=c9ee59304e3d87') // Replace 'your_token_here' with your API token
+                .then(response => response.json())
+                .then(data => {
+                    const loc = data.loc.split(',');
+                    const latitude = loc[0];
+                    const longitude = loc[1];
+
+                    const latitudeInput = document.getElementById('id_latitude');
+                    latitudeInput.value = latitude;
+                    const longitudeInput = document.getElementById('id_longitude');
+                    longitudeInput.value = longitude;
+                    getLocationBtn.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error getting location from IP:', error);
+                    alert('Unable to retrieve location.');
+                });
+        }
+
+        async function getLocation() {
+            if ("geolocation" in navigator) {
+                return new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(
+                        resolve,   // Resolve on success
+                        reject,    // Reject on error
+                        {
+                            enableHighAccuracy: false,
+                            timeout: 20000,
+                            maximumAge: 0
+                        }
+                    );
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        async function main() {
+            try {
+                const position = await getLocation();
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const latitudeInput = document.getElementById('id_latitude');
+                latitudeInput.value = latitude;
+                const longitudeInput = document.getElementById('id_longitude');
+                longitudeInput.value = longitude;
+                getLocationBtn.disabled = false;
+
+                // Continue with your code here
+            } catch (error) {
+                
+                getLocationFromIP();
+            }
+        }
+
+
+        $(document).ready(function () {
+            const getLocationBtn = document.getElementById('getLocationBtn');
+            getLocationBtn.disabled = true;
+            main();
+            
+            getLocationBtn.addEventListener('click', () => {
+
+                if ($('#id_latitude').val() && $('#id_longitude').val()) {
+                    let searchForm = $('#check_in_form');
+                    searchForm.submit();
+                }
+
+            });
+        });
+    </script>
+
+{% endblock %}

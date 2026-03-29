@@ -1,0 +1,190 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Cadastrar Pedestre</h2>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+
+            {{ form.name.label_tag }}
+            {{ form.name }}
+            {{ form.document.label_tag }}
+            {{ form.document }}
+            <div id="camera" class="camera w-100">
+                <br>
+                <p>
+                    Foto do pedestre:
+                </p>
+                <video id="video" class="w-100">Video stream não disponível.</video>
+                <button id="startbutton" type="button">Tirar Foto</button>
+                <canvas id="canvas">
+                </canvas>
+            </div>
+            <div id="preview" class="hidden text-center w-75">
+                Visualização:
+                <img id="photo" name="photo" alt="Sua Foto" style="width: 100%;">
+            </div>
+            <br>
+            {{ form.document_file.label_tag }}
+            {{ form.document_file }}
+            {{ form.destination.label_tag }}
+            {{ form.block }}
+            {{ form.apartment }}
+            {{ form.authorized_by.label_tag }}
+            {{ form.authorized_by }}
+            {{ form.obs.label_tag }}
+            {{ form.obs }}
+            {{ form.webimg }}
+            <br>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="id_notify_email"
+                       name="email">
+                <label class="form-check-label" for="id_notify_email">
+                    Enviar no email
+                </label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="id_notify_whatsapp"
+                       name="whatsapp" onchange="toggleWhatsappText()">
+                <label class="form-check-label" for="id_whatsapp">
+                    Enviar no whatsapp
+                </label>
+            </div>
+            <div style="color: red; display: none;" id="whats_alert">
+                <p> Não disponível no seu plano atual.</p>
+            </div>
+            <br>
+            <br>
+            <button id="submit" type="submit" class="btn btn-primary w-100 btn-block p-2">CADASTRAR</button>
+            <br>
+        </form>
+        <br>
+
+    </div>
+    <br>
+
+    <script>
+        // Set a JS variable from Django context
+        const sendWhatsapp = {{ whatsapp_not|yesno:"true,false" }};
+    </script>
+
+    <script>
+        function toggleWhatsappText() {
+            const checkbox = document.getElementById('id_notify_whatsapp');
+            const textDiv = document.getElementById('whats_alert');
+            if (!sendWhatsapp) {
+                textDiv.style.display = checkbox.checked ? 'block' : 'none';
+            }
+        }
+
+        // Optional: Run this on page load to ensure correct initial state
+        window.onload = toggleWhatsappText;
+    </script>
+
+    <script src="{% static 'js/add_resident.js' %}"></script>
+    <script>
+
+
+        let width = 1280;    // We will scale the photo width to this
+        let height = 720;     // This will be computed based on the input stream
+        let streaming = false;
+        let video = null;
+        let canvas = null;
+        let photo = null;
+        let startbutton = null;
+        let preview = null;
+
+        function startup() {
+            video = document.getElementById('video');
+            canvas = document.getElementById('canvas');
+            photo = document.getElementById('photo');
+            startbutton = document.getElementById('startbutton');
+            preview = document.getElementById('preview');
+
+            navigator.mediaDevices.getUserMedia({video: true, audio: false})
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function (err) {
+                    console.log("An error occurred: " + err);
+                });
+
+            video.addEventListener('canplay', function (ev) {
+                if (!streaming) {
+                    height = video.videoHeight / (video.videoWidth / width);
+
+                    // Firefox currently has a bug where the height can't be read from
+                    // the video, so we will make assumptions if this happens.
+
+                    if (isNaN(height)) {
+                        height = width / (4 / 3);
+                    }
+
+                    video.setAttribute('width', width);
+                    video.setAttribute('height', height);
+                    canvas.setAttribute('height', height);
+                    canvas.setAttribute('width', width);
+                    streaming = true;
+                }
+            }, false);
+
+            startbutton.addEventListener('click', function (ev) {
+                takepicture();
+                ev.preventDefault();
+            }, false);
+
+            clearphoto();
+        }
+
+        // Fill the photo with an indication that none has been
+        // captured.
+
+        function clearphoto() {
+            let context = canvas.getContext('2d');
+            context.fillStyle = "#AAA";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            let data = canvas.toDataURL('image/png');
+            photo.setAttribute('src', data);
+            preview.setAttribute('class', 'hidden');
+            preview.setAttribute('value', '');
+            let webimgField = document.getElementById('id_webimg');
+            webimgField.value = '';
+        }
+
+        // Capture a photo by fetching the current contents of the video
+        // and drawing it into a canvas, then converting that to a PNG
+        // format data URL. By drawing it on an offscreen canvas and then
+        // drawing that to the screen, we can change its size and/or apply
+        // other changes before drawing it.
+
+        function takepicture() {
+            let context = canvas.getContext('2d');
+            if (width && height) {
+                canvas.width = width;
+                canvas.height = height;
+                context.drawImage(video, 0, 0, width, height);
+
+                let data = canvas.toDataURL('image/jpeg');
+                photo.setAttribute('src', data);
+                preview.setAttribute('class', '');
+
+                let webimgField = document.getElementById('id_webimg');
+                webimgField.value = data;
+
+
+            } else {
+                clearphoto();
+            }
+        }
+
+        // Set up our event listener to run the startup process
+        // once loading is complete.
+        window.addEventListener('load', startup, false);
+    </script>
+
+{% endblock %}

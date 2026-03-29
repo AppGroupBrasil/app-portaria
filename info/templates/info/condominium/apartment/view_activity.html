@@ -1,0 +1,146 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load tz %}
+{% load list_index %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Atividade</h2>
+        <hr>
+        <br>
+        <br>
+        <p>Tipo:</p>
+        <strong>{{ activity.kind }}</strong>
+        <p>Protocolo:</p>
+        <strong>{{ activity.protocol }}</strong>
+        <p>Título:</p>
+        <strong>{{ activity.title }}</strong>
+        <p>Descrição:</p>
+        <pre><strong>{{ activity.description }}</strong></pre>
+        <p>Aberta por:</p>
+        <strong>{{ activity.resident }}</strong>
+        {% if activity.responsible %}
+            <p>Responsável:</p>
+            <strong>{{ activity.responsible }}</strong>
+        {% endif %}
+        <p>Situação:</p>
+        <strong>{{ activity.status }}</strong>
+        <p class="my-2">Criada em :</p>
+        <strong>{{ activity.created|timezone:"America/Sao_Paulo"|date:"d/m/Y - H:m:s" }}</strong>
+        {% if activity.link %}
+            <p class="my-2">Link:</p>
+            <strong>{{ activity.link }}</strong>
+        {% endif %}
+        {% if imagens %}
+            <br>
+            <br>
+            {% for img in imagens %}
+                <img class="w-100" src="{{ img.image.url }}" alt="Thumbnail">
+                <hr>
+
+            {% endfor %}
+        {% endif %}
+        {% if files %}
+            <br>
+            <br>
+            <p>Arquivos</p>
+            {% for file in files %}
+                <a href="{{ file.file.url }}" download>{{ file.file }}</a>
+                <hr>
+
+            {% endfor %}
+        {% endif %}
+        {% if status_history %}
+            <h5>Histórico de situações</h5>
+            <br>
+            <br>
+            <p>Histórico de situações</p>
+            <ul>
+                {% for status in status_history %}
+                    <li><p>Atualizado de <strong>{{ status.old_status }}</strong> para
+                        <strong>{{ status.new_status }}</strong> por <strong>{{ status.responsible|upper }}</strong>
+                        ({{ status.profile }}) em <strong>{{ status.created|timezone:"America/Sao_Paulo"|date:"d/m/Y - H:i:s" }}</strong>.</p></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+
+
+        <form method="POST" autocomplete="off" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% if formset %}
+
+                <div id="response-list">
+
+                    {{ formset.management_form }}
+                    {{ response_formset.management_form }}
+                    {% if responses %}
+                        <hr>
+                        <h3>Respostas:</h3>
+                        <br>
+                        {% for response in formset %}
+                            <br>
+                            <div class="response">
+                                {{ response|crispy }}
+                            </div>
+                            <br>
+                            {% with item=responses|index:forloop.counter0 %}
+                                {% if item.image %}
+                                    <img class="w-100" src="{{ item.image.url }}" alt="Thumbnail">
+                                {% endif %}
+                            {% endwith %}
+                            <hr>
+                            <br>
+
+                        {% endfor %}
+                    {% endif %}
+                    <div id="response-empty-form" class="hidden">
+                        <hr>
+                        <br>
+                        {{ response_formset.empty_form|crispy }}
+                    </div>
+                    <br>
+                </div>
+                <br>
+                {% if status != "ENCERRADA" %}
+                    <button id="add-response" type="button" class="btn btn-info w-100 btn-block p-2">Adicionar resposta
+                    </button>
+                    <br>
+                    <br>
+                    <button type="submit" class="btn btn-primary w-100 btn-block p-2">FINALIZAR</button>
+                    <br>
+                {% endif %}
+            {% endif %}
+        </form>
+        {% if 'info.my_bills' in user.get_all_permissions %}
+            <a href="{% url 'info:my-activities' %}" class="btn btn-danger w-100 btn-block p-2">Voltar</a>
+        {% else %}
+            <a href="{% url 'info:resident-activities' %}" class="btn btn-danger w-100 btn-block p-2">Voltar</a>
+        {% endif %}
+    </div>
+
+
+    <script>
+        const addResponseBtn = document.getElementById('add-response');
+        const totalResponseNewForms = document.getElementById('id_response-TOTAL_FORMS')
+        addResponseBtn.addEventListener('click', () => {
+            if (event) {
+                event.preventDefault();
+            }
+
+            const currentResponseForms = document.getElementsByClassName('response');
+            let currentResponseCounter = currentResponseForms.length;
+            const emptyResponseElement = document.getElementById('response-empty-form').cloneNode(true);
+            emptyResponseElement.setAttribute('class', 'response')
+            emptyResponseElement.setAttribute('id', `form-response-${currentResponseCounter}`)
+            const regex = new RegExp('__prefix__', 'g');
+            emptyResponseElement.innerHTML = emptyResponseElement.innerHTML.replace(regex, currentResponseCounter);
+
+
+            totalResponseNewForms.setAttribute('value', currentResponseCounter + 1);
+
+            const formTarget = document.getElementById('response-list');
+            formTarget.append(emptyResponseElement);
+        });
+    </script>
+{% endblock %}

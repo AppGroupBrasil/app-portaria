@@ -1,0 +1,220 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Cadastro de morador</h2>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <label id="lblError" style="color:red"></label>
+            <br>
+            <br>
+
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="id_default_pass"
+                       name="default_pass">
+                <label class="form-check-label" for="id_default_pass">
+                    Cadastrar senha
+                </label>
+            </div>
+            <div id="password_section" class="hidden">
+                <br>
+                <span style="color: red"><p>ATENÇÃO:<br>
+                Utilize apenas 4 números para criar a senha de acesso.</p></span>
+                <br>
+                <label for="id_new_password1" class=" requiredField">
+                    Senha<span class="asteriskField">*</span> </label>
+                <input type="password" name="new_password1" placeholder="*Nova senha numérica.."
+                       class="form-control form-control-lg password textinput textInput" maxlength="4" required=""
+                       id="id_new_password1" disabled>
+                <label for="id_new_password2" class=" requiredField">
+                    Confirme a senha<span class="asteriskField">*</span> </label>
+                <input type="password" name="new_password2" placeholder="*Confirme nova senha.."
+                       class="form-control form-control-lg password textinput textInput" maxlength="4" required=""
+                       id="id_new_password2" disabled>
+            </div>
+            <div id="camera" class="camera w-100">
+                <br>
+                <p>
+                    Envie sua foto. Ela será usada para validação do seu cadastro e futuramente para validação dos seus votos em pesquisas.
+                </p>
+                <video id="video" class="w-100">Video stream não disponível.</video>
+                <button id="startbutton" type="button">Envie uma foto</button>
+                <canvas id="canvas">
+                </canvas>
+            </div>
+            <br>
+
+            <div id="preview" class="hidden text-center w-75">
+                Visualização:
+                <img id="photo" name="photo" alt="Sua Foto" style="width: 100%;">
+            </div>
+            <br>
+            <br>
+            <button id="submitResident" type="submit" class="btn btn-primary w-100 btn-block p-2">FINALIZAR</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let defaultPass = $('#id_default_pass');
+            let passSection = $('#password_section');
+            let pass = $('#id_new_password1');
+            let confirm = $('#id_new_password2');
+
+            defaultPass.on('change', () => {
+
+                if (defaultPass.is(":checked")) {
+                    passSection.removeClass("hidden");
+                    pass.removeAttr('disabled');
+                    confirm.removeAttr('disabled');
+                } else {
+                    passSection.addClass("hidden");
+                    pass.attr('disabled', 'disabled');
+                    confirm.attr('disabled', 'disabled');
+                }
+            });
+        });
+    </script>
+    <script src="{% static 'js/add_resident.js' %}"></script>
+    <script>
+
+        function validateNotificationForm() {
+            let apartmentFieldValue = document.getElementById('id_apartment').value;
+            console.log(apartmentField.value);
+            if (!apartmentFieldValue) {
+                // document.getElementById("lblError").innerHTML = "Entre com um email valido para contato";
+
+                submitResidentBtn.disabled = true;
+                return false; // Prevent form submission
+            }
+
+            // document.getElementById("lblError").innerHTML = "";
+            submitResidentBtn.disabled = false;
+            return true;
+        }
+
+        let apartmentField = document.getElementById('id_apartment');
+        apartmentField.addEventListener('change', validateNotificationForm);
+
+
+        // The width and height of the captured photo. We will set the
+        // width to the value defined here, but the height will be
+        // calculated based on the aspect ratio of the input stream.
+
+        let width = 1280;    // We will scale the photo width to this
+        let height = 720;     // This will be computed based on the input stream
+
+        // |streaming| indicates whether or not we're currently streaming
+        // video from the camera. Obviously, we start at false.
+
+        let streaming = false;
+
+        // The various HTML elements we need to configure or control. These
+        // will be set by the startup() function.
+
+        let video = null;
+        let canvas = null;
+        let photo = null;
+        let startbutton = null;
+        let preview = null;
+
+        function startup() {
+            video = document.getElementById('video');
+            canvas = document.getElementById('canvas');
+            photo = document.getElementById('photo');
+            startbutton = document.getElementById('startbutton');
+            preview = document.getElementById('preview');
+
+            navigator.mediaDevices.getUserMedia({video: true, audio: false})
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function (err) {
+                    console.log("An error occurred: " + err);
+                });
+
+            video.addEventListener('canplay', function (ev) {
+                if (!streaming) {
+                    height = video.videoHeight / (video.videoWidth / width);
+
+                    // Firefox currently has a bug where the height can't be read from
+                    // the video, so we will make assumptions if this happens.
+
+                    if (isNaN(height)) {
+                        height = width / (4 / 3);
+                    }
+
+                    video.setAttribute('width', width);
+                    video.setAttribute('height', height);
+                    canvas.setAttribute('height', height);
+                    canvas.setAttribute('width', width);
+                    streaming = true;
+                }
+            }, false);
+
+            startbutton.addEventListener('click', function (ev) {
+                takepicture();
+                ev.preventDefault();
+            }, false);
+
+            clearphoto();
+        }
+
+        // Fill the photo with an indication that none has been
+        // captured.
+
+        function clearphoto() {
+            let context = canvas.getContext('2d');
+            context.fillStyle = "#AAA";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            let data = canvas.toDataURL('image/png');
+            photo.setAttribute('src', data);
+            preview.setAttribute('class', 'hidden');
+            preview.setAttribute('value', '');
+            let webimgField = document.getElementById('id_webimg');
+                webimgField.value = '';
+        }
+
+        // Capture a photo by fetching the current contents of the video
+        // and drawing it into a canvas, then converting that to a PNG
+        // format data URL. By drawing it on an offscreen canvas and then
+        // drawing that to the screen, we can change its size and/or apply
+        // other changes before drawing it.
+
+        function takepicture() {
+            let context = canvas.getContext('2d');
+            if (width && height) {
+                canvas.width = width;
+                canvas.height = height;
+                context.drawImage(video, 0, 0, width, height);
+
+                let data = canvas.toDataURL('image/jpeg');
+                photo.setAttribute('src', data);
+                preview.setAttribute('class', '');
+
+                let webimgField = document.getElementById('id_webimg');
+                webimgField.value = data;
+
+
+            } else {
+                clearphoto();
+            }
+        }
+
+        // Set up our event listener to run the startup process
+        // once loading is complete.
+        window.addEventListener('load', startup, false);
+    </script>
+
+{% endblock %}

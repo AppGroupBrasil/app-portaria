@@ -1,0 +1,168 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Vencimentos</h2>
+        <br>
+        {% if 'info.add_contract' in user.get_all_permissions %}
+            <a class="dashboard-link" href="{% url 'info:add-contract' %}">
+                <div class="icon">
+                    <i class="fa-solid fa-envelopes-bulk fa-2xl m-4" style="color: #3498db"></i>
+                    <br>
+                    Cadastrar Vencimento
+                </div>
+            </a>
+        {% endif %}
+        <br>
+        <div class="text-end">
+            {% if how_to_contract_list_text %}
+                <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                        data-bs-placement="left"
+                        data-bs-content="{{ how_to_contract_list_text }}"
+                        data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                        class="fa-regular fa-circle-question icon-minus fa-xl"></i>
+                </button>
+            {% elif how_to_contract_list_link %}
+                <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_contract_list_link }}"><i
+                        class="fa-regular fa-circle-question icon-minus fa-xl"></i></a>
+            {% endif %}
+        </div>
+        {% if 'info.view_contract' in user.get_all_permissions %}
+            <hr>
+            <div class="table-container">
+                <table class="table table-hover">
+                    <thead>
+                    <tr class="table-primary">
+                        <th class="no-sort" scope="col">Ações</th>
+                        <th scope="col">Item</th>
+                        <th scope="col">Descrição</th>
+                        <th scope="col">Última manutenção</th>
+                        <th scope="col">Próxima manutenção</th>
+                        <th scope="col">Email para notificar</th>
+                        <th scope="col">Data da notificação</th>
+                    </tr>
+                    <tr>
+                        <form method="GET" id="search_form">
+                            <td class="no-sort"></td>
+                            <td class="no-sort" scope="row">
+                                <input class="form-control bg-y" type="text" id="search_item"
+                                       name="item"
+                                       placeholder="Item para buscar..."
+                                       value="{{ request.GET.item }}">
+                            </td>
+                            <td class="no-sort" scope="row"></td>
+                            <td class="no-sort">
+                                <input class="form-control bg-y" type="date" id="search_last_maintenance"
+                                       name="last_maintenance"
+                                       placeholder="Data..."
+                                       value="{{ request.GET.last_maintenance }}">
+                            </td>
+                            <td class="no-sort">
+                                <input class="form-control bg-y" type="date" id="search_next_maintenance"
+                                       name="next_maintenance"
+                                       placeholder="Data..."
+                                       value="{{ request.GET.next_maintenance }}">
+                            </td>
+                            <td class="no-sort">
+                                <input class="form-control bg-y" type="text" id="search_email"
+                                       name="email"
+                                       placeholder="Email..."
+                                       value="{{ request.GET.email }}">
+                            </td>
+                            <td class="no-sort">
+                                <input class="form-control bg-y" type="date" id="search_notify_day"
+                                       name="notify_day"
+                                       placeholder="Data..."
+                                       value="{{ request.GET.notify_day }}">
+                            </td>
+                        </form>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for contract in contracts %}
+                        <tr>
+                            <td>
+                                <a class="btn btn-primary btn-sm me-2"
+                                   href="{% url 'info:view-contract' contract.id %}"><i class="fas fa-eye"></i></a>
+                                {% if 'info.change_contract' in user.get_all_permissions %}
+                                    <a class="btn btn-primary btn-sm me-2"
+                                       href="{% url 'info:edit-contract' contract.id %}"><span><i
+                                            class="fas fa-edit"></i></span></a>
+                                {% endif %}
+                                {% if 'info.delete_contract' in user.get_all_permissions %}
+                                    <a href="{% url 'info:cancel-contract' contract.id %}" class="btn btn-danger me-2">
+                                        CANCELAR </a>
+                                {% endif %}
+                            </td>
+                            <td>{{ contract.item }}</td>
+                            <th>{{ contract.description }}</th>
+                            <td>{{ contract.last_maintenance }}</td>
+                            <td>{{ contract.next_maintenance }}</td>
+                            <td>{{ contract.to_email }}</td>
+                            <td>{{ contract.notify_day }}</td>
+                        </tr>
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <br>
+
+            {% if 'info.contract_report' in user.get_all_permissions %}
+                <a class="dashboard-link" href="{% url 'info:export-contracts' %}">
+                    <div class="custom-icon2">
+                        <i class="fa-solid fa-file-contract fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Exportar para PDF
+                    </div>
+                </a>
+            {% endif %}
+            <br>
+        {% endif %}
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+
+            let searchForm = $('#search_form');
+            let searchItem = $('#search_item');
+            let searchLastMaintenance = $('#search_last_maintenance');
+            let searchNextMaintenance = $('#search_next_maintenance');
+            let searchEmail = $('#search_email');
+            let searchNotifyDay = $('#search_notify_day');
+
+            $(searchItem).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchLastMaintenance).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchNextMaintenance).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchEmail).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchNotifyDay).on('change', function () {
+                searchForm.submit();
+            });
+        });
+    </script>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Assinatura de emails: </h2>
+        <br>
+        <br>
+        <p>A assinatura de email é uma seção personalizada e padronizada ao final de uma mensagem de email, que geralmente contém informações importantes sobre o remetente. Ela serve como uma forma de identificação e comunicação profissional, incluindo detalhes como nome, contato, email, imagem e outros dados relevantes.</p>
+        <a target="_blank" href="{% static 'img/exemplo_sig.png' %}">Exemplo</a>
+
+        <br>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">SALVAR</button>
+        </form>
+        <br>
+    </div>
+{% endblock %}

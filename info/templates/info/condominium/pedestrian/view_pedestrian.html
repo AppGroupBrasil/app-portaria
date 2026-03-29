@@ -1,0 +1,49 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Pedestre</h2>
+        <hr>
+        <br>
+        {{ form.protocol.label_tag }}
+        {{ form.protocol }}
+        {{ form.name.label_tag }}
+        {{ form.name }}
+        {{ form.document.label_tag }}
+        {{ form.document }}
+        {% if img %}
+            <p>
+                Foto do pedestre:
+            </p>
+            <img id="photo" name="photo" alt="Foto" style="width: 100%;" src="{{ img.url }}" class="my-3">
+        {% endif %}
+        {% if file %}
+            <p>
+                Documento do pedestre:
+            </p>
+            <a href="{{ file.url }}" download class=" my-3">{{ file }}</a>
+            <br>
+            <br>
+        {% endif %}
+
+        {{ form.destination.label_tag }}
+        {{ form.destination }}
+        {{ form.authorized_by.label_tag }}
+        {{ form.authorized_by }}
+        {{ form.obs.label_tag }}
+        {{ form.obs }}
+        <br>
+
+        <br>
+        <div class="text-center">
+            <a href="{% url 'info:pedestrians' %}" class="btn btn-danger">
+                <i class="fa fa-arrow-left"> </i>
+                Voltar
+            </a>
+        </div>
+
+    </div>
+    <br>
+
+{% endblock %}

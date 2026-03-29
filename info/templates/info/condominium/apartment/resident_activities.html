@@ -1,0 +1,139 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Atividades de Moradores</h2>
+        <br>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Ação</th>
+                    <th scope="col">Protocolo</th>
+                    <th scope="col">Título</th>
+                    <th scope="col">Bloco</th>
+                    <th scope="col">Apartamento</th>
+                    <th scope="col">Morador</th>
+                    <th scope="col">Status</th>
+                </tr>
+                <tr>
+                    <form method="GET" id="search_form">
+                        <td class="no-sort"></td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control bg-y" type="text" id="search_protocol"
+                                   name="protocol"
+                                   placeholder="Protocolo para buscar..."
+                                   value="{{ request.GET.protocol }}">
+                        </td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control bg-y" type="text" id="search_title"
+                                   name="title"
+                                   placeholder="Título para buscar..."
+                                   value="{{ request.GET.title }}">
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="text" id="search_block"
+                                   name="block"
+                                   placeholder="Bloco para buscar..."
+                                   value="{{ request.GET.block }}">
+                        </td>
+                        <td class="no-sort">
+
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="text" id="search_resident"
+                                   name="resident"
+                                   placeholder="Morador para buscar..."
+                                   value="{{ request.GET.resident }}">
+                        </td>
+                        <td class="no-sort">
+                            <select name="status_filter" id="search_status_filter" class="form-control bg-y">
+                                <option value="">Filtrar Situação</option>
+                                {% if request.GET.status_filter %}
+                                    {% if request.GET.status_filter == "ABERTA" %}
+                                        <option value="ABERTA" selected>ABERTA</option>
+                                        <option value="EM ANDAMENTO">EM ANDAMENTO</option>
+                                        <option value="ENCERRADA">ENCERRADA</option>
+                                    {% elif request.GET.status_filter == "EM ANDAMENTO" %}
+                                        <option value="ABERTA">ABERTA</option>
+                                        <option value="EM ANDAMENTO" selected>EM ANDAMENTO</option>
+                                        <option value="ENCERRADA">ENCERRADA</option>
+                                    {% else %}
+                                        <option value="ABERTA">ABERTA</option>
+                                        <option value="EM ANDAMENTO">EM ANDAMENTO</option>
+                                        <option value="ENCERRADA" selected>ENCERRADA</option>
+                                    {% endif %}
+                                {% else %}
+                                    <option value="ABERTA">ABERTA</option>
+                                    <option value="EM ANDAMENTO">EM ANDAMENTO</option>
+                                    <option value="ENCERRADA">ENCERRADA</option>
+                                {% endif %}
+                            </select>
+                        </td>
+                    </form>
+                </tr>
+                </thead>
+                <tbody>
+                {% for activity in activities %}
+                    <tr>
+                        <th scope="row">
+                            {% if activity.status != "ENCERRADA" %}
+                                <a href="{% url 'info:finish-activity' activity.id %}" class="btn btn-danger me-2">
+                                    ENCERRAR</a>
+                            {% endif %}
+                            <a href="{% url 'info:view-my-activity' activity.id %}" class="btn btn-primary btn-sm me-2"><span>
+                                    <i class="fa-regular fa-eye"></i></span></a>
+                        </th>
+                        <td>{{ activity.protocol }}</td>
+                        <td>{{ activity.title }}</td>
+                        <td>{{ activity.apartment.block }}</td>
+                        <td>{{ activity.apartment.number }} {{ activity.apartment.complement }}</td>
+                        <td>{{ activity.resident }}</td>
+                        <td>{{ activity.status }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let searchForm = $('#search_form');
+            let searchProtocol = $('#search_protocol');
+            let searchTitle = $('#search_title');
+            let searchBlock = $('#search_block');
+            {#let searchAparment = $('#search_apartmemnt');#}
+            let searchResident = $('#search_resident');
+            let searchStatus = $('#search_status_filter');
+
+            $(searchProtocol).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchTitle).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchBlock).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchResident).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchStatus).on('change', function () {
+                searchForm.submit();
+            });
+        });
+    </script>
+{% endblock %}

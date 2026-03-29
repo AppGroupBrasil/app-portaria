@@ -1,0 +1,25 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Atualizar email de acesso</h2>
+        <hr>
+        <br>
+        <p> Um email de verificação será enviao ao novo endereço.
+            <br>A atualização só terá efeito após validação na sua
+            caixa de entrada.</p>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">Atualizar Email</button>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>{{ title }}</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+
+            <div id="entry_section">
+                <div class="row-inline">
+                    <h4>Entradas </h4>
+                    <button id="add-entry" type="button" class="btn btn-link w-8 h-10 btn-block p-2"
+                            onclick="addEntryForm()">
+                        <i class="fa-sharp fa-solid fa-square-plus fa-xl"></i>
+                    </button>
+                    <button id="remove-item" type="button" class="btn btn-link w-10 h-10 btn-block p-2"
+                            onclick="removeEntryForm()">
+                        <i class="fa-sharp fa-solid fa-square-minus icon-minus fa-xl"></i>
+                    </button>
+{#                    {% if how_to_image_text %}#}
+{#                        <button type="button" class="btn btn-link ms-auto" data-bs-container="body"#}
+{#                                data-bs-toggle="popover"#}
+{#                                data-bs-placement="right"#}
+{#                                data-bs-content="{{ how_to_image_text }}"#}
+{#                                data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i#}
+{#                                class="fa-regular fa-circle-question fa-xl"></i>#}
+{#                        </button>#}
+{#                    {% elif how_to_image_link %}#}
+{#                        <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_image_link }}"><i#}
+{#                                class="fa-regular fa-circle-question fa-xl"></i></a>#}
+{#                    {% endif %}#}
+                </div>
+                <div id="entry-list">
+                    {% if entries_formset %}
+                        {% csrf_token %}
+                        {{ entries_formset.management_form }}
+                        {% for entry in entries_formset %}
+                            <br>
+                            <div id="entry-form-0" class="entry-item">
+                                {{ entry|crispy }}
+                            </div>
+
+                        {% endfor %}
+                        <div id="entry-empty-form" class="hidden">
+                            <br>
+
+                            {{ entries_formset.empty_form|crispy }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">FINALIZAR</button>
+            <br>
+        </form>
+    </div>
+    <br>
+    <script src="{% static 'js/add_storage_entry.js' %}"></script>
+{#    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>#}
+{#    <script>#}
+{#        $(document).ready(function () {#}
+{#            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))#}
+{#            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {#}
+{#                return new bootstrap.Popover(popoverTriggerEl);#}
+{#            });#}
+{#        })#}
+{#        ;#}
+{#    </script>#}
+
+
+{% endblock %}

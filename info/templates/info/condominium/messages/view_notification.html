@@ -1,0 +1,38 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Notificação</h2>
+        <hr>
+        <br>
+        <div class="text-center">
+            <a href="{% url 'info:export-notification' id %}" class="btn btn-info m-2">
+                Exportar em PDF </a>
+        </div>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <p>Clique nos links para ver imagens ou arquivos enviados</p>
+            <br>
+            {% if files %}
+                {% for file in files %}
+                    <a href="{{ file.file.url }}" target="_blank">{{ file.file.name }}</a>
+                    <br>
+                {% endfor %}
+            {% endif %}
+            <br>
+            <br>
+            <div class="text-center">
+                <a id="return-link" href="{{ request.META.HTTP_REFERER }}" class="btn btn-danger">
+                    <i class="fa fa-arrow-left"> Voltar</i>
+                </a>
+            </div>
+        </form>
+        <br>
+    </div>
+    <br>
+
+{% endblock %}

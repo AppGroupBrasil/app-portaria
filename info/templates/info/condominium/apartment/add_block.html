@@ -1,0 +1,69 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Cadastro de Bloco</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+
+            <div id="block-list">
+                {{ form|crispy }}
+
+                {% if formset %}
+                    {{ formset.management_form }}
+                    {% for form in formset %}
+                        <hr>
+                        <br>
+                        <div class="block">
+                            {{ form|crispy }}
+                        </div>
+
+                    {% endfor %}
+                    <div id="empty-form" class="hidden">
+                        <hr>
+                        <br>
+                        {{ formset.empty_form|crispy }}
+                    </div>
+
+                {% endif %}
+            </div>
+            <br>
+            <br>
+            <button id="add-more-block" type="button" class="btn btn-info w-100 btn-block p-2">Adicionar outro</button>
+
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">Adicionar</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+    <script>
+        const addMoreBlockBtn = document.getElementById('add-more-block');
+        addMoreBlockBtn.addEventListener('click', () => {
+            if (event) {
+                event.preventDefault();
+            }
+            const blockTotalNewForms = document.getElementById('id_block-TOTAL_FORMS')
+            const currentBlockForms = document.getElementsByClassName('block');
+            let currentFormCounter = currentBlockForms.length;
+            const emptyFormElement = document.getElementById('empty-form').cloneNode(true);
+            emptyFormElement.setAttribute('class', 'block')
+            emptyFormElement.setAttribute('id', `form-${currentFormCounter}`)
+            const regex = new RegExp('__prefix__', 'g');
+            emptyFormElement.innerHTML = emptyFormElement.innerHTML.replace(regex, currentFormCounter);
+
+            blockTotalNewForms.setAttribute('value', currentFormCounter + 1);
+
+            const formCopyTarget = document.getElementById('block-list');
+            formCopyTarget.append(emptyFormElement);
+        });
+    </script>
+
+{% endblock %}

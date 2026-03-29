@@ -1,0 +1,85 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <p id="successMessage" class="alert alert-success float-center text-center message-text hidden">
+            Link copiado para área de transferência!
+        </p>
+        <h2>Adicionar</h2>
+        <h3>comprovante de pagamento para reserva</h3>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+
+            <h4>Área: <strong>{{ reservation.place }}</strong></h4>
+            <h4>Data: <strong>{{ reservation.date|date:"d/m/Y" }}</strong></h4>
+            <h4>Horário: <strong>Das {{ reservation.time.init_time|time:"H:i" }}
+                Até {{ reservation.time.end_time|time:"H:i" }}</strong></h4>
+            <h4>Reservado por: <strong>{{ reservation.resident }}</strong></h4>
+            <h4>Cobrança:</h4>
+            <br>
+            {% if reservation.bill %}
+                <a href="{{ reservation.bill.url }}" target="_blank"><h4><strong>Baixar Boleto</strong></h4></a>
+            {% else %}
+                <label>Link:</label>
+                <br>
+                <input class="w-100" type="text" id="id_link" name="link" readonly style="word-wrap: break-word;"
+                       value="{{ reservation.link }}">
+                <br>
+                <br>
+                <button type="button" class="btn btn-primary w-100 btn-block p-2" id="copyButton">Copiar link</button>
+            {% endif %}
+
+
+            <h4>Anexar comprovante:</h4>
+
+            {{ form.payment.label_tag }}
+            {{ form.payment }}
+
+
+            <br>
+            <br>
+
+            <button id="submitResident" type="submit" class="btn btn-primary w-100 btn-block p-2">ENVIAR COMPROVANTE
+            </button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+    <script>
+        document.getElementById("copyButton").addEventListener("click", function () {
+            // Get the input field's value
+            const linkField = document.getElementById("id_link");
+            const linkValue = linkField.value;
+
+            // Create a temporary textarea element to copy the value to the clipboard
+            const tempTextarea = document.createElement("textarea");
+            tempTextarea.value = linkValue;
+
+            // Append the textarea to the document (not visible to the user)
+            document.body.appendChild(tempTextarea);
+
+            // Select the text in the textarea
+            tempTextarea.select();
+
+            // Copy the selected text to the clipboard
+            document.execCommand("copy");
+
+            // Remove the temporary textarea from the document
+            document.body.removeChild(tempTextarea);
+
+            // Optionally, you can show a message to indicate successful copy
+            {#alert("Text copied to clipboard!");#}
+            const successMessage = document.getElementById("successMessage");
+            successMessage.classList.remove("hidden");
+            setTimeout(function () {
+                successMessage.classList.add("hidden");
+            }, 4000);
+        });
+    </script>
+{% endblock %}

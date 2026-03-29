@@ -1,0 +1,54 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Login</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            {{ form.email.label_tag }}
+                {{ form.email }}
+                {{ form.password.label_tag }}<br>
+            <div class="input-group">
+                {{ form.password }}
+                <button type="button" class="btn btn-outline-secondary" id="toggle-password">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+            </div>
+            <br>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary w-100 btn-block p-2">ACESSAR MINHA CONTA</button>
+            </div>
+        </form>
+{#        <button id="toggle-password" type="button">#}
+{#            <i class="fa-solid fa-eye"></i>#}
+{#        </button>#}
+        <br>
+        <a href="{% url 'info:forgotten-password' %}">Esqueci minha senha</a>
+
+        <br>
+        <br>
+
+        <div class="text-center">
+            <p>Não tem um Registro?</p> <a class="btn btn-info w-100" type="button" href="{% url 'info:sign-up' %}">CADASTRE-SE</a>
+            <br/>
+            <br/>
+            <a href="https://wa.me/5581999618516" target="_blank"><img border="0" src="{% static 'img/whatsapp.png' %}"
+                                                                       class="media-object img-fluid contact"></a>
+        </div>
+
+    </div>
+    <br>
+    <script>
+        // Your JavaScript code for toggling password visibility
+        const passwordInput = document.getElementById('password-input');
+        const toggleButton = document.getElementById('toggle-password');
+
+        toggleButton.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+        });
+    </script>
+{% endblock %}

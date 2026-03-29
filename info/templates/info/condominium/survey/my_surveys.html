@@ -1,0 +1,46 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Enquetes</h2>
+        <br>
+        <br>
+
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover sortable">
+                <thead>
+                <tr class="table-primary">
+                    <th class="no-sort" scope="col">Ações</th>
+                    <th scope="col">Questão</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for survey in surveys %}
+                    <tr>
+                        <td>
+                            {% if survey.is_ended %}
+                                <a href="{% url 'info:survey-result' survey.id %}" class="btn btn-info m-2">
+                                    RESULTADO</a>
+                            {% else %}
+                                <a href="{% url 'info:survey-user-answer' survey.id %}" class="btn btn-info m-2">
+                                    RESPONDER</a>
+                            {% endif %}
+                        </td>
+                        <td scope="row">{{ survey.question }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="{% static 'js/sortable.js' %}"></script>
+
+{% endblock %}

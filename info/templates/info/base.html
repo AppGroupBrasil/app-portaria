@@ -1,0 +1,168 @@
+{% load static %}
+{% load pwa %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    {% progressive_web_app_meta %}
+    <meta charset="UTF-8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width-device-width, initial-scale=1">
+    <title>Info</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link href="{% static 'fontawesomefree/css/all.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="{% static 'css/sortable.css' %}">
+    {% block head %}
+    {% endblock %}
+</head>
+<body>
+{% include 'info/navbar.html' %}
+<div class="container page-content">
+    <br>
+
+    {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+            <p id="success_message" class="alert alert-success float-center text-center message-text">
+                {{ message }}
+            </p>
+            <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+            <script>
+                $(document).ready(function () {
+                    setTimeout(function () {
+                        $('#success_message').fadeOut('slow');
+                    }, 6000); // 3 seconds delay
+                });
+            </script>
+        {% endif %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+            <p id="error_message" class="alert alert-danger float-center text-center message-text">
+                {{ message }}
+            </p>
+            <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+            <script>
+                $(document).ready(function () {
+                    setTimeout(function () {
+                        $('#error_message').fadeOut('slow');
+                    }, 6000); // 3 seconds delay
+                });
+            </script>
+        {% endif %}
+    {% endfor %}
+    {% block content %}
+    {% endblock %}
+
+    <script type="module">
+
+        import {initializeApp} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import {
+            getMessaging,
+            getToken,
+            onMessage
+        } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHaa-SEqFVIaQQEAjyFsoJZBcNA2z-xRA",
+            authDomain: "appgroupnotification.firebaseapp.com",
+            projectId: "appgroupnotification",
+            storageBucket: "appgroupnotification.firebasestorage.app",
+            messagingSenderId: "603160314743",
+            appId: "1:603160314743:web:3cfa5d8bdc05ec93e25772"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const messaging = getMessaging(app);
+
+        function requestPermissionAndGetToken(registration) {
+            // Request permission to get the token
+            Notification.requestPermission().then((permission) => {
+                if (permission === "granted") {
+                    console.log("Notification permission granted.");
+                    // Get the registration token after permission is granted
+                    getToken(messaging, {vapidKey: "BLlsqFGXpDuTkwH00jM2U97JJDxxyKPYJY-6x-TnO-km80KsdPp5ifS0MPUTBMs0ZmEYhz82yBP8rM5xH_9eHVs"})
+                        .then((currentToken) => {
+                            console.log(currentToken);
+                            if (currentToken) {
+                                // Send token to the server
+                                fetch('/save-push-token/', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        {#'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value#}
+                                    },
+                                    body: JSON.stringify({token: currentToken, device_type: 'web'})
+                                });
+                            } else {
+                                console.log('No registration token available.');
+                            }
+                        })
+                        .catch((err) => {
+                            console.error('An error occurred while retrieving the token. ', err);
+                        });
+                } else {
+                    console.log('Notification permission denied.');
+                }
+            }).catch((err) => {
+                console.error('Failed to request notification permission.', err);
+            });
+        }
+
+        // Handle incoming messages
+        onMessage(messaging, (payload) => {
+            console.log('Message received. ', payload);
+
+            // Display the notification using the browser's Notification API
+            new Notification(payload.notification.title, {
+                body: payload.notification.body,
+                icon: '/static/img/pwa/Logo.png',
+                data: payload.data
+            });
+        });
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration().then((registration) => {
+                if (!registration) {
+                    // Register service worker only if not already registered
+                    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                        .then((reg) => {
+                            console.log('Service Worker registered with scope:', reg.scope);
+                            requestPermissionAndGetToken(reg);
+                        })
+                        .catch((error) => {
+                            console.error('Service Worker registration failed:', error);
+                        });
+                } else {
+                    console.log('Service Worker is already registered:', registration.scope);
+                    requestPermissionAndGetToken(registration);
+                }
+            }).catch((error) => {
+                console.error('Error checking service worker registration:', error);
+            });
+        }
+    </script>
+    <script src="{% static 'js/app.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"
+            integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"
+            integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ"
+            crossorigin="anonymous"></script>
+    <script src="{% static 'js/jquery.mask.min.js' %}"></script>
+    <script src="{% static 'js/masks.js' %}"></script>
+    <script>
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('portrait').catch((err) => {
+                console.error("Orientation lock failed:", err);
+            });
+        } else {
+            console.warn("Screen orientation lock is not supported on this device.");
+        }
+    </script>
+</div>
+</body>
+</html>

@@ -1,0 +1,206 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+
+        {#        <div class="dashboard">#}
+        {% if 'info.resident_report' in user.get_all_permissions %}
+            {#                <div class="dashboard-item">#}
+            <a class="dashboard-link" href="{% url 'info:places' %}">
+                <div class="custom-icon2">
+                    <i class="fa-solid fa-chart-area fa-2xl m-4" style="color: #3498db"></i>
+                    <br>
+                    Cadastrar Áreas
+                </div>
+            </a>
+            {#                </div>#}
+
+        {% endif %}
+        {#        {% if 'info.resident_report' in user.get_all_permissions %}#}
+        {#                <div class="dashboard-item">#}
+        {#                    <a class="dashboard-link" href="{% url 'info:add-time' %}">#}
+        {#                        <div class="custom-icon2">#}
+        {#                            <i class="fa-solid fa-clock-rotate-left fa-2xl m-4" style="color: #3498db"></i>#}
+        {#                            <br>#}
+        {#                            Adicionar Horário#}
+        {#                        </div>#}
+        {#                    </a>#}
+        {#                </div>#}
+        {#            {% endif %}#}
+        {#        </div>#}
+        <br>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Ação</th>
+                    <th scope="col">Área</th>
+                    <th scope="col">Data</th>
+                    <th scope="col">Horário</th>
+                    <th scope="col">Reservado por</th>
+                    <th scope="col">Bloco</th>
+                    <th scope="col">Apartamento</th>
+                    <th scope="col">Status</th>
+                    <th class="no-sort" scope="col">Aprovada</th>
+                    <th class="no-sort" scope="col">Cancelada</th>
+                </tr>
+                <tr>
+                    <form method="GET" id="search_form">
+                        <td class="no-sort"></td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control bg-y" type="text" id="search_area"
+                                   name="area"
+                                   placeholder="Área ..."
+                                   value="{{ request.GET.area }}">
+                        </td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control bg-y" type="date" id="search_date"
+                                   name="date"
+                                   placeholder="Data..."
+                                   value="{{ request.GET.date }}">
+                        </td>
+                        <td></td>
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="text" id="search_resident"
+                                   name="resident"
+                                   placeholder="Morador ..."
+                                   value="{{ request.GET.resident }}">
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="text" id="search_block"
+                                   name="block"
+                                   placeholder="Bloco ..."
+                                   value="{{ request.GET.block }}">
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="text" id="search_apartment"
+                                   name="apartment"
+                                   placeholder="Apartamento ..."
+                                   value="{{ request.GET.apartment }}">
+                        </td>
+                        <td class="no-sort">
+                            <select name="status" id="search_status" class="form-control bg-y">
+                                <option value="">Filtrar Situação</option>
+                                {% if request.GET.status %}
+                                    {% if request.GET.status == "PENDENTE" %}
+                                        <option value="PENDENTE" selected>PENDENTE</option>
+                                        <option value="CANCELADA">CANCELADA</option>
+                                        <option value="CONFIRMADA">CONFIRMADA</option>
+                                    {% elif request.GET.status == "CANCELADA" %}
+                                        <option value="PENDENTE">PENDENTE</option>
+                                        <option value="CANCELADA" selected>CANCELADA</option>
+                                        <option value="CONFIRMADA">CONFIRMADA</option>
+                                    {% else %}
+                                        <option value="PENDENTE">PENDENTE</option>
+                                        <option value="CANCELADA">CANCELADA</option>
+                                        <option value="CONFIRMADA" selected>CONFIRMADA</option>
+                                    {% endif %}
+                                {% else %}
+                                    <option value="PENDENTE">PENDENTE</option>
+                                    <option value="CANCELADA">CANCELADA</option>
+                                    <option value="CONFIRMADA">CONFIRMADA</option>
+                                {% endif %}
+                            </select>
+                        </td>
+                    </form>
+                </tr>
+                </thead>
+                <tbody>
+                {% for booking in reservation %}
+
+                    {% if booking.status == 'PENDENTE' %}
+                        <tr class="table-warning">
+                            {% elif booking.status == 'CANCELADA' %}
+                        <tr class="list-group-item-danger">
+                            {% else %}
+                        <tr class="table-success">
+                    {% endif %}
+                <td scope="row">
+                    {% if booking.status == "PENDENTE" and booking.wait_payment %}
+                        <a href="{% url 'info:validate-payment' booking.id %}" class="btn btn-info ">
+                            VALIDAR PAGAMENTO</a>
+                    {% elif booking.status == "PENDENTE" %}
+                        <a href="{% url 'info:add-booking-bill' booking.id %}" class="btn btn-primary ">
+                            COBRANÇA</a>
+                    {% elif booking.status == "CONFIRMADA" %}
+                        <a href="{% url 'info:cancel-booking' booking.id %}" class="btn btn-danger ">
+                            CANCELAR</a>
+                    {% else %}
+                        <a href="/confirm-delete/booking/delete-booking.{{ booking.id }}" class="btn btn-danger ">
+                            EXCLUIR</a>
+                    {% endif %}
+                    {#                        <a href="{% url 'info:view-my-activity' activity.id %}" class=""><span>#}
+                    {#                                    <i class="fa-regular fa-eye"></i></span></a>#}
+                </td>
+                <td>{{ booking.place.name }}</td>
+                <td>{{ booking.date|date:"d/m/Y" }}</td>
+                <td>Das {{ booking.time.init_time|time:"H:i" }} Até {{ booking.time.end_time|time:"H:i" }}</td>
+                <td>{{ booking.resident.condominium_name }}</td>
+                <td>{{ booking.block }}</td>
+                <td>{{ booking.apartment }}</td>
+                <td>{{ booking.status }}</td>
+                {% if booking.approved_by %}
+                    <td>{{ booking.approved_by }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+                {% if booking.canceled_by %}
+                    <td>{{ booking.canceled_by }}</td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    {#    <script src="{% static 'js/clients.js' %}"></script>#}
+    <script src="{% static 'js/sortable.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            let searchForm = $('#search_form');
+            let searchArea = $('#search_area');
+            let searchDate = $('#search_date');
+            let searchResident = $('#search_resident');
+            let searchBlock = $('#search_block');
+            let searchApartment = $('#search_apartment');
+            let searchStatus = $('#search_status');
+
+            $(searchArea).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchDate).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchResident).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchBlock).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchApartment).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchStatus).on('change', function () {
+                searchForm.submit();
+            });
+        });
+    </script>
+{% endblock %}

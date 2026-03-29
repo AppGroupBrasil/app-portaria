@@ -1,0 +1,159 @@
+{% load static %}
+{% load pwa %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% progressive_web_app_meta %}
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width-device-width, initial-scale=1">
+    <title>Info</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link href="{% static 'fontawesomefree/css/all.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'fontawesomefree/css/brands.css' %}" rel="stylesheet" type="text/css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"
+            integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"
+            integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"
+            integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ"
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+<body>
+<div class="container">
+    <br>
+    <br>
+    <div id="report-actions">
+        <div class="text-center" style="padding: 20px">
+            <input type="button" id="pdf_button" value="Exportar PDF" class="btn btn-info btn_print">
+            <a href="{% url 'info:xls-export' 'checklists' %}" type="button" id="xls_button"
+               class="btn btn-warning btn_print">Exportar Excel</a>
+        </div>
+        <br>
+    </div>
+</div>
+<div class="container">
+    <br>
+    <div id="report" class="report">
+
+        <div class="report-header">
+            {% include 'info/condominium/report/report_header.html' %}
+            {% if initial != 31 %}
+                <h4 class="" style="margin: 20px;">Relatório Checklists de {{ initial }} até {{ until }}</h4>
+                <h5 style="margin: 20px;">Checklists: </h5>
+            {% else %}
+                <h4 class="" style="margin: 20px;">Checklist</h4>
+                <h5 style="margin: 20px;">Detalhe: </h5>
+            {% endif %}
+
+            <div class="container justify-content-center">
+                <ol>
+                    {% for checklist in checklists %}
+                        <ul>
+                            <li>Nome: {{ checklist.title }} </li>
+                            <li>Criado em: {{ checklist.created }} </li>
+                            <li>Verificações:</li>
+                            <ul>
+                                {% for task in checklist.tasks %}
+                                    <li>Verificar: {{ task.task_name }}</li>
+                                    <ul>
+                                        {% if task.is_completed %}
+                                            <li class="list-group-item-success">Situação: OK</li>
+                                        {% elif task.reported_problem %}
+                                            <li class="list-group-item-danger"> Com Problema
+                                                <ul>
+                                                    <li>Descrição do
+                                                        problema {{ task.problem_description }}</li>
+                                                    {% if task.reported_problem_image %}
+                                                        <li><img class="card"
+                                                                 src="{{ task.reported_problem_image.url }}"
+                                                                 alt="Card image cap"
+                                                                 style="width: 100px; height: 100px;">
+                                                        </li>
+                                                    {% endif %}
+                                                </ul>
+                                            </li>
+                                        {% else %}
+                                            <li>Falta verificação</li>
+                                        {% endif %}
+
+                                    </ul>
+                                    {% if task.location %}
+                                        <br>
+                                        <p>Verificado por {{ task.location.condominium.condominium_name }},
+                                            em {{ task.location.address }}</p>
+                                        <br>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </ul>
+                        {% if checklist.location %}
+                            <br>
+                            <br>
+                            <p>Checklist criado por {{ checklist.location.condominium.condominium_name }},
+                                em {{ checklist.location.address }}</p>
+                            <br>
+                        {% endif %}
+                        <hr>
+                        <br>
+                    {% endfor %}
+                </ol>
+            </div>
+            {% if test %}
+                <div class="watermark">
+                    <div class="watermark-text"><span style="white-space: nowrap;">Período&nbsp;de&nbsp;teste&nbsp;de&nbsp;7&nbsp;dias!</span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <br>
+        <br>
+        <div class="text-center">
+            <a id="return-link" href="{% url 'info:reports' %}" class="btn btn-danger">
+                <i class="fa fa-arrow-left"> </i>
+                Voltar
+            </a>
+            <br>
+            <br>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $(document).on('click', '.btn_print', function (event) {
+            let element = document.getElementById('report')
+            {#let randomString = Math.random().toString(36).substring(2, 15);#}
+            let watermark = document.querySelector('.watermark');
+            let timestamp = Date.now();
+
+            let opt = {
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: 'Relatório_' + timestamp + '.pdf',
+                image: {type: 'jpeg', quality: 0.98},
+                html2canvas: {scale: 2},
+                pagebreak: {mode: ['auto', 'css', 'legacy']}, // Enable page break support
+                enableLinks: true,
+                enableStyles: true,
+                page: {format: 'a4'},
+                jsPDF: {unity: 'in', format: 'letter', orientation: 'portrait'}
+
+            };
+
+            html2pdf().set(opt).from(element).save();
+        });
+    })
+    ;
+</script>
+</body>
+</html>

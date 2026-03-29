@@ -1,0 +1,28 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Logo no cabeçalho dos relatórios: </h2>
+        <br>
+        <br>
+        <p>Este Logo serve como uma forma de identificação e comunicação profissional, incluindo detalhes como
+            imagem.</p>
+
+        <br>
+        <hr>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">SALVAR</button>
+        </form>
+        <br>
+        <div class="text-center">
+            <br>
+            <a href="{% url 'info:dashboard' %}" class="btn btn-danger my-2">VOLTAR</a>
+        </div>
+    </div>
+{% endblock %}

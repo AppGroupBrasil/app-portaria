@@ -1,0 +1,33 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Correspondência</h2>
+        <hr>
+        <br>
+        <div class="text-center">
+            <a href="{% url 'info:export-order' id %}" class="btn btn-info m-2">
+                Exportar em PDF </a>
+        </div>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            {% if img %}
+                <img class="w-100" src="{{ img.url }}" alt="Thumbnail">
+            {% endif %}
+            <br>
+            <br>
+            <div class="text-center">
+                <a id="return-link" href="{{ request.META.HTTP_REFERER }}" class="btn btn-danger">
+                    <i class="fa fa-arrow-left"> Voltar</i>
+                </a>
+            </div>
+        </form>
+        <br>
+    </div>
+    <br>
+
+{% endblock %}

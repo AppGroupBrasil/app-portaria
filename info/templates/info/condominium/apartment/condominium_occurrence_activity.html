@@ -1,0 +1,110 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Nova Ocorrência</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+
+            <div id="images_section" class="">
+                <div class="row-inline">
+                    <h5>Imagens</h5>
+                    <button id="add-item" type="button" class="btn btn-link w-8 h-10 btn-block p-2"
+                            onclick="addResidentActivityImageForm()">
+                        <i class="fa-sharp fa-solid fa-square-plus fa-xl"></i>
+                    </button>
+                    <button id="remove-item" type="button" class="btn btn-link w-10 h-10 btn-block p-2"
+                            onclick="removeResidentActivityImageForm()">
+                        <i class="fa-sharp fa-solid fa-square-minus icon-minus fa-xl"></i>
+                    </button>
+                    {% if how_to_image_text %}
+                        <button type="button" class="btn btn-link ms-auto" data-bs-container="body"
+                                data-bs-toggle="popover"
+                                data-bs-placement="right"
+                                data-bs-content="{{ how_to_image_text }}"
+                                data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                                class="fa-regular fa-circle-question icon-minus fa-xl"></i>
+                        </button>
+                    {% elif how_to_image_link %}
+                        <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_image_link }}"><i
+                                class="fa-regular fa-circle-question icon-minus fa-xl"></i></a>
+                    {% endif %}
+                </div>
+                <div id="image-list">
+                    {% if images_formset %}
+                        {% csrf_token %}
+                        {{ images_formset.management_form }}
+                        {% for image in images_formset %}
+                            <br>
+                            <div class="image-item">
+                                {{ image|crispy }}
+                            </div>
+
+                        {% endfor %}
+                        <div id="image-empty-form" class="hidden">
+                            <br>
+
+                            {{ images_formset.empty_form|crispy }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <br>
+            <div id="files_section" class="">
+                <div class="row-inline">
+                    <h5>Arquivos</h5>
+                    <button id="add-item" type="button" class="btn btn-link w-8 h-10 btn-block p-2"
+                            onclick="addResidentActivityFileForm()">
+                        <i class="fa-sharp fa-solid fa-square-plus fa-xl"></i>
+                    </button>
+                    <button id="remove-item" type="button" class="btn btn-link w-10 h-10 btn-block p-2"
+                            onclick="removeResidentActivityFileForm()">
+                        <i class="fa-sharp fa-solid fa-square-minus icon-minus fa-xl"></i>
+                    </button>
+                    {% if how_to_file_text %}
+                        <button type="button" class="btn btn-link ms-auto" data-bs-container="body"
+                                data-bs-toggle="popover"
+                                data-bs-placement="right"
+                                data-bs-content="{{ how_to_file_text }}"
+                                data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                                class="fa-regular fa-circle-question icon-minus fa-xl"></i>
+                        </button>
+                    {% elif how_to_file_link %}
+                        <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_file_link }}"><i
+                                class="fa-regular fa-circle-question icon-minus fa-xl"></i></a>
+                    {% endif %}
+                </div>
+                <div id="file-list">
+                    {% if files_formset %}
+                        {% csrf_token %}
+                        {{ files_formset.management_form }}
+                        {% for file in files_formset %}
+                            <br>
+                            <div class="file-item">
+                                {{ file|crispy }}
+                            </div>
+
+                        {% endfor %}
+                        <div id="file-empty-form" class="hidden">
+                            <br>
+
+                            {{ files_formset.empty_form|crispy }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <br>
+            <button id="submitActivity" type="submit" class="btn btn-primary w-100 btn-block p-2">REGISTRAR</button>
+            <br>
+        </form>
+        <br>
+
+    </div>
+    <br>
+    <script src="{% static 'js/residentActivity.js' %}"></script>
+{% endblock %}

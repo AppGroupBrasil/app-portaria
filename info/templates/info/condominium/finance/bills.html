@@ -1,0 +1,104 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Boletos Enviados</h2>
+        <br>
+        {% if 'info.send_bill' in user.get_all_permissions %}
+            <a class="dashboard-link" href="{% url 'info:send-bill' %}">
+                <div class="custom-icon">
+                    <i class="fa-solid fa-file-invoice-dollar fa-2xl m-4" style="color: #3498db"></i>
+                    <br>
+                    Enviar Boletos
+                </div>
+            </a>
+        {% endif %}
+        <br>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover sortable">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Apartamento</th>
+                    <th scope="col">Morador</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Enviado por</th>
+                    <th scope="col">Envio em</th>
+                    <th scope="col">Arquivo</th>
+                </tr>
+                <tr>
+                    <form method="GET" id="search_form">
+                        <td class="no-sort" scope="row"></td>
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="text" id="search_receiver_name"
+                                   name="receiver_name"
+                                   placeholder="Nome do morador"
+                                   value="{{ request.GET.receiver_name }}">
+                        </td>
+                        <td class="no-sort" scope="col">
+                            <input class="form-control bg-y" type="text" id="search_receiver_email"
+                                   name="receiver_email"
+                                   placeholder="Email..."
+                                   value="{{ request.GET.receiver_email }}">
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="text" id="search_sender_name"
+                                   name="sender_name"
+                                   placeholder="Enviado por..."
+                                   value="{{ request.GET.sender_name }}">
+                        </td>
+                        <td class="no-sort"></td>
+                        <td class="no-sort"></td>
+                    </form>
+                </tr>
+                </thead>
+                <tbody>
+                {% for bill in bills %}
+
+
+                    <tr>
+                        <td scope="row">{{ bill.address }}</td>
+                        <td scope="row">{{ bill.user.condominium_name }}</td>
+                        <td>{{ bill.user.email }}</td>
+                        <td>{{ bill.sender }}</td>
+                        <td data-sort="{{ bill.created |date:'YMd' }}">{{ bill.created|timezone:"America/Sao_Paulo" }}</td>
+                        <td><a href="{{ bill.file.url }}" download>{{ bill.file }}</a></td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/sortable.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            let searchForm = $('#search_form');
+            let searchReceiverName = $('#search_receiver_name');
+            let searchReceiverEmail = $('#search_receiver_email');
+            let searchSenderName = $('#search_sender_name');
+
+            $(searchReceiverName).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchReceiverEmail).on('change', function () {
+                searchForm.submit();
+            });
+            $(searchSenderName).on('change', function () {
+                searchForm.submit();
+            });
+
+        });
+    </script>
+
+{% endblock %}

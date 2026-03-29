@@ -1,0 +1,31 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Atualizar Morador</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <label id="lblError" style="color:red"></label>
+            <br>
+            <a id="block-link my-2" href="{% url 'info:resident-password-reset' profile.id %}"
+               class="btn btn-outline-danger">
+                {#                <a id="block-link" href="#" class="btn btn-outline-danger">#}
+                Resetar Senha <i class="fa-solid fa-user-lock"></i>
+            </a>
+            <br>
+            <br>
+
+            <button id="submitResident" type="submit" class="btn btn-primary w-100 btn-block p-2">Atualizar</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+    <script src="{% static 'js/add_resident.js' %}"></script>
+{% endblock %}

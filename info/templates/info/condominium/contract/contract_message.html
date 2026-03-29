@@ -1,0 +1,25 @@
+{% load static %}
+<html lang="pt">
+<head></head>
+<body>
+
+<h2>Faltam {{ days }} dia(s) para o vencimento do contrato:</h2>
+
+<h2><strong>{{ item }}</strong></h2>
+
+<h3>Por favor não esqueça de realizar a manutenção</h3>
+
+<h4>Última manutenção: <strong>{{ last_maintenance }}</strong></h4>
+<h4>Próxima manutenção: <strong>{{ next_maintenance }}</strong></h4>
+
+{% if image %}
+    <img src="{{ image }}" alt="Foto" style="height:300px;">
+{% endif %}
+
+<br>
+<h3>Agradecemos desde já.</h3>
+<br>
+<br>
+{% include 'info/condominium/account/signature.html' %}
+</body>
+</html>

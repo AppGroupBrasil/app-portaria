@@ -1,0 +1,41 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+
+
+        <h2>Áreas</h2>
+        <br>
+        <br>
+        <div class="dashboard">
+            <div class="container justify-content-center">
+            <div id="cards-rows" class="row row-cols-1 row-cols-md-2 g-5">
+                {% for place in places %}
+                    <div class="dashboard-item">
+
+                        <div class="card">
+                            {% if place.image %}
+                                <img src="{{ place.image.url }}" class="card-img-top resized-img" alt="Overview">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ place.name }}</h5>
+                                <p class="card-text">Capacidade: {{ place.capacity }} pessoas</p>
+                                <p class="card-text">Preco: R$ {{ place.price }}</p>
+                                <a href="{% url 'info:booking-detail' place.id %}" class="btn btn-primary">RESERVAR</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+
+{% endblock %}

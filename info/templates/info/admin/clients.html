@@ -1,0 +1,147 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Clientes Cadastrados</h2>
+        <br>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover sortable">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Condomínio</th>
+                    <th scope="col">Perfil</th>
+                    <th scope="col">Alocado em</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Cadastrado em</th>
+                    <th scope="col">Expiração em</th>
+                    <th scope="col">Limite Mensagem</th>
+                    <th scope="col">Mensagens Usadas</th>
+                    <th scope="col">Situação</th>
+                    <th class="no-sort" scope="col">Ações</th>
+                </tr>
+                <tr>
+                    <form method="GET" id="search_form">
+                        <td class="no-sort" scope="row">
+                            <input class="form-control bg-y" type="text" id="search_condominium_name"
+                                   name="condominium_name"
+                                   placeholder="Nome para buscar..."
+                                   value="{{ request.GET.condominium_name }}">
+                        </td>
+                        <td class="no-sort"></td>
+                        <td class="no-sort">
+                            <input class="form-control bg-y" type="text" id="search_condominium_ref"
+                                   name="condominium_ref"
+                                   placeholder="Nome para buscar..."
+                                   value="{{ request.GET.condominium_ref }}">
+                        </td>
+                        <td class="no-sort" scope="col">
+                            <input class="form-control bg-y" type="text" id="search_condominium_email"
+                                   name="condominium_email"
+                                   placeholder="Email para buscar..."
+                                   value="{{ request.GET.condominium_email }}">
+                        </td>
+                        <td class="no-sort"></td>
+                        <td class="no-sort"></td>
+                        <td class="no-sort"></td>
+                        <td class="no-sort"></td>
+                        <td class="no-sort">
+                            <select name="status_filter" id="search_status_filter" class="form-control bg-y">
+                                <option value="">Filtrar Situação</option>
+                                {% if request.GET.status_filter %}
+                                    {% if request.GET.status_filter == "True" %}
+                                        <option value="True" selected>Ativo</option>
+                                        <option value="False">Bloqueado</option>
+                                    {% else %}
+                                        <option value="True">Ativo</option>
+                                        <option value="False" selected>Bloqueado</option>
+                                    {% endif %}
+                                {% else %}
+                                    <option value="True">Ativo</option>
+                                    <option value="False">Bloqueado</option>
+                                {% endif %}
+                            </select>
+                        </td>
+                        <td class="no-sort"></td>
+                    </form>
+                </tr>
+                </thead>
+                <tbody>
+                {% for client in clients %}
+
+
+                    <tr>
+                        <td scope="row">{{ client.condominium_name }}</td>
+                        <td scope="row">
+                            {% if not client.work_for and not client.resident_in %}
+                                {% if client.profile == 'main' %}
+                                    Síndico
+                                {% elif client.profile == 'intercom' %}
+                                    Interfonia
+                                {% elif client.profile == 'inspect' %}
+                                    Vistoria
+                                {% elif client.profile == 'maintenance' %}
+                                    Manutenção
+                                {% elif client.profile == 'finance' %}
+                                    Boletos
+                                {% elif client.profile == 'adm' %}
+                                    Administradora
+                                {% elif client.profile == 'monitor' %}
+                                    Acompanhamento de obra
+                                {% elif client.profile == 'security' %}
+                                    Portaria Principal
+                                {% endif %}
+
+                            {% elif client.work_for %}
+                                Funcionário
+                            {% elif client.resident_in %}
+                                Morador
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if client.work_for %}
+                                {{ client.work_for }}
+                            {% elif client.resident_in %}
+                                {{ client.resident_in }}
+                            {% endif %}
+                        </td>
+                        <td>{{ client.email }}</td>
+                        <td data-sort="{{ client.created |date:'YMd' }}">{{ client.created|timezone:"America/Sao_Paulo" }}</td>
+                        <td>{{ client.plan_expiration }}</td>
+                        <td>{{ client.limit }}</td>
+                        <td>{{ client.used }}</td>
+                        {% if client.is_active %}
+                            <td>Ativo</td>
+                        {% else %}
+                            <td>Bloqueado</td>
+                        {% endif %}
+                        <td><a href="{% url 'info:view-profile' client.id %}" class="btn btn-primary btn-sm me-2"><span><i
+                                class="fas fa-eye"></i></span></a>
+                            {#                        <a href="{% url 'info:remove-profile' client.id %}" class="m-2"><span><i#}
+                            {#                                class="fa-regular fa-trash-can"></i></span></a>#}
+
+                            <a href="/confirm-delete/clients/remove-profile.{{ client.id }}"
+                               class="btn btn-primary btn-sm me-2"><span><i
+                                    class="fa-regular fa-trash-can"></i></span></a>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+            {% include 'info/admin/clients_pagination.html' %}
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/clients.js' %}"></script>
+    <script src="{% static 'js/sortable.js' %}"></script>
+
+{% endblock %}

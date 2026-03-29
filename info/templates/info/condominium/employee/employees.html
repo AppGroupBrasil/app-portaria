@@ -1,0 +1,91 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Funcionários Cadastrados</h2>
+        <br>
+        {% if 'info.add_employee' in user.get_all_permissions %}
+            <a class="dashboard-link" href="{% url 'info:add-employee' %}">
+                <div class="custom-icon">
+                    <i class="fa-solid fa-people-carry-box fa-2xl m-4" style="color: #3498db"></i>
+                    <br>
+                    Adicionar Funcionário
+                </div>
+            </a>
+        {% endif %}
+        <br>
+        {% if 'info.view_employee' in user.get_all_permissions %}
+            <hr>
+            <div class="table-container">
+                <table class="table table-hover sortable">
+                    <thead>
+                    <tr class="table-primary">
+                        <th class="no-sort" scope="col">Ações</th>
+                        <th scope="col">Nome</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Criação</th>
+                    </tr>
+                    <tr>
+                        <form method="GET" id="search_form">
+                            <td class="no-sort"></td>
+                            <td class="no-sort" scope="row">
+                                <input class="form-control bg-y" type="text" id="search_employee_name"
+                                       name="employee_name"
+                                       placeholder="Nome do funcionário"
+                                       value="{{ request.GET.employee_name }}">
+                            </td>
+                            <td class="no-sort" scope="row">
+                                <input class="form-control bg-y" type="text" id="search_employee_email"
+                                       name="employee_email"
+                                       placeholder="Email do funcionário"
+                                       value="{{ request.GET.employee_email }}">
+                            </td>
+                            <td class="no-sort" scope="col">
+                                <input class="form-control bg-y" type="date" id="search_employee_created"
+                                       name="employee_created"
+                                       placeholder="Criado em..."
+                                       value="{{ request.GET.employee_created }}">
+                            </td>
+                        </form>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for employee in employees %}
+                        <tr class="table-light">
+                            <td>
+                                {% if 'info.change_employee' in user.get_all_permissions %}
+                                    <a class="btn btn-primary btn-sm me-2"
+                                       href="{% url 'info:edit-employee' employee.id %}"><span><i
+                                            class="fas fa-edit"></i></span></a>
+                                {% endif %}
+                                <a href="{% url 'info:view-employee' employee.id %}"
+                                   class="btn btn-primary btn-sm me-2"><i class="fas fa-eye"></i></a>
+                                {% if 'info.delete_employee' in user.get_all_permissions %}
+                                    <a class="btn btn-primary btn-sm me-2"
+                                       href="/confirm-delete/employees/delete-employee.{{ employee.id }}"><span><i
+                                            class="fa-regular fa-trash-can"></i></span></a>
+                                {% endif %}
+                            </td>
+                            <td scope="row">{{ employee.condominium_name }}</td>
+                            <td scope="row">{{ employee.email }}</td>
+                            <td data-sort="{{ employee.created |date:'YMd' }}">{{ employee.created|timezone:"America/Sao_Paulo" }}</td>
+                        </tr>
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    {#    <script src="{% static 'js/checklist.js' %}"></script>#}
+    <script src="{% static 'js/sortable.js' %}"></script>
+{% endblock %}

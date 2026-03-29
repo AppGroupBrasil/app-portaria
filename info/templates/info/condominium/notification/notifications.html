@@ -1,0 +1,78 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Suas Notificações</h2>
+        <br>
+        <br>
+        <div class="table-container">
+            <table class="table table-hover sortable">
+                <thead>
+                <tr class="table-primary">
+                    <th class="no-sort" scope="col">Título</th>
+                    <th class="no-sort wrap-column" scope="col">Mensagem</th>
+                    <th class="no-sort" scope="col">Lida</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for notification in notifications %}
+                    {% if not notification.read %}
+                        <tr class="table-warning">
+                            {% else %}
+                        <tr>
+                    {% endif %}
+                {% if notification.title %}
+
+                    {% if notification.url %}
+                        <td class="wrap-column"><a href="{{ notification.url }}" class="dashboard-link">{{ notification.title }}</a></td>
+                    {% else %}
+                        <td class="wrap-column">{{ notification.title }}</td>
+                    {% endif %}
+
+                {% else %}
+                    <td class="no-sort" scope="row"></td>
+                {% endif %}
+
+                {% if notification.url %}
+                    <td class="wrap-column"><a href="{{ notification.url }}" class="dashboard-link">{{ notification.message }}</a></td>
+                {% else %}
+                    <td class="wrap-column">{{ notification.message }}</td>
+                {% endif %}
+
+                {% if notification.read %}
+                    <td>SIM</td>
+                {% else %}
+                    <td>NÃO</td>
+                {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% include 'info/pagination.html' %}
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="{% static 'js/sortable.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '{% url "info:read-notification" %}',
+                method: 'GET',
+                success: function (response) {
+                    pendings = 0;
+                },
+                error: function (error) {
+                    // Handle errors if needed
+                }
+            });
+        });
+    </script>
+{% endblock %}

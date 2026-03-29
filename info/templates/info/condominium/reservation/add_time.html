@@ -1,0 +1,159 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Cadastrar</h2>
+        <h3>Horário para reserva</h3>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+
+            {{ form.init_time.label_tag }}
+            {{ form.init_time }}
+            {{ form.end_time.label_tag }}
+            {{ form.end_time }}
+            <label style="color: red;"><strong>Selecione a seguir o tempo para repetição das reservas.</strong></label>
+            <br>
+            <br>
+            {{ form.interval.label_tag }}
+            {{ form.interval }}
+            <br>
+            <label style="margin-bottom: 20px;">NÃO PERMITIR RESERVA NO(S) DIA(S)</label>
+            <br>
+            <label style="color: red;"><strong>Selecione</strong> os dias que <strong>NÃO</strong> serão permitidas reservas nesta área, <strong>caso contrário</strong>, serão permitidas nos dias não marcados.</label>
+            <br>
+            <br>
+            <div class="dashboard">
+                <div class="dashboard-item">
+                    <div class="cat day">
+                        <label>
+                            <input type="checkbox" value="1" id="id_monday" name="monday"><span>Segunda</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="dashboard-item">
+                    <div class="cat day">
+                        <label>
+                            <input type="checkbox" value="1" id="id_tuesday" name="tuesday"><span>Terça</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="dashboard-item">
+                    <div class="cat day">
+                        <label>
+                            <input type="checkbox" value="1" id="id_wednesday" name="wednesday"><span>Quarta</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="dashboard-item">
+                    <div class="cat day ">
+                        <label>
+                            <input type="checkbox" value="1" id="id_thursday" name="thursday"><span>Quinta</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="dashboard-item">
+                    <div class="cat day">
+                        <label>
+                            <input type="checkbox" value="1" id="id_friday" name="friday"><span>Sexta</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="dashboard-item">
+                    <div class="cat day">
+                        <label>
+                            <input type="checkbox" value="1" id="id_saturday" name="saturday"><span>Sábado</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="dashboard-item">
+                    <div class="cat day">
+                        <label>
+                            <input type="checkbox" value="1" id="id_sunday" name="sunday"><span>Domingo</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="id_blocked" name="blocked">
+                <label class="form-check-label" for="id_blocked">Horário bloqueado?</label>
+            </div>
+            <br>
+            <div class="row-inline">
+
+                <h4>Bloquear data e horário específico</h4>
+                <button id="add-file" type="button" class="btn btn-link w-8 h-10 btn-block p-2"
+                        onclick="addBlockedForm()">
+                    <i class="fa-sharp fa-solid fa-square-plus fa-xl"></i>
+                </button>
+                <button id="remove-file" type="button" class="btn btn-link w-10 h-10 btn-block p-2"
+                        onclick="removeBlockedForm()">
+                    <i class="fa-sharp fa-solid fa-square-minus icon-minus fa-xl"></i>
+                </button>
+            </div>
+        <label style="color: red"><strong>Atenção!</strong> informe as datas que <strong>não</strong> é permitido reservar essa área.</label>
+            <div id="blocked-list">
+                {% if blocked_formset %}
+                    {{ blocked_formset.management_form }}
+                    {% for form in blocked_formset %}
+                        <hr>
+                        <br>
+                        <div class="blocked-day">
+                            {{ form|crispy }}
+                        </div>
+
+                    {% endfor %}
+                    <div id="blocked-empty-form" class="hidden">
+                        <br>
+                        {{ blocked_formset.empty_form|crispy }}
+                    </div>
+
+                {% endif %}
+            </div>
+            <br>
+
+            <button id="submitResident" type="submit" class="btn btn-primary w-100 btn-block p-2">CADASTRAR</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+        <script src="{% static 'js/reservation.js' %}"></script>
+
+    <script>
+        let repeatCheck = document.getElementById('id_repeat');
+
+        function handleRepeatCheckboxChange(event) {
+
+
+            let localField = document.getElementById('id_place');
+
+            localField.disabled = !!repeatCheck.checked;
+        }
+
+        repeatCheck.addEventListener('change', handleRepeatCheckboxChange);
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        function checkUntilField() {
+            let permanent = document.getElementById('id_permanent');
+            let until = document.getElementById("id_until");
+
+            if (permanent.checked == true) {
+                until.disabled = true;
+            } else {
+                until.disabled = false;
+            }
+        }
+
+        $(document).ready(function () {
+            const permanentField = document.getElementById('id_permanent');
+            permanentField.addEventListener('change', checkUntilField);
+        });
+    </script>
+{% endblock %}

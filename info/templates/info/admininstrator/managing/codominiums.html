@@ -1,0 +1,74 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Condomínios Cadastrados</h2>
+        <br>
+        <a class="dashboard-link" href="{% url 'info:admin-add-condominium' %}">
+            <i class="fa-solid fa-city fa-2xl m-4" style="color: #3498db"></i>
+            <br>
+            Cadastrar Condomínium
+        </a>
+        <br>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover sortable">
+                <thead>
+                <tr class="table-primary">
+                    <th class="no-sort" scope="col">Ações</th>
+                    <th scope="col">Condomínio</th>
+                </tr>
+                <tr>
+                    <form method="GET" id="search_form">
+                        <td class="no-sort"></td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control bg-y" type="text" id="search_condominium_name"
+                                   name="condominium_name"
+                                   placeholder="Nome para buscar..."
+                                   value="{{ request.GET.condominium_name }}">
+                        </td>
+                    </form>
+                </tr>
+                </thead>
+                <tbody>
+                {% for condominium in condomíniums %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'info:select-condominium' condominium.id %}" class="btn btn-info ">
+                                GERENCIAR</a>
+                            {#                        <a href="{% url 'info:admin-delete-condominium' condominium.id %}" class="m-2"><span><i#}
+                            {#                                class="fa-regular fa-trash-can"></i></span></a>#}
+                            <a class="btn btn-primary btn-sm m-2"
+                               href="/confirm-delete/admin-condominiums/admin-delete-condominium.{{ condominium.id }}"
+                            ><span><i
+                                    class="fa-regular fa-trash-can"></i></span></a>
+                        </td>
+                        <td scope="row">{{ condominium.condominium_name }}</td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script src="{% static 'js/sortable.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            let searchForm = $('#search_form');
+            let searchName = $('#search_condominium_name');
+
+            $(searchName).on('change', function () {
+                searchForm.submit();
+            });
+        });
+    </script>
+
+{% endblock %}

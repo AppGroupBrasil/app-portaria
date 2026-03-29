@@ -1,0 +1,166 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Veículos</h2>
+        <br>
+
+        <a class="dashboard-link" href="{% url 'info:add-vehicle' %}">
+            <div class="icon">
+                <i class="fa-solid fa-car fa-2xl m-4" style="color: #3498db"></i>
+                <br>
+                Cadastrar Veículo
+            </div>
+        </a>
+
+        <br>
+        <div class="text-end">
+            <h4> Total de veículos: <span
+                    style="font-size: 40px; color: red"><strong>{{ vehicles_counter }}</strong></span></h4>
+        </div>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                <tr class="table-primary">
+                    <th scope="col">Registrar</th>
+                    <th scope="col">Protocolo</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Documento</th>
+                    <th scope="col">Veículo</th>
+                    <th scope="col">Placa</th>
+                    <th scope="col">Destino</th>
+                    <th scope="col">Liberado por</th>
+                    <th scope="col">Observações</th>
+                    <th scope="col">Data</th>
+                </tr>
+                <tr>
+                    <form method="GET" id="search_form" class="search-form">
+                        <td class="no-sort" scope="row"></td>
+                        <td class="no-sort">
+                            <input class="form-control" type="text" id="id_vehicle_protocol"
+                                   name="vehicle_protocol"
+                                   placeholder="Protocolo.."
+                                   value="{{ request.GET.vehicle_protocol }}" style="background-color: yellow">
+                        </td>
+                        <td class="no-sort">
+                            <input class="form-control" type="text" id="id_vehicle_name"
+                                   name="vehicle_name"
+                                   placeholder="Nome.."
+                                   value="{{ request.GET.vehicle_name }}" style="background-color: yellow">
+                        </td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control" type="text" id="id_vehicle_document"
+                                   name="vehicle_document"
+                                   placeholder="Documento.."
+                                   value="{{ request.GET.vehicle_document }}" style="background-color: yellow">
+                        </td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control" type="text" id="id_vehicle"
+                                   name="vehicle"
+                                   placeholder="Veículo.."
+                                   value="{{ request.GET.vehicle }}" style="background-color: yellow">
+                        </td>
+                        <td class="no-sort" scope="row">
+                            <input class="form-control" type="text" id="id_vehicle_plate"
+                                   name="vehicle_plate"
+                                   placeholder="Placa.."
+                                   value="{{ request.GET.vehicle_plate }}" style="background-color: yellow">
+                        </td>
+                        <td class="no-sort"></td>
+                        <td class="no-sort"></td>
+                        <td class="no-sort"></td>
+                        <td class="no-sort" scope="col">
+                            <input class="form-control bg-y" type="date" id="id_vehicle_date"
+                                   name="vehicle_date"
+                                   placeholder="Data..."
+                                   value="{{ request.GET.vehicle_date }}">
+                        </td>
+                    </form>
+                </tr>
+                </thead>
+                <tbody>
+                {% for vehicle in vehicles %}
+
+                    {% if not vehicle.has_leaved and vehicle.arrived %}
+                        <tr class="table-success">
+                            {% elif vehicle.has_leaved and not vehicle.arrived %}
+                        <tr class="list-group-item-danger">
+                            {% else %}
+                        <tr>
+                    {% endif %}
+                <td style="vertical-align: middle;">
+                    {% if not vehicle.has_leaved %}
+                        <a href="{% url 'info:vehicle-move' vehicle.id %}" class="btn btn-danger ">
+                            SAÍDA </a>
+                    {% else %}
+                        <a href="{% url 'info:vehicle-move' vehicle.id %}" class="btn btn-info ">
+                            CHEGADA </a>
+                    {% endif %}
+                </td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_vehicle' vehicle.id %}" class="dashboard-link">{{ vehicle.protocol }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_vehicle' vehicle.id %}" class="dashboard-link">{{ vehicle.name }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_vehicle' vehicle.id %}" class="dashboard-link">{{ vehicle.document }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_vehicle' vehicle.id %}" class="dashboard-link">{{ vehicle.vehicle }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_vehicle' vehicle.id %}" class="dashboard-link">{{ vehicle.vehicle_plate }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_vehicle' vehicle.id %}" class="dashboard-link">{{ vehicle.destination }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_vehicle' vehicle.id %}" class="dashboard-link">{{ vehicle.authorized_by }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_vehicle' vehicle.id %}" class="dashboard-link">{{ vehicle.obs }}</a></td>
+                <td style="vertical-align: middle;"><a href="{% url 'info:view_vehicle' vehicle.id %}" class="dashboard-link">{{ vehicle.created|timezone:"America/Sao_Paulo"|date:"d/m/Y" }}</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% include 'info/pagination.html' %}
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let searchForm = $('#search_form');
+            let searchProtocol = $('#id_vehicle_protocol');
+            let searchName = $('#id_vehicle_name');
+            let searchDocument = $('#id_vehicle_document');
+            let searchVehicle = $('#id_vehicle');
+            let searchPlate = $('#id_vehicle_plate');
+            let searchDate = $('#id_vehicle_date');
+
+            $(searchProtocol).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchName).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchProtocol).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchDocument).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchVehicle).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchPlate).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchDate).on('change', function () {
+                searchForm.submit();
+            });
+        });
+    </script>
+
+{% endblock %}

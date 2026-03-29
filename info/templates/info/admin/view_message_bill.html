@@ -1,0 +1,28 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Cobrança</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off" enctype="multipart/form-data">
+            {% csrf_token %}
+            <br>
+            <h4>{{ bill.condominium.condominium_name }}</h4>
+            <h5>Valor: R$ {{ bill.price|floatformat:2 }}</h5>
+            <br>
+            {{ form|crispy }}
+            <br>
+
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">ATUALIZAR</button>
+
+        </form>
+
+        <a id="return-link" href="{% url 'info:messages-bills' %}"
+           class="btn btn-danger w-100 btn-block p-2 my-2">
+            <i class="fa fa-arrow-left"> VOLTAR</i>
+        </a>
+        <br>
+    </div>
+{% endblock %}

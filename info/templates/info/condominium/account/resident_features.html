@@ -1,0 +1,105 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <p id="message" class="alert alert-success float-center text-center message-text" hidden>
+
+        </p>
+        <h2>Gerenciamento de funcionalidades para</h2>
+        <h3>Moradores</h3>
+        <hr>
+        <p>Selecione quais vão ser as funcionalidades disponíveis aos moradores através da aplicação.</p>
+        <br>
+        <br>
+        <h5>FUNÇÕES</h5>
+        <br>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            {% if 'info.view_review' in user.get_all_permissions or 'info.add_review' in user.get_all_permissions %}
+                <div class="form-check form-switch">
+                    {% if features.review %}
+                        <input class="form-check-input" type="checkbox" id="id_review" name="review" checked>
+                    {% else %}
+                        <input class="form-check-input" type="checkbox" id="id_review" name="review">
+                    {% endif %}
+                    <label style="letter-spacing: 2px;" class="form-check-label" for="id_review">FAZER  &nbsp;AVALIAÇÕES</label>
+                </div>
+            {% endif %}
+            {% if 'info.view_surveymodel' in user.get_all_permissions or 'info.add_surveymodel' in user.get_all_permissions %}
+                <div class="form-check form-switch">
+                    {% if features.survey %}
+                        <input class="form-check-input" type="checkbox" id="id_survey" name="survey" checked>
+                    {% else %}
+                        <input class="form-check-input" type="checkbox" id="id_survey" name="survey">
+                    {% endif %}
+                    <label style="letter-spacing: 2px;" class="form-check-label" for="id_survey">RESPONDER  &nbsp;ENQUETES</label>
+                </div>
+            {% endif %}
+            {% if 'info.send_bill' in user.get_all_permissions %}
+                <div class="form-check form-switch">
+                    {% if features.bills %}
+                        <input class="form-check-input" type="checkbox" id="id_bills" name="bills" checked>
+                    {% else %}
+                        <input class="form-check-input" type="checkbox" id="id_bills" name="bills">
+                    {% endif %}
+                    <label style="letter-spacing: 2px;" class="form-check-label" for="id_bills">RECEBER  &nbsp;BOLETOS</label>
+                </div>
+            {% endif %}
+            {% if 'info.change_visitant' in user.get_all_permissions %}
+                <div class="form-check form-switch">
+                    {% if features.visitant %}
+                        <input class="form-check-input" type="checkbox" id="id_visitant" name="visitant" checked>
+                    {% else %}
+                        <input class="form-check-input" type="checkbox" id="id_visitant" name="visitant">
+                    {% endif %}
+                    <label style="letter-spacing: 2px;" class="form-check-label" for="id_visitant">LIBERAR  &nbsp;VISITANTES</label>
+                </div>
+            {% endif %}
+            {% if 'info.resident_activity' in user.get_all_permissions %}
+                <div class="form-check form-switch">
+                    {% if features.activity %}
+                        <input class="form-check-input" type="checkbox" id="id_activity" name="activity" checked>
+                    {% else %}
+                        <input class="form-check-input" type="checkbox" id="id_activity" name="activity">
+                    {% endif %}
+                    <label style="letter-spacing: 2px;" class="form-check-label" for="id_activity">FAZER  &nbsp;SOLICITAÇÕES</label>
+                </div>
+            {% endif %}
+            {% if 'info.view_reservation' in user.get_all_permissions %}
+                <div class="form-check form-switch">
+                    {% if features.booking %}
+                        <input class="form-check-input" type="checkbox" id="id_booking" name="booking" checked>
+                    {% else %}
+                        <input class="form-check-input" type="checkbox" id="id_booking" name="booking">
+                    {% endif %}
+                    <label style="letter-spacing: 2px;" class="form-check-label" for="id_booking">FAZER  &nbsp;RESERVAS</label>
+                </div>
+            {% endif %}
+            {% if 'info.add_documents' in user.get_all_permissions %}
+                <div class="form-check form-switch">
+                    {% if features.documents %}
+                        <input class="form-check-input" type="checkbox" id="id_documents" name="documents" checked>
+                    {% else %}
+                        <input class="form-check-input" type="checkbox" id="id_documents" name="documents">
+                    {% endif %}
+                    <label style="letter-spacing: 2px;" class="form-check-label " for="id_documents">ACESSAR  &nbsp;DOCUMENTOS</label>
+                </div>
+            {% endif %}
+            {% if 'info.change_visitant' in user.get_all_permissions %}
+                <div class="form-check form-switch">
+                    {% if features.permanent %}
+                        <input class="form-check-input" type="checkbox" id="id_permanent" name="permanent" checked>
+                    {% else %}
+                        <input class="form-check-input" type="checkbox" id="id_permanent" name="permanent">
+                    {% endif %}
+                    <label style="letter-spacing: 2px;" class="form-check-label " for="id_permanent">LIBERAR VISITANTES PERMANENTES</label>
+                </div>
+            {% endif %}
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">ATUALIZAR</button>
+        </form>
+    </div>
+{% endblock %}

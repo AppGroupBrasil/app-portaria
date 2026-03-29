@@ -1,0 +1,54 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Avaliações da {{ service }}</h2>
+        <br>
+        <br>
+        <hr>
+        <div class="table-container">
+            <table class="table table-hover sortable">
+                <thead>
+                <tr class="table-primary">
+                    <th class="no-sort" scope="col">Ações</th>
+                    <th class="no-sort" scope="col">Morador</th>
+                    <th class="no-sort" scope="col">Email</th>
+                    <th class="no-sort" scope="col">Bloco/Apartamento</th>
+                    <th class="no-sort" scope="col">Item</th>
+                    <th class="no-sort" scope="col">Nota</th>
+                    <th scope="col">Data</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for answer in answers %}
+                    <tr>
+                        <td><a href="{% url 'info:answer-detail' answer.id %}"
+                               class="btn btn-primary btn-sm me-2"><span><i class="fas fa-eye"></i></span></a>
+                        </td>
+                        <td scope="row">{{ answer.name }}</td>
+                        <td>{{ answer.email }}</td>
+                        <td>{{ answer.address }}</td>
+                        <td>{% if answer.item %}
+                            {{ answer.item.service }}
+                        {% endif %}</td>
+                        <td>{{ answer.rate }}</td>
+                        <td data-sort="{{ answer.created |date:'YMd' }}">{{ answer.created|timezone:"America/Sao_Paulo" }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+        <a href="{% url 'info:reviews' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    {#    <script src="{% static 'js/clients.js' %}"></script>#}
+    <script src="{% static 'js/sortable.js' %}"></script>
+
+{% endblock %}

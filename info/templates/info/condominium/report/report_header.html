@@ -1,0 +1,50 @@
+<div class="report-header-text">
+
+    <div class="row">
+        {% if logo %}
+            <div class="col-3">
+                <img style="width: 100%;" src="{{ logo.url }}" alt="">
+            </div>
+            <div class="col-9">
+        {% else %}
+            <div class="col">
+        {% endif %}
+
+        <div class="row-inline">
+            Condomínio: <strong><span
+                style="margin-left: 10px;">{{ condominium.condominium_name }}</span></strong>
+        </div>
+
+        <div class="row-inline">
+            Endereço: <strong><span
+                style="margin-left: 10px;">{{ condominium.address }}</span></strong>
+        </div>
+        <div class="row-inline">
+            Síndico/Responsável: <strong><span
+                style="margin-left: 10px;">{{ condominium.liquidator_name }}</span></strong>
+        </div>
+        {% if informative.condominium.admin_name %}
+            <div class="row-inline">
+                Administradora: <strong><span
+                    style="margin-left: 10px;">{{ condominium.admin_name }}</span></strong>
+            </div>
+        {% endif %}
+        <div class="row-inline">
+            Whatsapp: <strong><span
+                style="margin-left: 10px;">{{ condominium.whatsapp }}</span></strong>
+        </div>
+        <div class="row-inline">
+            Email: <strong><span style="margin-left: 10px;">{{ condominium.email }}</span></strong>
+        </div>
+        {% if informative.condominium.site %}
+            <div class="row-inline">
+                Site: <strong><span
+                    style="margin-left: 10px;">{{ condominium.site }}</span></strong>
+            </div>
+        {% endif %}
+        </div>
+        </div>
+
+    </div>
+</div>
+<br>

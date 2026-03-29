@@ -1,0 +1,40 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Detalhes do perfil</h2>
+        <hr>
+        <br>
+        <div class="card mt-3">
+            <div class="text-center">
+                <h5 class="card-title my-3">{{ name }}</h5>
+            </div>
+            <div class="card-body my-5">
+                <ul class="card-subtitle">
+                    {% for detail in details %}
+                        <li>
+                            <p class="card-text">
+                                {{ detail }}
+                            </p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="text-center">
+                {% if profile == "adm" %}
+                        <a href="{% url 'info:admin-sign-up' %}" class="btn btn-info">CADASTRAR</a>
+                    {% else %}
+                        <a href="{% url 'info:register' profile %}" class="btn btn-info">CADASTRAR</a>
+                    {% endif %}
+                <br>
+                <a href="{% url 'info:sign-up' %}" class="btn btn-danger my-2">VOLTAR</a>
+            </div>
+
+
+        </div>
+    </div>
+    <br>
+
+{% endblock %}

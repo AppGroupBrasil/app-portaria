@@ -1,0 +1,70 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Apartamentos Cadastrados</h2>
+        <br>
+        {% if 'info.add_apartment' in user.get_all_permissions %}
+            <div class="dashboard">
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:blocks' %}">
+                        <i class="fa-solid fa-building-circle-check fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Blocos
+                    </a>
+                </div>
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:add-apartment' %}">
+                        <i class="fa-solid fa-house-medical fa-2xl m-4" style="color: #3498db"></i>
+                        <br>
+                        Cadastrar Apartamento
+                    </a>
+                </div>
+            </div>
+            <br>
+            <p><span style="color: red; font-family: Calibri, Arial, sans-serif; font-size: 20px; font-weight: bold;">Realize o cadastro do bloco antes de cadastrar um apartamento.</span>
+            </p>
+            <br>
+        {% endif %}
+        <br>
+        {% if 'info.view_apartment' in user.get_all_permissions %}
+            <hr>
+            <div class="table-container">
+                <table class="table table-hover">
+                    <thead>
+                    <tr class="table-primary">
+                        <th scope="col">Ações</th>
+                        <th scope="col">Bloco</th>
+                        <th scope="col">Apartamento</th>
+                        <th scope="col">Complemento</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for apartment in apartments %}
+                        <tr>
+                            <th>
+                                <a href="{% url 'info:update-apartment' apartment.id %}" class="btn btn-primary btn-sm"><span><i
+                                        class="fa-regular fa-pen-to-square"></i></span></a>
+                                <a href="/confirm-delete/apartments/remove-apartment.{{ apartment.id }}"
+                                   class="btn btn-primary btn-sm mx-2"><span><i
+                                        class="fa-regular fa-trash-can"></i></span></a>
+                            </th>
+                            <th>{{ apartment.block }}</th>
+                            <td>{{ apartment.number }}</td>
+                            <td>{{ apartment.complement }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+
+{% endblock %}

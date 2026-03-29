@@ -1,0 +1,273 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Adicionar Atividade</h2>
+        <hr>
+        <br>
+        <div class="text-end">
+            <a href="{% url 'info:add-informative-kind' %}" class="btn btn-info ">
+                ADICIONAR TIPO ATIVIDADE</a>
+        </div>
+        <br>
+        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+
+
+            {{ form|crispy }}
+            <br>
+            <br>
+            <span style="color: red"><p>ATENÇÃO:<br>
+                Para adicionar mais de 1 função na mesma atividade clique no ícone de +.</p></span>
+            <br>
+            <div class="row-inline">
+
+                <h4>Função </h4>
+                <button id="add-function" type="button" class="btn btn-link w-8 h-10 btn-block p-2"
+                        onclick="addFunctionForm()">
+                    <i class="fa-sharp fa-solid fa-square-plus fa-xl"></i>
+                </button>
+                <button id="remove-function" type="button" class="btn btn-link w-10 h-10 btn-block p-2"
+                        onclick="removeFunctionForm()">
+                    <i class="fa-sharp fa-solid fa-square-minus icon-minus fa-xl"></i>
+                </button>
+                {% if how_to_function_text %}
+                    <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                            data-bs-placement="right"
+                            data-bs-content="{{ how_to_function_text }}"
+                            data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                            class="fa-regular fa-circle-question icon-minus fa-xl"></i>
+                    </button>
+                {% elif how_to_function_link %}
+                    <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_function_link }}"><i
+                            class="fa-regular fa-circle-question icon-minus fa-xl"></i></a>
+                {% endif %}
+
+
+            </div>
+            <div id="function-list">
+
+                {% if function_formset %}
+                    {{ function_formset.management_form }}
+                    {% for form in function_formset %}
+                        <hr>
+                        <br>
+                        <div class="function">
+                            {{ form|crispy }}
+                        </div>
+
+                    {% endfor %}
+                    <div id="function-empty-form" class="hidden">
+                        <hr>
+                        <br>
+                        {{ function_formset.empty_form|crispy }}
+                    </div>
+
+                {% endif %}
+
+
+
+            </div>
+
+            <br>
+            <br>
+
+            <div id="items_section" class="hidden">
+                <div class="row-inline">
+                    <h4>Descrição</h4>
+                    <button id="add-item" type="button" class="btn btn-link w-8 h-10 btn-block p-2"
+                            onclick="addItemForm()">
+                        <i class="fa-sharp fa-solid fa-square-plus fa-xl"></i>
+                    </button>
+                    <button id="remove-item" type="button" class="btn btn-link w-10 h-10 btn-block p-2"
+                            onclick="removeItemForm()">
+                        <i class="fa-sharp fa-solid fa-square-minus icon-minus fa-xl"></i>
+                    </button>
+                    {% if how_to_item_text %}
+                        <button type="button" class="btn btn-link ms-auto" data-bs-container="body"
+                                data-bs-toggle="popover"
+                                data-bs-placement="right"
+                                data-bs-content="{{ how_to_item_text }}"
+                                data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                                class="fa-regular fa-circle-question icon-minus fa-xl"></i>
+                        </button>
+                    {% elif how_to_item_link %}
+                        <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_item_link }}"><i
+                                class="fa-regular fa-circle-question icon-minus fa-xl"></i></a>
+                    {% endif %}
+                </div>
+                <div id="items-list">
+                    {% if items_formset %}
+                        {{ items_formset.management_form }}
+                        {% for form in items_formset %}
+                            <hr>
+                            <br>
+                            <div class="item-function">
+                                {{ form|crispy }}
+                            </div>
+
+                        {% endfor %}
+
+                        <div id="item-empty-form" class="hidden">
+                            <hr>
+                            <br>
+                            {{ items_formset.empty_form|crispy }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div id="images_section" class="hidden">
+                <div class="row-inline">
+                    <h4>Imagens </h4>
+                    <button id="add-item" type="button" class="btn btn-link w-8 h-10 btn-block p-2"
+                            onclick="addImageForm()">
+                        <i class="fa-sharp fa-solid fa-square-plus fa-xl"></i>
+                    </button>
+                    <button id="remove-item" type="button" class="btn btn-link w-10 h-10 btn-block p-2"
+                            onclick="removeImageForm()">
+                        <i class="fa-sharp fa-solid fa-square-minus icon-minus fa-xl"></i>
+                    </button>
+                    {% if how_to_image_text %}
+                        <button type="button" class="btn btn-link ms-auto" data-bs-container="body"
+                                data-bs-toggle="popover"
+                                data-bs-placement="right"
+                                data-bs-content="{{ how_to_image_text }}"
+                                data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                                class="fa-regular fa-circle-question icon-minus fa-xl"></i>
+                        </button>
+                    {% elif how_to_image_link %}
+                        <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_image_link }}"><i
+                                class="fa-regular fa-circle-question icon-minus fa-xl"></i></a>
+                    {% endif %}
+                </div>
+                <div id="image-list">
+                    {% if images_formset %}
+                        {% csrf_token %}
+                        {{ images_formset.management_form }}
+                        {% for image in images_formset %}
+                            <br>
+                            <div class="image-item">
+                                {{ image|crispy }}
+                            </div>
+
+                        {% endfor %}
+                        <div id="image-empty-form" class="hidden">
+                            <br>
+
+                            {{ images_formset.empty_form|crispy }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div id="files_section" class="hidden">
+                <div class="row-inline">
+                    <h4>Arquivos </h4>
+                    <button id="add-file" type="button" class="btn btn-link w-8 h-10 btn-block p-2"
+                            onclick="addItemFileForm()">
+                        <i class="fa-sharp fa-solid fa-square-plus fa-xl"></i>
+                    </button>
+                    <button id="remove-file" type="button" class="btn btn-link w-10 h-10 btn-block p-2"
+                            onclick="removeItemFileForm()">
+                        <i class="fa-sharp fa-solid fa-square-minus icon-minus fa-xl"></i>
+                    </button>
+                    {% if how_to_file_text %}
+                        <button type="button" class="btn btn-link ms-auto" data-bs-container="body"
+                                data-bs-toggle="popover"
+                                data-bs-placement="right"
+                                data-bs-content="{{ how_to_file_text }}"
+                                data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                                class="fa-regular fa-circle-question icon-minus fa-xl"></i>
+                        </button>
+                    {% elif how_to_file_link %}
+                        <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_file_link }}"><i
+                                class="fa-regular fa-circle-question icon-minus fa-xl"></i></a>
+                    {% endif %}
+                </div>
+                <div id="file-list">
+                    {% if files_formset %}
+                        {% csrf_token %}
+                        {{ files_formset.management_form }}
+                        {% for file in files_formset %}
+                            <br>
+                            <div class="file-item">
+                                {{ file|crispy }}
+                            </div>
+
+                        {% endfor %}
+                        <div id="item-file-empty-form" class="hidden">
+                            <br>
+
+                            {{ files_formset.empty_form|crispy }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div id="videos_section" class="hidden">
+                <div class="row-inline">
+                    <h4>Vídeos </h4>
+                    <button id="add-file" type="button" class="btn btn-link w-8 h-10 btn-block p-2"
+                            onclick="addItemVideoForm()">
+                        <i class="fa-sharp fa-solid fa-square-plus fa-xl"></i>
+                    </button>
+                    <button id="remove-file" type="button" class="btn btn-link w-10 h-10 btn-block p-2"
+                            onclick="removeItemVideoForm()">
+                        <i class="fa-sharp fa-solid fa-square-minus icon-minus fa-xl"></i>
+                    </button>
+                    {% if how_to_video_text %}
+                        <button type="button" class="btn btn-link ms-auto" data-bs-container="body"
+                                data-bs-toggle="popover"
+                                data-bs-placement="right"
+                                data-bs-content="{{ how_to_video_text }}"
+                                data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                                class="fa-regular fa-circle-question icon-minus fa-xl"></i>
+                        </button>
+                    {% elif how_to_video_link %}
+                        <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_video_link }}"><i
+                                class="fa-regular fa-circle-question icon-minus fa-xl"></i></a>
+                    {% endif %}
+                </div>
+                <div id="video-list">
+                    {% if videos_formset %}
+                        {{ videos_formset.management_form }}
+                        {% for video in videos_formset %}
+                            <br>
+                            <div class="video-item">
+                                {{ video|crispy }}
+                            </div>
+
+                        {% endfor %}
+                        <div id="item-video-empty-form" class="hidden">
+                            <br>
+                            {% csrf_token %}
+                            {{ videos_formset.empty_form|crispy }}
+                            <br>
+                            <a target="_blank" href="https://www.veed.io/send-video?locale=pt-BR&source=%2Fferramentas%2Fhospedagem-de-video%2Fsubir-video"
+                               style="color: black; text-decoration: none;">Gerar Link de Vídeo</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">FINALIZAR</button>
+            <br>
+        </form>
+    </div>
+    <br>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        })
+        ;
+    </script>
+
+
+{% endblock %}

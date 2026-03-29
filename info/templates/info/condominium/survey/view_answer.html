@@ -1,0 +1,36 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Enquete: {{ question }}</h2>
+        <hr>
+        <br>
+        <br>
+        {{ form|crispy }}
+        {% if not valid %}
+            {% if pic %}
+                <br><br>
+                <p>Foto enviada para validação:</p>
+                <img class="w-100" src="{{ pic.url }}" alt="Thumbnail">
+            {% else %}
+                <p>Não enviou foto para validação do voto</p>
+            {% endif %}
+            <br><br>
+            <div class="text-center row-inline">
+                <div class="w-50">
+                    <a href="{% url 'info:approve-answer' id %}" class="btn btn-info ">APROVAR</a>
+                </div>
+                <div class="w-50">
+                    <a href="{% url 'info:reprove-answer' id %}" class="btn btn-danger ">IMPUGNAR</a>
+                </div>
+            </div>
+            <br>
+            <span style="color: red; font-size: 17px; font-weight: bold;"><p>Ao impugnar um voto ele não será considerado na contagem final da enquete</p></span>
+        {% endif %}
+
+
+    </div>
+    <br>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Morador</h2>
+        <hr>
+        <br>
+        <form method="GET" autocomplete="off">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <br>
+            {% if img %}
+                <img class="w-100" src="{{ img.url }}" alt="Thumbnail">
+            {% endif %}
+            <br>
+            <br>
+            <div class="text-center row-inline">
+                <div class="w-50">
+                    <a href="{% url 'info:approve-resident' id %}" class="btn btn-info ">APROVAR</a>
+                </div>
+                <div class="w-50">
+                    <a href="{% url 'info:reprove-resident' id %}" class="btn btn-danger ">REJEITAR</a>
+                </div>
+            </div>
+        </form>
+        <br>
+    </div>
+    <br>
+
+{% endblock %}

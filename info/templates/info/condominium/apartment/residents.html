@@ -1,0 +1,255 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Moradores/Responsáveis Cadastrados</h2>
+        <br>
+        <div class="dashboard">
+            {% if 'info.add_resident' in user.get_all_permissions and 'info.resident_report' in user.get_all_permissions %}
+
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:add-resident' %}">
+                        <div class="custom-icon">
+                            <i class="fa-solid fa-house-user fa-2xl" style="color: #3498db"></i>
+                            <br>
+                            Cadastrar Morador
+                        </div>
+                    </a>
+                </div>
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:residents-link' %}">
+                        <div class="custom-icon">
+                            <i class="fa-solid fa-square-arrow-up-right fa-2xl" style="color: #3498db"></i>
+                            <br>
+                            Gerar link cadastro
+                        </div>
+                    </a>
+                </div>
+
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:approve-residents' %}">
+                        <div class="custom-icon">
+                            <i class="fa-solid fa-user-check fa-2xl" style="color: #3498db"></i>
+                            <br>
+                            Aprovar Moradores
+                        </div>
+                    </a>
+                </div>
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:export-residents' %}">
+                        <div class="custom-icon">
+                            <i class="fa-regular fa-file-pdf fa-2xl" style="color: #3498db"></i>
+                            <br>
+                            Exportar em PDF
+                        </div>
+                    </a>
+                </div>
+
+
+            {% elif 'info.add_resident' in user.get_all_permissions %}
+
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:add-resident' %}">
+                        <div class="custom-icon">
+                            <i class="fa-solid fa-house-user fa-2xl" style="color: #3498db"></i>
+                            <br>
+                            Cadastrar Morador
+                        </div>
+                    </a>
+                </div>
+                <div class="dashboard-item">
+                    <a class="dashboard-link" href="{% url 'info:residents-link' %}">
+                        <div class="custom-icon">
+                            <i class="fa-solid fa-square-arrow-up-right fa-2xl" style="color: #3498db"></i>
+                            <br>
+                            Gerar link de cadastro
+                        </div>
+                    </a>
+                </div>
+
+            {% elif 'info.resident_report' in user.get_all_permissions %}
+                <a class="dashboard-link" href="{% url 'info:export-residents' %}">
+                    <div class="custom-icon2">
+                        <i class="fa-regular fa-file-pdf fa-2xl" style="color: #3498db"></i>
+                        <br>
+                        Exportar em PDF
+                    </div>
+                </a>
+            {% endif %}
+        </div>
+        <div class="text-end">
+            {% if how_to_residents_text %}
+                <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                        data-bs-placement="left"
+                        data-bs-content="{{ how_to_residents_text }}"
+                        data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                        class="fa-regular fa-circle-question fa-xl icon-minus"></i>
+                </button>
+            {% elif how_to_residents_link %}
+                <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_residents_link }}"><i
+                        class="fa-regular fa-circle-question fa-xl icon-minus"></i></a>
+            {% endif %}
+        </div>
+        {% if 'info.view_resident' in user.get_all_permissions %}
+            <hr>
+            <div class="table-container">
+                <table class="table table-hover">
+                    <thead>
+                    <tr class="table-primary">
+                        <th scope="col">Ação</th>
+                        <th scope="col">Bloco</th>
+                        <th scope="col">Apartamento</th>
+                        <th scope="col">Complemento</th>
+                        <th scope="col">Nome</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Inadimplente</th>
+
+                    </tr>
+                    <tr>
+                        <form method="GET" id="search_form" class="search-form">
+                            <td class="no-sort"></td>
+                            <td class="no-sort" scope="row">
+                                <input style="background-color: yellow;" class="form-control" type="text"
+                                       id="search_resident_block"
+                                       name="resident_block"
+                                       placeholder="Nome do bloco..."
+                                       value="{{ request.GET.resident_block }}">
+                            </td>
+                            <td class="no-sort" scope="row">
+                                <input class="form-control bg-y" type="text" id="search_resident_apartment"
+                                       name="resident_apartment"
+                                       placeholder="Número do apartamento..."
+                                       value="{{ request.GET.resident_apartment }}">
+                            </td>
+                            <td class="no-sort" scope="row">
+                                <input class="form-control bg-y" type="text" id="search_resident_complement"
+                                       name="resident_complement"
+                                       placeholder="Complemento do apartamento..."
+                                       value="{{ request.GET.resident_complement }}">
+                            </td>
+                            <td class="no-sort" scope="row">
+                                <input class="form-control bg-y" type="text" id="search_resident_name"
+                                       name="resident_name"
+                                       placeholder="Nome do Morador..."
+                                       value="{{ request.GET.resident_name }}">
+                            </td>
+                            <td class="no-sort"></td>
+                            <td class="no-sort" scope="col"></td>
+                            <td class="no-sort" scope="col"></td>
+
+                        </form>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for resident in residents %}
+
+
+                        <tr>
+                            <th scope="row">
+                                {% if 'info.change_resident' in user.get_all_permissions %}
+                                    <div class="row-inline">
+                                        <a class="btn btn-primary btn-sm me-2"
+                                           href="{% url 'info:update-resident' resident.id %}"><span><i
+                                                class="fa-regular fa-pen-to-square"></i></span></a>
+
+                                        {#                                <a href="{% url 'info:delete-resident' resident.id %}" class="mx-2"><span><i#}
+                                        {#                                        class="fa-regular fa-trash-can"></i></span></a>#}
+                                        <a class="btn btn-primary btn-sm mx-2"
+                                           href="/confirm-delete/residents/delete-resident.{{ resident.id }}"
+                                        ><span><i
+                                                class="fa-regular fa-trash-can"></i></span></a>
+                                    </div>
+                                {% endif %}
+                            </th>
+                            <td>{{ resident.apartment.block }}</td>
+                            <td>{{ resident.apartment.number }}</td>
+                            <td>{{ resident.apartment.complement }}</td>
+                            <td>{{ resident.name }}</td>
+                            <td>{{ resident.kind }}</td>
+                            <td>{{ resident.email }}</td>
+                            <td>
+                                <div class="text-center">
+                                    <form method="POST" id="defaulter_form_{{ resident.id }}" autocomplete="off">
+                                        {% csrf_token %}
+                                        {% if resident.defaulter %}
+                                            <div class="form-check px-5">
+                                                <input class="form-check" type="checkbox"
+                                                       id="id_defaulter_{{ resident.id }}"
+                                                       name="is_defaulter" checked>
+                                                <input class="hidden" type="text"
+                                                       id="id_{{ resident.id }}"
+                                                       name="defaulter_id" value="{{ resident.id }}">
+                                            </div>
+                                        {% else %}
+                                            <div class="form-check px-5">
+                                                <input class="form-check" type="checkbox"
+                                                       id="id_defaulter_{{ resident.id }}"
+                                                       name="is_defaulter">
+                                                <input class="hidden" type="text"
+                                                       id="id_{{ resident.id }}"
+                                                       name="defaulter_id" value="{{ resident.id }}">
+                                            </div>
+                                        {% endif %}
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script>
+                            $(document).ready(function () {
+
+
+                                let defaulterForm = $('#defaulter_form_{{ resident.id }}');
+                                let defaulterOption = $('#id_defaulter_{{ resident.id }}');
+                                $(defaulterOption).on('change', function () {
+                                    defaulterForm.submit();
+                                });
+
+                            });
+                        </script>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% include 'info/pagination.html' %}
+            </div>
+        {% endif %}
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            let searchForm = $('#search_form');
+            let searchName = $('#search_resident_name');
+            let searchBlock = $('#search_resident_block');
+            let searchApartment = $('#search_resident_apartment');
+            let searchComplement = $('#search_resident_complement');
+
+            $(searchName).on('change', function () {
+                searchForm.submit();
+            });
+
+            $(searchBlock).on('change', function () {
+                searchForm.submit();
+            });
+            $(searchApartment).on('change', function () {
+                searchForm.submit();
+            });
+            $(searchComplement).on('change', function () {
+                searchForm.submit();
+            });
+
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        });
+    </script>
+
+{% endblock %}

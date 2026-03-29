@@ -1,0 +1,45 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Agrupar Categorias</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            <br>
+            <p>Deseja agrupar as funções do sistema em abas?</p>
+
+            <p>Agrupado ficaria assim:</p>
+            <img class="w-100" src="{% static 'img/tabs.png' %}">
+            <br>
+            <br>
+            <p>Ou sem agrupamento dessa forma:</p>
+            <img class="w-100" src="{% static 'img/no-tabs.png' %}">
+            <br>
+            <br>
+            <div class="form-check form-switch">
+                {% if user.use_tabs %}
+                    <input class="form-check-input" type="checkbox" id="id_tabs"
+                           name="tabs"
+                           checked>
+                {% else %}
+                    <input class="form-check-input" type="checkbox" id="id_tabs"
+                           name="tabs"
+                    >
+                {% endif %}
+                <label class="form-check-label" for="id_hide">AGRUPAR EM ABAS</label>
+            </div>
+            <br>
+            <br>
+            <button type="submit" class="btn btn-primary w-100 btn-block p-2">ATUALIZAR</button>
+            <br>
+        </form>
+
+        <br>
+
+    </div>
+    <br>
+
+{% endblock %}

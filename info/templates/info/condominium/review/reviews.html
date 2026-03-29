@@ -1,0 +1,99 @@
+{% extends 'info/base.html' %}
+{% load static %}
+{% load tz %}
+{% block content %}
+
+    <div class="text-center">
+        <h2>Avaliações Solicitadas</h2>
+        <br>
+        {% if 'info.add_review' in user.get_all_permissions %}
+            <a class="dashboard-link" href="{% url 'info:check-in' page='add-review' %}">
+                <div class="icon">
+                    <i class="fa-solid fa-star-half-stroke fa-2xl m-4" style="color: #3498db"></i>
+                    <br>
+                    Solicitar Avaliação
+                </div>
+            </a>
+        {% endif %}
+        <br>
+        <div class="text-end">
+            {% if how_to_review_list_text %}
+                <button type="button" class="btn btn-link ms-auto" data-bs-container="body" data-bs-toggle="popover"
+                        data-bs-placement="left"
+                        data-bs-content="{{ how_to_review_list_text }}"
+                        data-bs-original-title="Como funciona?" aria-describedby="popover64109"><i
+                        class="fa-regular fa-circle-question fa-xl"></i>
+                </button>
+            {% elif how_to_review_list_link %}
+                <a class="btn btn-link ms-auto" target="_blank" href="{{ how_to_review_list_link }}"><i
+                        class="fa-regular fa-circle-question fa-xl"></i></a>
+            {% endif %}
+        </div>
+        {% if 'info.view_review' in user.get_all_permissions %}
+            <hr>
+            <div class="table-container">
+                <table class="table table-hover sortable">
+                    <thead>
+                    <tr class="table-primary">
+                        <th class="no-sort" scope="col">Ações</th>
+                        <th scope="col">Item avaliado</th>
+                        <th class="no-sort" scope="col">Descrição</th>
+                        <th class="no-sort" scope="col">Nota</th>
+                        <th scope="col">Data</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for review in reviews %}
+                        <tr>
+                            <td scope="row"><a href="/check-in/review-answers.{{ review.id }}"
+                                               class="btn btn-primary btn-sm mx-2"><span><i
+                                    class="fas fa-eye"></i></span></a>
+                                <a href="/confirm-delete/reviews/remove-review.{{ review.id }}"
+                                   class="btn btn-primary btn-sm"><span><i
+                                        class="fa-regular fa-trash-can"></i></span></a>
+                            </td>
+
+                            <td>{% if review.service %}
+                                {{ review.service }}
+                            {% else %}
+                                {{ review.services }}
+                            {% endif %}</td>
+
+                            <td>{% if review.provider %}
+                                {{ review.provider }}
+                            {% else %}
+                                Mais de um item avaliado
+                            {% endif %}</td>
+
+                            <td>{% if review.rate %}
+                                {{ review.rate }}{% endif %}
+                            </td>
+                            <td data-sort="{{ review.created |date:'YMd' }}">{{ review.created|timezone:"America/Sao_Paulo" }}</td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+        <br>
+        <br>
+        <a href="{% url 'info:dashboard' %}" class="btn btn-danger">
+            <i class="fa fa-arrow-left"> </i>
+            Voltar
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    {#    <script src="{% static 'js/clients.js' %}"></script>#}
+    <script src="{% static 'js/sortable.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            let popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+            let popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        });
+    </script>
+
+{% endblock %}

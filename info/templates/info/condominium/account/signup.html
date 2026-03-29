@@ -1,0 +1,102 @@
+{% extends 'info/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% block content %}
+    <div class="container bg-light shadow-md p-5 form-layout">
+        <h2>Criação de Registro</h2>
+        <hr>
+        <br>
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            <label>Campos obrigatórios</label>
+            <br>
+            <br>
+            {{ form.condominium_name.label_tag }}
+            {{ form.condominium_name }}
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            <label id="lblErrorSignup" style="color:red" class="mb-2"></label>
+{#            <div class="form-control">#}
+            {#                </div>#}
+            
+            <div id="password_section" class="">
+                <br>
+                <span style="color: red"><p>ATENÇÃO:<br>
+                Utilize apenas 4 números para criar a senha de acesso.</p></span>
+                <br>
+                <label for="id_new_password1" class=" requiredField">
+                    Senha<span class="asteriskField">*</span> </label>
+                <input type="password" name="new_password1" placeholder="*Nova senha numérica.."
+                       class="form-control form-control-lg password textinput textInput" maxlength="4" required=""
+                       id="id_new_password1">
+                <label for="id_new_password2" class=" requiredField">
+                    Confirme a senha<span class="asteriskField">*</span> </label>
+                <input type="password" name="new_password2" placeholder="*Confirme nova senha.."
+                       class="form-control form-control-lg password textinput textInput" maxlength="4" required=""
+                       id="id_new_password2">
+            </div>
+            <br>
+            <hr>
+            <label>Campos opcionais</label>
+            <br>
+            <br>
+            {{ form.cnpj.label_tag }}
+            {{ form.cnpj }}
+            {{ form.address.label_tag }}
+            {{ form.address }}
+            {{ form.liquidator_name.label_tag }}
+            {{ form.liquidator_name }}
+            {{ form.whatsapp.label_tag }}
+            {{ form.whatsapp }}
+
+            <br>
+
+            {#            {{ form|crispy }}#}
+            <button id="submit_signup" type="submit" class="btn btn-primary w-100 btn-block p-2">Criar Registro</button>
+        </form>
+
+        <br>
+
+        <div class="text-center">
+            <p>Já tem um Registro?</p> <a class="btn btn-info w-100" type="button" href="{% url 'info:sign-in' %}">ACESSAR MINHA CONTA</a>
+        </div>
+
+    </div>
+    <br>
+    <script>
+        let signupSubmitBtn = document.getElementById('submit_signup');
+        signupSubmitBtn.disabled = true;
+
+        function validateSignupForm() {
+            console.log("change")
+            let emailFieldValue = document.getElementById('id_email').value;
+            let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+            let passwordFieldValue = document.getElementById('id_new_password1').value;
+            let confirmacaoFieldValue = document.getElementById('id_new_password2').value;
+
+            if (!passwordFieldValue || !confirmacaoFieldValue) {
+                signupSubmitBtn.disabled = true;
+                return false;
+            }
+
+            if (!emailPattern.test(emailFieldValue)) {
+                document.getElementById("lblErrorSignup").innerHTML = "Entre com um email valido para receber sua senha";
+                signupSubmitBtn.disabled = true;
+                return false; // Prevent form submission
+            }
+
+            document.getElementById("lblErrorSignup").innerHTML = "";
+
+            signupSubmitBtn.disabled = false;
+            return true; // Allow form submission
+        }
+
+        let signupEmailField = document.getElementById('id_email');
+        let passwordFieldValue = document.getElementById('id_new_password1');
+        let confirmacaoFieldValue = document.getElementById('id_new_password2');
+        signupEmailField.addEventListener('change', validateSignupForm);
+        passwordFieldValue.addEventListener('change', validateSignupForm);
+        confirmacaoFieldValue.addEventListener('change', validateSignupForm);
+    </script>
+{% endblock %}
