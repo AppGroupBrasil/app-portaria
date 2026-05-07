@@ -1,6 +1,7 @@
 import base64
 import io
-from datetime import datetime
+from collections import Counter
+from datetime import datetime, timedelta
 import threading
 
 import pytz
@@ -24,12 +25,25 @@ from info.utils import get_condominium, add_signature_to_data
 
 FIXED_TZ = pytz.timezone("America/Sao_Paulo")
 AUTO_VEHICLE_CHECKOUT_NOTE = "[BAIXADO PELO SISTEMA]"
+DUPLICATE_WINDOW_SECONDS = 30
 
 
 def _normalize_vehicle_plate(vehicle_plate):
     if not vehicle_plate:
         return ""
     return str(vehicle_plate).replace(' ', '').replace('-', '').upper()
+
+
+def _is_duplicate_vehicle(condominium, vehicle_plate):
+    """Reject if same plate was registered in the last DUPLICATE_WINDOW_SECONDS."""
+    if not vehicle_plate:
+        return False
+    cutoff = datetime.now(FIXED_TZ) - timedelta(seconds=DUPLICATE_WINDOW_SECONDS)
+    return Vehicle.objects.filter(
+        condominium=condominium,
+        vehicle_plate__iexact=vehicle_plate,
+        created__gte=cutoff,
+    ).exists()
 
 
 def _append_vehicle_checkout_note(obs):
@@ -44,19 +58,30 @@ def _append_vehicle_checkout_note(obs):
     return f"{current_obs[:allowed_prefix_length].rstrip()} {AUTO_VEHICLE_CHECKOUT_NOTE}"
 
 
-def _close_active_vehicle_entries(condominium, vehicle_plate, exclude_pk=None):
-    if not vehicle_plate:
-        return 0
+def _get_active_vehicle_entries_by_plate(condominium, vehicle_plate, exclude_pk=None):
+    normalized_plate = _normalize_vehicle_plate(vehicle_plate)
+    if not normalized_plate:
+        return []
 
     active_entries = Vehicle.objects.filter(
         condominium=condominium,
-        vehicle_plate__iexact=vehicle_plate,
     ).filter(
         Q(has_leaved=False) | Q(arrived=True)
     )
 
     if exclude_pk:
         active_entries = active_entries.exclude(pk=exclude_pk)
+
+    return [
+        active_vehicle for active_vehicle in active_entries
+        if _normalize_vehicle_plate(active_vehicle.vehicle_plate) == normalized_plate
+    ]
+
+
+def _close_active_vehicle_entries(condominium, vehicle_plate, exclude_pk=None):
+    active_entries = _get_active_vehicle_entries_by_plate(condominium, vehicle_plate, exclude_pk=exclude_pk)
+    if not active_entries:
+        return 0
 
     closed_count = 0
     now = datetime.now(FIXED_TZ)
@@ -176,13 +201,25 @@ def add_vehicle(request):
         if form.is_valid():
             vehicle, apartment = _build_vehicle_from_form(condominium, request, form)
 
+            if vehicle.vehicle_plate and _get_active_vehicle_entries_by_plate(condominium, vehicle.vehicle_plate):
+                messages.warning(
+                    request,
+                    f"Não é possível fazer essa liberação, pois já existe uma liberação ativa para o veículo de placa {vehicle.vehicle_plate}.",
+                )
+                return redirect(reverse('info:dashboard'))
+
+            if _is_duplicate_vehicle(condominium, vehicle.vehicle_plate):
+                messages.warning(request, "Veículo já foi registrado há poucos segundos. Registro ignorado.")
+                return redirect(reverse('info:dashboard'))
+
+            auto_closed = _close_active_vehicle_entries(condominium, vehicle.vehicle_plate)
             vehicle.save()
 
             if vehicle.send_email:
                 for email in _get_vehicle_notification_recipients(apartment):
                     threading.Thread(target=_notify_email, args=(request, "Liberação de Veículo", vehicle, email)).start()
 
-            messages.success(request, "Veículo Liberado!")
+            messages.success(request, _vehicle_success_message(auto_closed))
             return redirect(reverse('info:dashboard'))
 
     context = {'form': form,
@@ -222,9 +259,23 @@ def vehicles(request):
 
     vehicles_counter = vehicle_list.filter(has_leaved=False).count()
 
+    active_plate_counts = Counter(
+        _normalize_vehicle_plate(active_vehicle.vehicle_plate)
+        for active_vehicle in Vehicle.objects.filter(condominium=condominium).filter(
+            Q(has_leaved=False) | Q(arrived=True)
+        )
+        if _normalize_vehicle_plate(active_vehicle.vehicle_plate)
+    )
+
     paginator = Paginator(vehicle_list, 15)  # Show 20 visitants per page
     page_number = request.GET.get('page')  # Get the page number from the request
     page_obj = paginator.get_page(page_number)
+
+    for vehicle in page_obj.object_list:
+        vehicle.duplicate_active_plate_count = active_plate_counts.get(
+            _normalize_vehicle_plate(vehicle.vehicle_plate),
+            0,
+        )
 
     context = {'vehicles': page_obj,
                'vehicles_counter': vehicles_counter,
@@ -263,12 +314,41 @@ def vehicle_move(request, id):
         vehicle.has_leaved = False
         vehicle.created = datetime.now(FIXED_TZ)
         vehicle.arrived = True
+        vehicle.save()
+        messages.success(request, "Registro realizado!")
     else:
         vehicle.has_leaved = True
         vehicle.leaved_in = datetime.now(FIXED_TZ)
         vehicle.arrived = False
+        vehicle.save()
 
-    vehicle.save()
+        batch_closed = _close_active_vehicle_entries(condominium, vehicle.vehicle_plate, exclude_pk=vehicle.pk)
+        if batch_closed:
+            messages.success(request, f"Saída registrada! Mais {batch_closed} registro(s) com a mesma placa foram baixados automaticamente.")
+        else:
+            messages.success(request, "Saída registrada!")
 
-    messages.success(request, "Registro realizado!")
+    return redirect(reverse('info:vehicles'))
+
+
+@login_required(login_url='info:sign-in')
+def vehicle_checkout_plate(request, id):
+    condominium = get_condominium(request)
+    vehicle = get_object_or_404(Vehicle, pk=id, condominium=condominium)
+
+    normalized_plate = _normalize_vehicle_plate(vehicle.vehicle_plate)
+    if not normalized_plate:
+        messages.warning(request, "Este veículo não possui placa cadastrada para baixa em lote.")
+        return redirect(reverse('info:vehicles'))
+
+    active_entries = _get_active_vehicle_entries_by_plate(condominium, normalized_plate)
+    if len(active_entries) <= 1:
+        messages.warning(request, "Não há múltiplas liberações ativas para esta placa.")
+        return redirect(reverse('info:vehicles'))
+
+    closed_count = _close_active_vehicle_entries(condominium, normalized_plate)
+    messages.success(
+        request,
+        f"Baixa de todas as liberações da placa registrada! {closed_count} registro(s) ativo(s) da placa {normalized_plate} foram baixados.",
+    )
     return redirect(reverse('info:vehicles'))
