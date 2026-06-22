@@ -1,0 +1,58 @@
+name: Deploy App Portaria
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar chave SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HETZNER_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -H "${{ secrets.HETZNER_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Enviar codigo (rsync)
+        env:
+          HOST: ${{ secrets.HETZNER_HOST }}
+          USER: ${{ secrets.HETZNER_USER }}
+          REMOTE_DIR: ${{ secrets.HETZNER_REMOTE_DIR }}
+        run: |
+          rsync -az \
+            -e "ssh -i ~/.ssh/id_deploy" \
+            --include='manage.py' \
+            --include='settings.ini' \
+            --include='requirements.txt' \
+            --include='requirements-vps.txt' \
+            --include='condominio_info/***' \
+            --include='info/***' \
+            --include='static/***' \
+            --include='server_configs/***' \
+            --exclude='*' \
+            ./ "$USER@$HOST:$REMOTE_DIR/"
+
+      - name: Migrate, collectstatic e restart
+        env:
+          HOST: ${{ secrets.HETZNER_HOST }}
+          USER: ${{ secrets.HETZNER_USER }}
+          REMOTE_DIR: ${{ secrets.HETZNER_REMOTE_DIR }}
+        run: |
+          ssh -i ~/.ssh/id_deploy "$USER@$HOST" \
+            "cd $REMOTE_DIR && source venv/bin/activate && \
+             pip install -r requirements-vps.txt -q && \
+             python manage.py migrate --noinput && \
+             python manage.py collectstatic --noinput && \
+             sudo systemctl restart gunicorn && \
+             sudo systemctl restart nginx && \
+             echo 'Deploy concluido com sucesso!'"
