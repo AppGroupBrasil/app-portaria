@@ -25,6 +25,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.generic.base import TemplateView
+from django.views.decorators.cache import never_cache
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -143,6 +144,7 @@ def sign_up(request, profile):
     return render(request, "info/condominium/account/signup.html", context=context)
 
 
+@never_cache
 def sign_in(request):
     form = AuthForm()
     if request.method == "POST":
@@ -310,7 +312,7 @@ def read_notification(request):
         notification.read = True
         notification.save()
 
-    return JsonResponse({"OK"}, safe=False)
+    return JsonResponse({"status": "OK"})
 
 
 def sign_out(request):

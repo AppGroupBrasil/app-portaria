@@ -98,16 +98,22 @@ class CondominiumProfile(AbstractUser):
 
         # Open the uploaded image
         if self.profile_pic:
-            image = Image.open(self.profile_pic.path)
+            try:
+                file_path = self.profile_pic.path
+                if not os.path.exists(file_path):
+                    return
+                image = Image.open(file_path)
 
-            # Set the desired width and height for resizing
-            max_width = 1280
-            max_height = 720
+                # Set the desired width and height for resizing
+                max_width = 1280
+                max_height = 720
 
-            # Resize the image
-            if image.width > max_width or image.height > max_height:
-                image.thumbnail((max_width, max_height))
-                image.save(self.profile_pic.path)
+                # Resize the image
+                if image.width > max_width or image.height > max_height:
+                    image.thumbnail((max_width, max_height))
+                    image.save(file_path)
+            except (FileNotFoundError, OSError):
+                pass
 
 
 @receiver(pre_delete, sender=CondominiumProfile)

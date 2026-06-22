@@ -35,6 +35,21 @@ from info.views import email, _add_resident_permission
 FIXED_TZ = pytz.timezone("America/Sao_Paulo")
 AUTO_DEPARTURE_NOTE = "[BAIXADO PELO SISTEMA]"
 
+DUPLICATE_WINDOW_SECONDS = 30
+
+
+def _is_duplicate_visitant(condominium, name, resident=None):
+    """Prevent duplicate Visitant creation within a short time window."""
+    cutoff = datetime.datetime.now(FIXED_TZ) - datetime.timedelta(seconds=DUPLICATE_WINDOW_SECONDS)
+    qs = Visitant.objects.filter(
+        condominium=condominium,
+        name=name,
+        created__gte=cutoff,
+    )
+    if resident is not None:
+        qs = qs.filter(resident=resident)
+    return qs.exists()
+
 
 def _normalize_visitant_plate(vehicle_plate):
     if not vehicle_plate:
@@ -54,20 +69,32 @@ def _append_auto_departure_note(comment):
     return f"{current_comment[:allowed_prefix_length].rstrip()} {AUTO_DEPARTURE_NOTE}"
 
 
-def _close_active_visitants_by_plate(condominium, vehicle_plate, exclude_pk=None):
+def _get_active_visitants_by_plate(condominium, vehicle_plate, exclude_pk=None):
     normalized_plate = _normalize_visitant_plate(vehicle_plate)
     if not normalized_plate:
-        return 0
+        return []
 
     active_visitants = Visitant.objects.filter(
         condominium=condominium,
-        vehicle_plate__iexact=normalized_plate,
         leaves_in__isnull=True,
         arrived=True,
+    ).exclude(
+        vehicle_plate__isnull=True,
+    ).exclude(
+        vehicle_plate="",
     )
 
     if exclude_pk:
         active_visitants = active_visitants.exclude(pk=exclude_pk)
+
+    return [
+        active_visitant for active_visitant in active_visitants
+        if _normalize_visitant_plate(active_visitant.vehicle_plate) == normalized_plate
+    ]
+
+
+def _close_active_visitants_by_plate(condominium, vehicle_plate, exclude_pk=None):
+    active_visitants = _get_active_visitants_by_plate(condominium, vehicle_plate, exclude_pk=exclude_pk)
 
     closed_count = 0
     for active_visitant in active_visitants:
@@ -828,11 +855,16 @@ def add_visitant(request):
 
     if request.method == "POST":
         if form.is_valid():
+            visitant_name = form.cleaned_data['name']
+            if _is_duplicate_visitant(condominium, visitant_name, resident=resident):
+                messages.success(request, "Liberação realizada!")
+                return redirect(reverse('info:dashboard'))
+
             visitant = Visitant()
             visitant.condominium = condominium
             visitant.block = resident_obj.apartment.block.name
             visitant.apartment = str(resident_obj.apartment.number) + " " + resident_obj.apartment.complement
-            visitant.name = form.cleaned_data['name']
+            visitant.name = visitant_name
             visitant.vehicle_plate = _normalize_visitant_plate(form.cleaned_data.get('vehicle_plate'))
             visitant.check_photo = form.cleaned_data.get('check_photo')
             visitant.until = condominium.plan_expiration if form.cleaned_data.get('permanent') else form.cleaned_data.get('until')
@@ -886,11 +918,16 @@ def add_internal_leave(request):
 
     if request.method == "POST":
         if form.is_valid():
+            visitant_name = form.cleaned_data['name']
+            if _is_duplicate_visitant(condominium, visitant_name, resident=resident):
+                messages.success(request, "Liberação realizada!")
+                return redirect(reverse('info:dashboard'))
+
             visitant = Visitant()
             visitant.condominium = condominium
             visitant.block = resident_obj.apartment.block.name
             visitant.apartment = str(resident_obj.apartment.number) + " " + resident_obj.apartment.complement
-            visitant.name = form.cleaned_data['name']
+            visitant.name = visitant_name
             visitant.vehicle_plate = _normalize_visitant_plate(form.cleaned_data.get('vehicle_plate'))
             visitant.check_photo = form.cleaned_data.get('check_photo')
             visitant.until = condominium.plan_expiration if form.cleaned_data.get('permanent') else form.cleaned_data.get('until')
@@ -1030,6 +1067,8 @@ def visitant_arrival(request, id):
             visitant.vehicle_model = form.cleaned_data['vehicle_model'] or ""
             visitant.vehicle_plate = _normalize_visitant_plate(form.cleaned_data['vehicle_plate'])
 
+            _close_active_visitants_by_plate(condominium, visitant.vehicle_plate, exclude_pk=visitant.pk)
+
             visitant.visit_in = datetime.datetime.now(FIXED_TZ)
             visitant.leaves_in = None
             visitant.arrived = True
@@ -1072,6 +1111,11 @@ def add_visitant_security(request):
 
     if request.method == "POST":
         if form.is_valid():
+            visitant_name = form.cleaned_data['name']
+            if _is_duplicate_visitant(condominium, visitant_name):
+                messages.success(request, "Liberação realizada!")
+                return redirect(reverse('info:condominium-visitants'))
+
             visitant = Visitant()
             apartment = form.cleaned_data['apartment']
             residents = Resident.objects.filter(apartment=apartment)
@@ -1090,7 +1134,7 @@ def add_visitant_security(request):
             visitant.condominium = condominium
             visitant.block = block.name
             visitant.apartment = f"{resident_obj.apartment.number} {resident_obj.apartment.complement }" if resident_obj else f"{apartment.number} {apartment.complement}"
-            visitant.name = form.cleaned_data['name']
+            visitant.name = visitant_name
             visitant.until = form.cleaned_data['until']
             visitant.comment = form.cleaned_data['comment']
             visitant.resident = user
@@ -1143,9 +1187,15 @@ def visitant_departure(request, id):
     condominium = get_condominium(request)
     visitant = get_object_or_404(Visitant, pk=int(id), condominium=condominium)
 
-    _departure_registration(visitant)
+    closed_count = _close_active_visitants_by_plate(condominium, visitant.vehicle_plate)
+    if not closed_count:
+        _departure_registration(visitant)
+        closed_count = 1
 
-    messages.success(request, "Registro realizado!")
+    if closed_count > 1:
+        messages.success(request, f"{closed_count} liberações baixadas para a mesma placa!")
+    else:
+        messages.success(request, "Registro realizado!")
     return redirect(reverse('info:condominium-visitants'))
 
 
@@ -1427,18 +1477,7 @@ def _exists_visitant(visitant):
 
 def _vehicle_plate_active(condominium, vehicle_plate, exclude_pk=None):
     """Verifica se já existe um visitante ativo (sem saída registrada) com a mesma placa."""
-    normalized_plate = _normalize_visitant_plate(vehicle_plate)
-    if not normalized_plate:
-        return False
-    qs = Visitant.objects.filter(
-        condominium=condominium,
-        vehicle_plate__iexact=normalized_plate,
-        leaves_in__isnull=True,
-        arrived=True,
-    )
-    if exclude_pk:
-        qs = qs.exclude(pk=exclude_pk)
-    return qs.exists()
+    return bool(_get_active_visitants_by_plate(condominium, vehicle_plate, exclude_pk=exclude_pk))
 
 
 @login_required(login_url='info:sign-in')

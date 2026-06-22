@@ -95,6 +95,12 @@
                     {% if not vehicle.has_leaved %}
                         <a href="{% url 'info:vehicle-move' vehicle.id %}" class="btn btn-danger ">
                             SAÍDA </a>
+                        {% if vehicle.duplicate_active_plate_count > 1 %}
+                            <br>
+                            <br>
+                            <a href="{% url 'info:vehicle-checkout-plate' vehicle.id %}" class="btn btn-warning btn-sm">
+                                BAIXAR TODAS AS LIBERAÇÕES FEITAS PARA ESSA PLACA ({{ vehicle.duplicate_active_plate_count }})</a>
+                        {% endif %}
                     {% else %}
                         <a href="{% url 'info:vehicle-move' vehicle.id %}" class="btn btn-info ">
                             CHEGADA </a>

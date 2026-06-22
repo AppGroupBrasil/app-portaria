@@ -8,7 +8,6 @@
         <br>
         <form method="POST" enctype="multipart/form-data" autocomplete="off">
             {% csrf_token %}
-            {% csrf_token %}
             {{ form.name.label_tag }}
             {{ form.name }}
             {{ form.block.label_tag }}
@@ -62,6 +61,22 @@
     </div>
     <br>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
+    <script>
+        (function() {
+            var form = document.querySelector('form');
+            var submitted = false;
+            form.addEventListener('submit', function(e) {
+                if (submitted) {
+                    e.preventDefault();
+                    return false;
+                }
+                submitted = true;
+                var btn = document.getElementById('submitResident');
+                btn.disabled = true;
+                btn.textContent = 'AGUARDE...';
+            });
+        })();
+    </script>
     <script>
         let blockAddResident = document.getElementById('id_block');
 

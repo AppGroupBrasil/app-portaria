@@ -396,6 +396,7 @@ urlpatterns = [
     path('vehicles', vehicle_view.vehicles, name="vehicles"),
     path('vehicle-view/<int:id>', vehicle_view.view_vehicle, name="view_vehicle"),
     path('vehicle-move/<int:id>', vehicle_view.vehicle_move, name="vehicle-move"),
+    path('vehicle-checkout-plate/<int:id>', vehicle_view.vehicle_checkout_plate, name="vehicle-checkout-plate"),
     path('vehicle-report', report_view.vehicle_report, name="vehicle_report"),
     path(
         'export-reservation/<int:id>',

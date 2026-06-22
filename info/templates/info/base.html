@@ -3,7 +3,9 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    {% progressive_web_app_meta %}
+    {% if request.get_host != '127.0.0.1:8000' and request.get_host != 'localhost:8000' %}
+        {% progressive_web_app_meta %}
+    {% endif %}
     <meta charset="UTF-8">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
@@ -124,24 +126,34 @@
         });
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistration().then((registration) => {
-                if (!registration) {
-                    // Register service worker only if not already registered
-                    navigator.serviceWorker.register('/firebase-messaging-sw.js')
-                        .then((reg) => {
-                            console.log('Service Worker registered with scope:', reg.scope);
-                            requestPermissionAndGetToken(reg);
-                        })
-                        .catch((error) => {
-                            console.error('Service Worker registration failed:', error);
-                        });
-                } else {
-                    console.log('Service Worker is already registered:', registration.scope);
-                    requestPermissionAndGetToken(registration);
-                }
-            }).catch((error) => {
-                console.error('Error checking service worker registration:', error);
-            });
+            const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+            if (isLocalhost) {
+                navigator.serviceWorker.getRegistrations()
+                    .then((registrations) => Promise.all(registrations.map((registration) => registration.unregister())))
+                    .catch((error) => {
+                        console.error('Error unregistering local service workers:', error);
+                    });
+            } else {
+                navigator.serviceWorker.getRegistration().then((registration) => {
+                    if (!registration) {
+                        // Register service worker only if not already registered
+                        navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                            .then((reg) => {
+                                console.log('Service Worker registered with scope:', reg.scope);
+                                requestPermissionAndGetToken(reg);
+                            })
+                            .catch((error) => {
+                                console.error('Service Worker registration failed:', error);
+                            });
+                    } else {
+                        console.log('Service Worker is already registered:', registration.scope);
+                        requestPermissionAndGetToken(registration);
+                    }
+                }).catch((error) => {
+                    console.error('Error checking service worker registration:', error);
+                });
+            }
         }
     </script>
     <script src="{% static 'js/app.js' %}"></script>

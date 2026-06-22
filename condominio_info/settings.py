@@ -32,7 +32,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'info.CondominiumProfile'
 
-CSRF_TRUSTED_ORIGINS = ['https://d4wto45otvnl7.cloudfront.net/', 'https://appportaria.com', 'https://www.appportaria.com', 'https://d2ayksyorsu2tj.cloudfront.net/']
+CSRF_TRUSTED_ORIGINS = ['https://d4wto45otvnl7.cloudfront.net/', 'https://appportaria.com', 'https://www.appportaria.com', 'https://d2ayksyorsu2tj.cloudfront.net/', 'http://127.0.0.1:8000', 'http://localhost:8000']
 # Application definition
 
 INSTALLED_APPS = [

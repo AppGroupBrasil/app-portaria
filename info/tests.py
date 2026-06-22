@@ -13,10 +13,10 @@ from django.urls import reverse
 from django.utils import timezone
 from openpyxl import load_workbook
 
-from info.info_viwes.condominium.apartment.apartment_view import AUTO_DEPARTURE_NOTE, _close_active_visitants_by_plate, add_visitant, add_visitant_security, visitant_arrival
+from info.info_viwes.condominium.apartment.apartment_view import AUTO_DEPARTURE_NOTE, _close_active_visitants_by_plate, add_visitant, add_visitant_security, visitant_arrival, visitant_departure
 from info.info_viwes.condominium.pedestrian.pedestrian_view import add_pedrestrian
 from info.info_viwes.condominium.report.report_view import pedestrian_report, vehicle_report, visitant_report
-from info.info_viwes.condominium.vehicle.vehicle_view import AUTO_VEHICLE_CHECKOUT_NOTE, add_vehicle, vehicle_move
+from info.info_viwes.condominium.vehicle.vehicle_view import AUTO_VEHICLE_CHECKOUT_NOTE, add_vehicle, vehicle_move, vehicle_checkout_plate
 from info.forms import ViewVehicleForm
 from info.models import Apartment, Block, CondominiumProfile, HowTo, Notification, Pedestrian, PushNotificationToken, Resident, ResidentFeatures, Vehicle, Visitant, VisitantReport, VisitantRequiredFields
 from info.utils import add_manager_notification
@@ -197,6 +197,68 @@ class VehicleAutoCheckoutTests(TestCase):
 		self.assertFalse(returning_vehicle.has_leaved)
 		self.assertTrue(returning_vehicle.arrived)
 
+	def test_vehicle_checkout_plate_closes_all_active_entries_with_same_plate(self):
+		first_vehicle = Vehicle.objects.create(
+			condominium=self.condominium,
+			protocol="BAT001",
+			name="Primeiro Veículo",
+			document="11111111111",
+			document_file=SimpleUploadedFile("first.txt", b"first vehicle", content_type="text/plain"),
+			destination="A/101",
+			authorized_by="Portaria",
+			obs="Primeira liberação",
+			vehicle="Van",
+			vehicle_plate="AAA1234",
+			arrived=True,
+			has_leaved=False,
+		)
+		second_vehicle = Vehicle.objects.create(
+			condominium=self.condominium,
+			protocol="BAT002",
+			name="Segundo Veículo",
+			document="22222222222",
+			document_file=SimpleUploadedFile("second.txt", b"second vehicle", content_type="text/plain"),
+			destination="A/101",
+			authorized_by="Portaria",
+			obs="Segunda liberação",
+			vehicle="Van",
+			vehicle_plate="AAA-1234",
+			arrived=True,
+			has_leaved=False,
+		)
+		other_vehicle = Vehicle.objects.create(
+			condominium=self.condominium,
+			protocol="BAT003",
+			name="Terceiro Veículo",
+			document="33333333333",
+			document_file=SimpleUploadedFile("third.txt", b"third vehicle", content_type="text/plain"),
+			destination="A/101",
+			authorized_by="Portaria",
+			obs="Outra placa",
+			vehicle="Van",
+			vehicle_plate="BBB1234",
+			arrived=True,
+			has_leaved=False,
+		)
+
+		request = self._prepare_request(self.factory.get(f"/vehicle-checkout-plate/{first_vehicle.pk}"))
+
+		response = vehicle_checkout_plate(request, first_vehicle.pk)
+
+		first_vehicle.refresh_from_db()
+		second_vehicle.refresh_from_db()
+		other_vehicle.refresh_from_db()
+
+		self.assertEqual(response.status_code, 302)
+		self.assertTrue(first_vehicle.has_leaved)
+		self.assertFalse(first_vehicle.arrived)
+		self.assertIn(AUTO_VEHICLE_CHECKOUT_NOTE, first_vehicle.obs)
+		self.assertTrue(second_vehicle.has_leaved)
+		self.assertFalse(second_vehicle.arrived)
+		self.assertIn(AUTO_VEHICLE_CHECKOUT_NOTE, second_vehicle.obs)
+		self.assertFalse(other_vehicle.has_leaved)
+		self.assertTrue(other_vehicle.arrived)
+
 
 class VisitantAutoCheckoutTests(TestCase):
 	def setUp(self):
@@ -343,6 +405,62 @@ class VisitantAutoCheckoutTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertFalse(pending_visitant.arrived)
 		self.assertIsNone(pending_visitant.visit_in)
+
+	def test_visitant_departure_closes_all_active_entries_with_same_plate(self):
+		first_visitant = Visitant.objects.create(
+			condominium=self.condominium,
+			block="B",
+			apartment="202",
+			name="Visitante 1",
+			until=_aware_datetime("2026-03-28 10:00:00"),
+			vehicle_plate="CCC1234",
+			arrived=True,
+			can_leave=True,
+			visit_in=_aware_datetime("2026-03-27 08:00:00"),
+		)
+		second_visitant = Visitant.objects.create(
+			condominium=self.condominium,
+			block="B",
+			apartment="202",
+			name="Visitante 2",
+			until=_aware_datetime("2026-03-28 10:00:00"),
+			vehicle_plate="CCC-1234",
+			arrived=True,
+			can_leave=True,
+			visit_in=_aware_datetime("2026-03-27 08:30:00"),
+			comment="Observação",
+		)
+		other_visitant = Visitant.objects.create(
+			condominium=self.condominium,
+			block="B",
+			apartment="202",
+			name="Visitante 3",
+			until=_aware_datetime("2026-03-28 10:00:00"),
+			vehicle_plate="DDD1234",
+			arrived=True,
+			can_leave=True,
+			visit_in=_aware_datetime("2026-03-27 09:00:00"),
+		)
+
+		request = self._prepare_request(self.factory.get(f"/visitant-departure/{first_visitant.pk}"))
+
+		response = visitant_departure(request, first_visitant.pk)
+
+		first_visitant.refresh_from_db()
+		second_visitant.refresh_from_db()
+		other_visitant.refresh_from_db()
+
+		self.assertEqual(response.status_code, 302)
+		self.assertFalse(first_visitant.arrived)
+		self.assertIsNotNone(first_visitant.leaves_in)
+		self.assertIn(AUTO_DEPARTURE_NOTE, first_visitant.comment)
+		self.assertFalse(second_visitant.arrived)
+		self.assertIsNotNone(second_visitant.leaves_in)
+		self.assertIn(AUTO_DEPARTURE_NOTE, second_visitant.comment)
+		self.assertTrue(other_visitant.arrived)
+		self.assertIsNone(other_visitant.leaves_in)
+		self.assertEqual(VisitantReport.objects.filter(vehicle_plate="CCC1234").count(), 1)
+		self.assertEqual(VisitantReport.objects.filter(vehicle_plate="CCC-1234").count(), 1)
 
 	def test_add_visitant_security_invalid_form_does_not_crash(self):
 		VisitantRequiredFields.objects.create(

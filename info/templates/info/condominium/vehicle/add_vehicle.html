@@ -66,6 +66,20 @@
 
     </div>
     <br>
+    <script>
+    (function() {
+        var forms = document.querySelectorAll('form');
+        forms.forEach(function(form) {
+            form.addEventListener('submit', function() {
+                var btns = form.querySelectorAll('[type="submit"]');
+                btns.forEach(function(btn) {
+                    btn.disabled = true;
+                    btn.textContent = 'Aguarde...';
+                });
+            });
+        });
+    })();
+    </script>
     <script src="{% static 'js/add_resident.js' %}"></script>
     <script>
         let width = 1280;    // We will scale the photo width to this

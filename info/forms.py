@@ -1290,7 +1290,8 @@ class AddVisitantForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if not cleaned_data.get('permanent') and not cleaned_data.get('until'):
+        cleaned_data['permanent'] = False
+        if not cleaned_data.get('until'):
             self.add_error('until', 'Informe até quando a liberação é válida.')
         return cleaned_data
 
