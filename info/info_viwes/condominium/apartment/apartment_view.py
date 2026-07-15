@@ -38,7 +38,8 @@ AUTO_DEPARTURE_NOTE = "[BAIXADO PELO SISTEMA]"
 DUPLICATE_WINDOW_SECONDS = 30
 
 
-def _is_duplicate_visitant(condominium, name, resident=None, vehicle_plate=None, arrived=None):
+def _is_duplicate_visitant(condominium, name, resident=None, vehicle_plate=None, arrived=None,
+                           block=None, apartment=None):
     """Evita o reenvio acidental da MESMA liberação numa janela curta.
 
     Deduplica pela placa do veículo (identidade real) quando houver; senão,
@@ -53,6 +54,10 @@ def _is_duplicate_visitant(condominium, name, resident=None, vehicle_plate=None,
     )
     if resident is not None:
         qs = qs.filter(resident=resident)
+    if block is not None:
+        qs = qs.filter(block=block)
+    if apartment is not None:
+        qs = qs.filter(apartment=apartment)
 
     normalized_plate = _normalize_visitant_plate(vehicle_plate)
     if normalized_plate:
@@ -70,6 +75,61 @@ def _normalize_visitant_plate(vehicle_plate):
     if not vehicle_plate:
         return ""
     return str(vehicle_plate).replace(' ', '').replace('-', '')
+
+
+def _vehicle_inside_condominium(condominium, vehicle_plate):
+    """Retorna o Visitant ativo (entrou e nao saiu) para a placa, ou None."""
+    normalized_plate = _normalize_visitant_plate(vehicle_plate)
+    if not normalized_plate:
+        return None
+    return Visitant.objects.filter(
+        condominium=condominium,
+        vehicle_plate__iexact=normalized_plate,
+        visit_in__isnull=False,
+        leaves_in__isnull=True,
+    ).select_related('resident').order_by('-visit_in').first()
+
+
+def _vehicle_inside_message(active_visitant, resident):
+    inside_resident = active_visitant.resident
+    local = (active_visitant.block + " / " + active_visitant.apartment).strip(" /")
+    if inside_resident and resident and inside_resident.pk == resident.pk:
+        return "Este veiculo ja esta dentro do condominio. Registre a saida antes de liberar nova entrada."
+    liberador = ""
+    if inside_resident and getattr(inside_resident, 'condominium_name', None):
+        liberador = inside_resident.condominium_name
+    if not liberador and local:
+        liberador = "morador do " + local
+    if not liberador:
+        liberador = "outro morador"
+    return "Este veiculo ja foi liberado por " + liberador + " e ainda esta dentro do condominio."
+
+
+def _get_resident_obj(condominium, resident):
+    name = (resident.condominium_name or "").strip()
+    email = (resident.email or "").strip()
+    base = Resident.objects.filter(apartment__block__condominium=condominium)
+    qs = base.filter(name__iexact=name, email__iexact=email)
+    if not qs.exists():
+        qs = base.filter(email__iexact=email)
+    if not qs.exists():
+        qs = base.filter(name__iexact=name)
+    return qs.first()
+
+
+def _resident_block_apartment(resident_obj):
+    if resident_obj is None:
+        return "", ""
+    apartment = resident_obj.apartment
+    return apartment.block.name, str(apartment.number) + " " + apartment.complement
+
+
+def _liberacao_notificacao(visitant, resident):
+    local = (visitant.block + " / " + visitant.apartment).strip(" /")
+    if local:
+        return "NOVO VISITANTE LIBERADO PELO MORADOR DO " + local + "."
+    nome = (resident.condominium_name or "morador").strip()
+    return "NOVO VISITANTE LIBERADO PELO MORADOR " + nome + "."
 
 
 def _append_auto_departure_note(comment):
@@ -134,7 +194,7 @@ def _get_visitant_required_fields(condominium):
 def _configure_visitant_portaria_form(form, mandatory):
     form.fields['document'].required = mandatory.document
     form.fields['vehicle_model'].required = mandatory.allow_vehicle and mandatory.vehicle_model
-    form.fields['vehicle_plate'].required = mandatory.allow_vehicle and mandatory.vehicle_plate
+    form.fields['vehicle_plate'].required = True
     form.fields['photo'].required = mandatory.photo
 
 
@@ -142,15 +202,18 @@ def _attach_visitant_photo_from_request(request, visitant, document_name):
     photo = request.FILES.get('photo') or None
     profile_pic = request.POST.get('webimg')
 
-    if profile_pic:
-        image_data = profile_pic.split(',')[1]
-        image_bytes = base64.b64decode(image_data)
-        image_file = io.BytesIO(image_bytes)
-        Image.open(image_file)
-        image_file.seek(0)
-        filename = f"{document_name or 'visitante'}.jpg"
-        photo = InMemoryUploadedFile(
-            image_file, None, filename, 'image/jpeg', len(image_bytes), None)
+    if profile_pic and ',' in profile_pic:
+        try:
+            image_data = profile_pic.split(',')[1]
+            image_bytes = base64.b64decode(image_data)
+            image_file = io.BytesIO(image_bytes)
+            Image.open(image_file)
+            image_file.seek(0)
+            filename = f"{document_name or 'visitante'}.jpg"
+            photo = InMemoryUploadedFile(
+                image_file, None, filename, 'image/jpeg', len(image_bytes), None)
+        except Exception:
+            pass
 
     if photo:
         visitant.photo = photo
@@ -851,12 +914,7 @@ def add_visitant(request):
 
     form = AddVisitantForm(request.POST or None, files=request.FILES or None)
 
-    try:
-        resident_obj = Resident.objects.get(name=resident.condominium_name, email=resident.email)
-
-    except Resident.DoesNotExist:
-        messages.error(request, "Não pode receber visitantes!")
-        return redirect(reverse('info:dashboard'))
+    resident_obj = _get_resident_obj(condominium, resident)
 
     try:
         mandatory = VisitantRequiredFields.objects.get(condominium=condominium)
@@ -865,13 +923,20 @@ def add_visitant(request):
         mandatory.condominium = condominium
         mandatory.save()
 
-    form.fields['vehicle_plate'].required = mandatory.allow_vehicle and mandatory.vehicle_plate
+    form.fields['vehicle_plate'].required = True
     form.fields['check_photo'].required = mandatory.photo
 
     if request.method == "POST":
         if form.is_valid():
             visitant_name = form.cleaned_data['name']
             visitant_plate = _normalize_visitant_plate(form.cleaned_data.get('vehicle_plate'))
+            active_inside = _vehicle_inside_condominium(condominium, visitant_plate)
+            if active_inside:
+                messages.error(request, _vehicle_inside_message(active_inside, resident))
+                features_ctx, _ = ResidentFeatures.objects.get_or_create(condominium=condominium)
+                return render(request, "info/condominium/apartment/add_visitant.html",
+                              context={'form': form, 'mandatory': mandatory,
+                                       'permanent': features_ctx.permanent})
             if _is_duplicate_visitant(condominium, visitant_name, resident=resident,
                                       vehicle_plate=visitant_plate, arrived=False):
                 messages.success(request, "Liberação realizada!")
@@ -879,8 +944,7 @@ def add_visitant(request):
 
             visitant = Visitant()
             visitant.condominium = condominium
-            visitant.block = resident_obj.apartment.block.name
-            visitant.apartment = str(resident_obj.apartment.number) + " " + resident_obj.apartment.complement
+            visitant.block, visitant.apartment = _resident_block_apartment(resident_obj)
             visitant.name = visitant_name
             visitant.vehicle_plate = visitant_plate
             visitant.check_photo = form.cleaned_data.get('check_photo')
@@ -893,8 +957,7 @@ def add_visitant(request):
             visitant.save()
             messages.success(request, "Liberação realizada!")
             add_manager_notification(condominium,
-                                     "NOVO VISITANTE LIBERADO PELO MORADOR DO " + visitant.block + " / "
-                                     + visitant.apartment + ".")
+                                     _liberacao_notificacao(visitant, resident))
 
             return redirect(reverse('info:dashboard'))
 
@@ -911,12 +974,7 @@ def add_internal_leave(request):
 
     form = AddVisitantForm(request.POST or None, files=request.FILES or None)
 
-    try:
-        resident_obj = Resident.objects.get(name=resident.condominium_name, email=resident.email)
-
-    except Resident.DoesNotExist:
-        messages.error(request, "Não pode receber visitantes!")
-        return redirect(reverse('info:dashboard'))
+    resident_obj = _get_resident_obj(condominium, resident)
 
     try:
         mandatory = VisitantRequiredFields.objects.get(condominium=condominium)
@@ -925,7 +983,7 @@ def add_internal_leave(request):
         mandatory.condominium = condominium
         mandatory.save()
 
-    form.fields['vehicle_plate'].required = mandatory.allow_vehicle and mandatory.vehicle_plate
+    form.fields['vehicle_plate'].required = True
     form.fields['check_photo'].required = mandatory.photo
 
     if request.method == "POST":
@@ -939,8 +997,7 @@ def add_internal_leave(request):
 
             visitant = Visitant()
             visitant.condominium = condominium
-            visitant.block = resident_obj.apartment.block.name
-            visitant.apartment = str(resident_obj.apartment.number) + " " + resident_obj.apartment.complement
+            visitant.block, visitant.apartment = _resident_block_apartment(resident_obj)
             visitant.name = visitant_name
             visitant.vehicle_plate = visitant_plate
             visitant.check_photo = form.cleaned_data.get('check_photo')
@@ -954,8 +1011,7 @@ def add_internal_leave(request):
             visitant.save()
             messages.success(request, "Liberação realizada!")
             add_manager_notification(condominium,
-                                     "NOVO VISITANTE LIBERADO PELO MORADOR DO " + visitant.block + " / "
-                                     + visitant.apartment + ".")
+                                     _liberacao_notificacao(visitant, resident))
 
             return redirect(reverse('info:dashboard'))
 
@@ -1126,9 +1182,18 @@ def add_visitant_security(request):
     if request.method == "POST":
         if form.is_valid():
             visitant_name = form.cleaned_data['name']
+            dedup_apartment = form.cleaned_data['apartment']
+            visitant_plate = _normalize_visitant_plate(form.cleaned_data.get('vehicle_plate'))
+            active_inside = _vehicle_inside_condominium(condominium, visitant_plate)
+            if active_inside:
+                messages.error(request, _vehicle_inside_message(active_inside, None))
+                context = {'form': form, 'mandatory': mandatory}
+                return render(request, "info/condominium/apartment/add_visitant_security.html", context=context)
             if _is_duplicate_visitant(condominium, visitant_name,
-                                      vehicle_plate=_normalize_visitant_plate(form.cleaned_data.get('vehicle_plate')),
-                                      arrived=False):
+                                      vehicle_plate=visitant_plate,
+                                      arrived=False,
+                                      block=form.cleaned_data['block'].name,
+                                      apartment=f"{dedup_apartment.number} {dedup_apartment.complement}"):
                 messages.success(request, "Liberação realizada!")
                 return redirect(reverse('info:condominium-visitants'))
 
@@ -1203,10 +1268,14 @@ def visitant_departure(request, id):
     condominium = get_condominium(request)
     visitant = get_object_or_404(Visitant, pk=int(id), condominium=condominium)
 
-    closed_count = _close_active_visitants_by_plate(condominium, visitant.vehicle_plate)
-    if not closed_count:
+    closed_count = 0
+    if visitant.leaves_in is None:
         _departure_registration(visitant)
         closed_count = 1
+    closed_count += _close_active_visitants_by_plate(condominium, visitant.vehicle_plate, exclude_pk=visitant.pk)
+    if not closed_count:
+        messages.info(request, "Saída já registrada para este visitante.")
+        return redirect(reverse('info:condominium-visitants'))
 
     if closed_count > 1:
         messages.success(request, f"{closed_count} liberações baixadas para a mesma placa!")
