@@ -87,14 +87,27 @@ def _vehicle_inside_condominium(condominium, vehicle_plate):
         vehicle_plate__iexact=normalized_plate,
         visit_in__isnull=False,
         leaves_in__isnull=True,
+        allowed=True,
     ).select_related('resident').order_by('-visit_in').first()
 
 
 def _vehicle_inside_message(active_visitant, resident):
     inside_resident = active_visitant.resident
-    local = (active_visitant.block + " / " + active_visitant.apartment).strip(" /")
+    local = ((active_visitant.block or "") + " / " + (active_visitant.apartment or "")).strip(" /")
+    entrada = ""
+    if active_visitant.visit_in:
+        entrada = " (entrada em " + active_visitant.visit_in.astimezone(FIXED_TZ).strftime("%d/%m às %H:%M") + ")"
+
     if inside_resident and resident and inside_resident.pk == resident.pk:
-        return "Este veiculo ja esta dentro do condominio. Registre a saida antes de liberar nova entrada."
+        return ("Este veículo consta dentro do condomínio" + entrada +
+                " porque a liberação anterior não recebeu baixa da portaria. Se ele já saiu, abra o "
+                "histórico de liberações, exclua a liberação sem baixa (linha destacada em vermelho) "
+                "e faça a nova liberação.")
+
+    if resident is None:
+        return ("Este veículo consta dentro do condomínio" + entrada +
+                ", sem baixa de saída. Registre a saída dele antes de liberar nova entrada.")
+
     liberador = ""
     if inside_resident and getattr(inside_resident, 'condominium_name', None):
         liberador = inside_resident.condominium_name
@@ -102,7 +115,9 @@ def _vehicle_inside_message(active_visitant, resident):
         liberador = "morador do " + local
     if not liberador:
         liberador = "outro morador"
-    return "Este veiculo ja foi liberado por " + liberador + " e ainda esta dentro do condominio."
+    return ("Este veículo já foi liberado por " + liberador + " e ainda consta dentro do condomínio" +
+            entrada + ". Se ele já saiu, a portaria precisa registrar a saída ou quem liberou precisa "
+            "excluir a liberação sem baixa no histórico de liberações.")
 
 
 def _get_resident_obj(condominium, resident):
@@ -194,7 +209,7 @@ def _get_visitant_required_fields(condominium):
 def _configure_visitant_portaria_form(form, mandatory):
     form.fields['document'].required = mandatory.document
     form.fields['vehicle_model'].required = mandatory.allow_vehicle and mandatory.vehicle_model
-    form.fields['vehicle_plate'].required = True
+    form.fields['vehicle_plate'].required = mandatory.allow_vehicle and mandatory.vehicle_plate
     form.fields['photo'].required = mandatory.photo
 
 
@@ -923,7 +938,7 @@ def add_visitant(request):
         mandatory.condominium = condominium
         mandatory.save()
 
-    form.fields['vehicle_plate'].required = True
+    form.fields['vehicle_plate'].required = mandatory.allow_vehicle and mandatory.vehicle_plate
     form.fields['check_photo'].required = mandatory.photo
 
     if request.method == "POST":
@@ -983,7 +998,7 @@ def add_internal_leave(request):
         mandatory.condominium = condominium
         mandatory.save()
 
-    form.fields['vehicle_plate'].required = True
+    form.fields['vehicle_plate'].required = mandatory.allow_vehicle and mandatory.vehicle_plate
     form.fields['check_photo'].required = mandatory.photo
 
     if request.method == "POST":
@@ -1143,8 +1158,7 @@ def visitant_arrival(request, id):
             visitant.leaves_in = None
             visitant.arrived = True
             visitant.visit_time = None
-            if not visitant.leave_consent:
-                visitant.can_leave = True
+            visitant.can_leave = False
 
             _attach_visitant_photo_from_request(request, visitant, visitant.document)
 
@@ -1240,9 +1254,20 @@ def add_visitant_security(request):
 def _departure_registration(visitant):
     visitant.leaves_in = datetime.datetime.now(FIXED_TZ)
     visitant.arrived = False
-    if visitant.leave_consent:
-        visitant.can_leave = False
-    visitant.save()
+    visitant.can_leave = False
+
+    visit_in = visitant.visit_in
+    if visit_in is not None and visit_in.tzinfo is None:
+        visit_in = FIXED_TZ.localize(visit_in)
+    visitant.visit_time = (visitant.leaves_in - visit_in) if visit_in else None
+
+    Visitant.objects.filter(pk=visitant.pk).update(
+        leaves_in=visitant.leaves_in,
+        arrived=False,
+        can_leave=False,
+        visit_time=visitant.visit_time,
+        comment=visitant.comment,
+    )
 
     visitant_report = VisitantReport()
     visitant_report.condominium = visitant.condominium
@@ -1256,7 +1281,8 @@ def _departure_registration(visitant):
     visitant_report.security_name = visitant.security_name
     visitant_report.visit_in = visitant.visit_in
     visitant_report.leaves_in = visitant.leaves_in
-    visitant_report.photo = visitant.photo
+    if visitant.photo and visitant.photo.storage.exists(visitant.photo.name):
+        visitant_report.photo = visitant.photo
     visitant_report.vehicle_model = visitant.vehicle_model
     visitant_report.vehicle_plate = visitant.vehicle_plate
     visitant_report.resident = visitant.resident
@@ -1267,6 +1293,11 @@ def _departure_registration(visitant):
 def visitant_departure(request, id):
     condominium = get_condominium(request)
     visitant = get_object_or_404(Visitant, pk=int(id), condominium=condominium)
+
+    if visitant.leaves_in is None and not visitant.can_leave:
+        messages.error(request, "O cliente ainda não liberou a saída deste veículo. "
+                                "Entre em contato com a empresa e solicite a liberação.")
+        return redirect(reverse('info:condominium-visitants'))
 
     closed_count = 0
     if visitant.leaves_in is None:
@@ -1288,28 +1319,57 @@ def visitant_departure(request, id):
 def allow_departure(request, id):
     condominium = get_condominium(request)
     visitant = get_object_or_404(Visitant, pk=int(id), condominium=condominium)
-    visitant.can_leave = True
-    visitant.save()
+    Visitant.objects.filter(pk=visitant.pk).update(can_leave=True)
 
     messages.success(request, "Saída Liberada!")
     add_manager_notification(visitant.condominium,
-                             "SAÍDA DO VISITANTE " + visitant.name + " LIBERADA PELO MORADOR DO " + visitant.block + " / "
-                             + visitant.apartment + ".")
+                             "SAÍDA DO VISITANTE " + (visitant.name or "") + " LIBERADA PELO MORADOR DO "
+                             + (visitant.block or "") + " / " + (visitant.apartment or "") + ".")
     return redirect(reverse('info:resident-visitants'))
+
+
+def _removal_report(visitant):
+    visitant_report = VisitantReport()
+    visitant_report.condominium = visitant.condominium
+    visitant_report.block = visitant.block
+    visitant_report.apartment = visitant.apartment
+    visitant_report.name = visitant.name
+    visitant_report.document = visitant.document
+    visitant_report.comment = visitant.comment
+    visitant_report.until = visitant.until
+    visitant_report.allowed = visitant.allowed
+    visitant_report.security_name = visitant.security_name
+    visitant_report.visit_in = visitant.visit_in
+    visitant_report.leaves_in = visitant.leaves_in
+    if visitant.photo and visitant.photo.storage.exists(visitant.photo.name):
+        visitant_report.photo = visitant.photo
+    visitant_report.vehicle_model = visitant.vehicle_model
+    visitant_report.vehicle_plate = visitant.vehicle_plate
+    visitant_report.resident = visitant.resident
+    visitant_report.save()
 
 
 @login_required(login_url='info:sign-in')
 def remove_visitant(request, id):
     condominium = get_condominium(request)
     visitant = get_object_or_404(Visitant, pk=int(id), condominium=condominium)
-    visitant.allowed = False
-    visitant.arrived = False
-    visitant.save()
+
+    updates = {'allowed': False, 'arrived': False}
+    if visitant.visit_in and not visitant.leaves_in:
+        updates['leaves_in'] = datetime.datetime.now(FIXED_TZ)
+        updates['comment'] = ((visitant.comment or "") +
+                              " [LIBERAÇÃO EXCLUÍDA PELO CLIENTE SEM BAIXA DA PORTARIA]").strip()[:250]
+    Visitant.objects.filter(pk=visitant.pk).update(**updates)
+
+    if 'leaves_in' in updates:
+        visitant.leaves_in = updates['leaves_in']
+        visitant.comment = updates['comment']
+        _removal_report(visitant)
 
     messages.success(request, "Visitante removido!")
     add_manager_notification(visitant.condominium,
-                             "VISITANTE " + visitant.name + " NÃO ESTÁ MAIS LIBERADO PELO MORADOR DO " + visitant.block + " / "
-                             + visitant.apartment + ".")
+                             "VISITANTE " + (visitant.name or "") + " NÃO ESTÁ MAIS LIBERADO PELO MORADOR DO "
+                             + (visitant.block or "") + " / " + (visitant.apartment or "") + ".")
     return redirect(reverse('info:resident-visitants'))
 
 
