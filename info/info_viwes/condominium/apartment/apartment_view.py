@@ -77,6 +77,18 @@ def _normalize_visitant_plate(vehicle_plate):
     return str(vehicle_plate).replace(' ', '').replace('-', '')
 
 
+def _vehicle_inside_block_enabled(condominium):
+    """Chave liga/desliga do bloqueio de veiculo que consta dentro do condominio."""
+    features, _ = ResidentFeatures.objects.get_or_create(condominium=condominium)
+    return features.block_vehicle_inside
+
+
+def _auto_visitant_leave_enabled(condominium):
+    """Chave liga/desliga: portaria dá baixa na saída sem a liberação do cliente."""
+    features, _ = ResidentFeatures.objects.get_or_create(condominium=condominium)
+    return features.auto_visitant_leave
+
+
 def _vehicle_inside_condominium(condominium, vehicle_plate):
     """Retorna o Visitant ativo (entrou e nao saiu) para a placa, ou None."""
     normalized_plate = _normalize_visitant_plate(vehicle_plate)
@@ -945,7 +957,9 @@ def add_visitant(request):
         if form.is_valid():
             visitant_name = form.cleaned_data['name']
             visitant_plate = _normalize_visitant_plate(form.cleaned_data.get('vehicle_plate'))
-            active_inside = _vehicle_inside_condominium(condominium, visitant_plate)
+            active_inside = None
+            if _vehicle_inside_block_enabled(condominium):
+                active_inside = _vehicle_inside_condominium(condominium, visitant_plate)
             if active_inside:
                 messages.error(request, _vehicle_inside_message(active_inside, resident))
                 features_ctx, _ = ResidentFeatures.objects.get_or_create(condominium=condominium)
@@ -1076,6 +1090,8 @@ def condominium_visitants(request):
     page_number = request.GET.get('page')  # Get the page number from the request
     page_obj = paginator.get_page(page_number)  # Get the page object
 
+    auto_leave = _auto_visitant_leave_enabled(condominium)
+
     visitants_list = []
     for visitant in page_obj:
         # Collecting visitant data for each visitant
@@ -1091,7 +1107,7 @@ def condominium_visitants(request):
             'leaves': visitant.leaves_in,
             'visit': visitant.visit_in,
             'count': visitant.count,  # Annotated count
-            'can_leave': visitant.can_leave,
+            'can_leave': visitant.can_leave or auto_leave,
             'arrived': visitant.arrived,
             'delivery_code': visitant.delivery_code if visitant.delivery_code else "",
         }
@@ -1198,7 +1214,9 @@ def add_visitant_security(request):
             visitant_name = form.cleaned_data['name']
             dedup_apartment = form.cleaned_data['apartment']
             visitant_plate = _normalize_visitant_plate(form.cleaned_data.get('vehicle_plate'))
-            active_inside = _vehicle_inside_condominium(condominium, visitant_plate)
+            active_inside = None
+            if _vehicle_inside_block_enabled(condominium):
+                active_inside = _vehicle_inside_condominium(condominium, visitant_plate)
             if active_inside:
                 messages.error(request, _vehicle_inside_message(active_inside, None))
                 context = {'form': form, 'mandatory': mandatory}
@@ -1294,7 +1312,7 @@ def visitant_departure(request, id):
     condominium = get_condominium(request)
     visitant = get_object_or_404(Visitant, pk=int(id), condominium=condominium)
 
-    if visitant.leaves_in is None and not visitant.can_leave:
+    if visitant.leaves_in is None and not visitant.can_leave and not _auto_visitant_leave_enabled(condominium):
         messages.error(request, "O cliente ainda não liberou a saída deste veículo. "
                                 "Entre em contato com a empresa e solicite a liberação.")
         return redirect(reverse('info:condominium-visitants'))

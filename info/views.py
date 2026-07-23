@@ -201,6 +201,8 @@ def config_residents(request):
         features.booking = request.POST.get("booking") is not None and request.POST.get("booking") == "on"
         features.documents = request.POST.get("documents") is not None and request.POST.get("documents") == "on"
         features.permanent = request.POST.get("permanent") is not None and request.POST.get("permanent") == "on"
+        features.block_vehicle_inside = request.POST.get("block_vehicle_inside") == "on"
+        features.auto_visitant_leave = request.POST.get("auto_visitant_leave") == "on"
         features.save()
 
         for resident in user.get_residents():

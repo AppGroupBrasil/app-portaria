@@ -1651,6 +1651,12 @@ class ResidentFeatures(models.Model):
     booking = models.BooleanField(default=True)
     documents = models.BooleanField(default=True)
     permanent = models.BooleanField(default=True)
+    block_vehicle_inside = models.BooleanField(
+        default=False, verbose_name="Bloquear liberação de veículo que consta dentro"
+    )
+    auto_visitant_leave = models.BooleanField(
+        default=False, verbose_name="Liberação automática de visitantes"
+    )
 
 
 class Folder(models.Model):
