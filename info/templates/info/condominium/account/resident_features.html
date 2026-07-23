@@ -96,6 +96,7 @@
                     {% endif %}
                     <label style="letter-spacing: 2px;" class="form-check-label " for="id_permanent">LIBERAR VISITANTES PERMANENTES</label>
                 </div>
+                <input type="hidden" name="visitant_switches" value="1">
                 <div class="form-check form-switch">
                     {% if features.block_vehicle_inside %}
                         <input class="form-check-input" type="checkbox" id="id_block_vehicle_inside" name="block_vehicle_inside" checked>

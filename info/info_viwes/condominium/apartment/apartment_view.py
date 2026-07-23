@@ -79,14 +79,14 @@ def _normalize_visitant_plate(vehicle_plate):
 
 def _vehicle_inside_block_enabled(condominium):
     """Chave liga/desliga do bloqueio de veiculo que consta dentro do condominio."""
-    features, _ = ResidentFeatures.objects.get_or_create(condominium=condominium)
-    return features.block_vehicle_inside
+    features = ResidentFeatures.objects.filter(condominium=condominium).first()
+    return bool(features and features.block_vehicle_inside)
 
 
 def _auto_visitant_leave_enabled(condominium):
     """Chave liga/desliga: portaria dá baixa na saída sem a liberação do cliente."""
-    features, _ = ResidentFeatures.objects.get_or_create(condominium=condominium)
-    return features.auto_visitant_leave
+    features = ResidentFeatures.objects.filter(condominium=condominium).first()
+    return bool(features and features.auto_visitant_leave)
 
 
 def _vehicle_inside_condominium(condominium, vehicle_plate):
